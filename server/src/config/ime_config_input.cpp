@@ -350,20 +350,6 @@ bool SetConfiguredFuzzyPinyinEnabled(bool enabled)
 
 // The master switch is gated here and nowhere else: sessions see all-zero rules while it is
 // off, and the cached rule bits survive the toggle so re-enabling restores the prior choice.
-metasequoia::FuzzyPinyinOptions GetConfiguredFuzzyPinyinOptions()
-{
-    metasequoia::FuzzyPinyinOptions options;
-    if (g_fuzzy_pinyin_enabled)
-        options.rules = g_fuzzy_pinyin_rules;
-    return options;
-}
-
-metasequoia::FuzzyPinyinOptions GetConfiguredFuzzyPinyinRuleStates()
-{
-    metasequoia::FuzzyPinyinOptions options;
-    options.rules = g_fuzzy_pinyin_rules;
-    return options;
-}
 
 bool SetConfiguredFuzzyPinyinRule(const std::string &key, bool enabled)
 {

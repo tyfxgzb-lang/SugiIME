@@ -1,6 +1,5 @@
 #pragma once
 
-#include "engine/core/fuzzy_pinyin_options.h"
 #include "engine/core/scheme_type.h"
 #include <toml++/toml.h>
 #include <filesystem>
@@ -238,10 +237,6 @@ bool SetConfiguredQuanpinAutocorrectNeighbor(bool enabled);
 // selection. The marker is never sent to the settings page.
 bool GetConfiguredFuzzyPinyinEnabled();
 bool SetConfiguredFuzzyPinyinEnabled(bool enabled);
-metasequoia::FuzzyPinyinOptions GetConfiguredFuzzyPinyinOptions();
-// Rule bits without the master gate, for the settings snapshot: checkboxes must show the
-// stored choices even while the master switch is off.
-metasequoia::FuzzyPinyinOptions GetConfiguredFuzzyPinyinRuleStates();
 // key is the config key without section, e.g. "fuzzy_n_l"; unknown keys return false.
 bool SetConfiguredFuzzyPinyinRule(const std::string &key, bool enabled);
 const std::string &GetConfiguredQuanpinHelpcodeSchema();

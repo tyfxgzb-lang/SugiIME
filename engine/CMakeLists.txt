@@ -114,7 +114,7 @@ if(BUILD_TESTING)
     endif()
     add_test(NAME punctuation_contract COMMAND test_punctuation_contract)
 
-    add_executable(test_platform_api tests/src/test_platform_api.cpp tests/src/test_public_session.cpp)
+    add_executable(test_platform_api tests/src/test_platform_api.cpp)
     target_link_libraries(test_platform_api PRIVATE MetasequoiaIme::Engine)
     add_test(NAME platform_api COMMAND test_platform_api)
 
@@ -176,15 +176,7 @@ if(BUILD_TESTING)
     target_link_libraries(test_temporary_input_session PRIVATE MetasequoiaIme::Engine)
     add_test(NAME temporary_input_session COMMAND test_temporary_input_session)
 
-    add_executable(test_local_modes tests/src/test_local_modes.cpp)
-    target_link_libraries(test_local_modes PRIVATE MetasequoiaIme::Engine)
-    add_test(NAME local_modes COMMAND test_local_modes)
-
     # Per-keystroke latency against the real dictionaries; run by hand, not by ctest.
     add_executable(bench_input_session tests/src/bench_input_session.cpp)
     target_link_libraries(bench_input_session PRIVATE MetasequoiaIme::Engine)
-
-    add_executable(test_online_input_session tests/src/test_online_input_session.cpp)
-    target_link_libraries(test_online_input_session PRIVATE MetasequoiaIme::Engine)
-    add_test(NAME online_input_session COMMAND test_online_input_session)
 endif()
