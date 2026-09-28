@@ -44,8 +44,8 @@ std::string online_identity(const QueryRequest &request)
 
 } // namespace
 
-InputSession::InputSession(SchemeType scheme_type, bool japanese_punctuation_enabled,
-                           bool candidate_learning_enabled, RuntimePaths paths)
+InputSession::InputSession(SchemeType scheme_type, bool japanese_punctuation_enabled, bool candidate_learning_enabled,
+                           RuntimePaths paths)
     : paths_(std::move(paths)), candidate_queries_(paths_), engine_(scheme_type, paths_),
       japanese_punctuation_enabled_(japanese_punctuation_enabled),
       candidate_learning_enabled_(candidate_learning_enabled)
@@ -97,8 +97,7 @@ KeyResult InputSession::handle_character(char character, bool shift_only)
         local_candidates_.clear();
         return {true, std::nullopt, std::nullopt};
     }
-    if (shift_only && character == 'E' && local_mode_options_.emoji && !has_composition() &&
-        IsJapaneseScheme(scheme()))
+    if (shift_only && character == 'E' && local_mode_options_.emoji && !has_composition() && IsJapaneseScheme(scheme()))
     {
         local_input_mode_ = LocalInputMode::Emoji;
         local_preedit_ = "E";
@@ -123,12 +122,7 @@ KeyResult InputSession::handle_character(char character, bool shift_only)
     }
 
     const bool lowercase_letter = character >= 'a' && character <= 'z';
-    const bool microsoft_final =
-        character == ';' && scheme() == SchemeType::Shuangpin && shuangpin_profile_.name == "microsoft";
-    const bool active_helpcode = character >= 'A' && character <= 'Z' && has_composition() &&
-                                 ((scheme() == SchemeType::Quanpin && quanpin_helpcode_enabled_) ||
-                                  (scheme() == SchemeType::Shuangpin && shuangpin_helpcode_enabled_));
-    if (!lowercase_letter && !active_helpcode && character != '\'' && !microsoft_final)
+    if (!lowercase_letter && character != '\'')
     {
         return {};
     }
@@ -140,9 +134,7 @@ KeyResult InputSession::handle_character(char character, bool shift_only)
     const std::string previous_preedit = preedit();
     const auto unsigned_character = static_cast<unsigned char>(character);
     const ImeKeyCode key_code =
-        character == '\''
-            ? ImeKey::Apostrophe
-            : (microsoft_final ? ImeKey::Semicolon : static_cast<ImeKeyCode>(std::toupper(unsigned_character)));
+        character == '\'' ? ImeKey::Apostrophe : static_cast<ImeKeyCode>(std::toupper(unsigned_character));
     engine_.handle_key(key_code, 0, static_cast<ImeCharacter>(unsigned_character));
     update_mixed_candidates();
     const bool handled = preedit() != previous_preedit;
@@ -164,7 +156,7 @@ KeyResult InputSession::handle_candidate_key(char character)
 
 KeyResult InputSession::handle_punctuation(char character)
 {
-    if (!chinese_punctuation_enabled_)
+    if (!japanese_punctuation_enabled_)
     {
         return {};
     }
@@ -321,49 +313,6 @@ KeyResult InputSession::select_candidate_edge(std::size_t index, CandidateEdge e
     return {true, std::move(character), std::nullopt};
 }
 
-void InputSession::set_shuangpin_helpcode_enabled(bool enabled)
-{
-    if (shuangpin_helpcode_enabled_ == enabled)
-    {
-        return;
-    }
-    shuangpin_helpcode_enabled_ = enabled;
-    engine_.set_shuangpin_helpcode_enabled(enabled);
-    update_mixed_candidates();
-    online_requests_.invalidate();
-}
-
-void InputSession::set_quanpin_helpcode_enabled(bool enabled)
-{
-    if (quanpin_helpcode_enabled_ == enabled)
-    {
-        return;
-    }
-    quanpin_helpcode_enabled_ = enabled;
-    engine_.set_quanpin_helpcode_enabled(enabled);
-    update_mixed_candidates();
-    online_requests_.invalidate();
-}
-
-bool InputSession::is_supported_helpcode_schema(const std::string &schema)
-{
-    return HelpcodeUtils::is_supported_helpcode_schema(schema);
-}
-
-bool InputSession::set_helpcode_schema(const std::string &schema)
-{
-    if (!HelpcodeUtils::is_supported_helpcode_schema(schema))
-        return false;
-    engine_.set_helpcode_keymap(HelpcodeUtils::load_helpcode_keymap(paths_.resources, schema));
-    update_mixed_candidates();
-    return true;
-}
-
-bool InputSession::select_helpcode_schema(const std::string &schema)
-{
-    return HelpcodeUtils::select_helpcode_schema(schema);
-}
-
 bool InputSession::set_frequency_adjustment(FrequencyAdjustmentOptions options)
 {
     if (frequency_mode_name(options.mode) == nullptr || options.trigger_count < 1 || options.trigger_count > 10 ||
@@ -424,19 +373,6 @@ void InputSession::set_mixed_expressive_options(MixedExpressiveOptions options)
     update_mixed_candidates();
 }
 
-void InputSession::set_wubi_input_options(metasequoia::WubiInputOptions options)
-{
-    engine_.set_wubi_input_options(options);
-    // The setting decides which dictionary answers the code in hand, so a live composition has to be
-    // asked again. Leaving it alone shows the previous answer: the fallback candidates stay on screen
-    // after the setting is switched off, and switching it on leaves an unmatched code empty until the
-    // next keystroke.
-    if (is_wubi() && !dedicated_english_mode_ && local_input_mode_ == LocalInputMode::None)
-    {
-        recompute_candidates();
-    }
-}
-
 const MixedExpressiveOptions &InputSession::mixed_expressive_options() const
 {
     return mixed_expressive_options_;
@@ -488,20 +424,7 @@ std::optional<OnlineQuery> InputSession::online_query() const
     if (IsJapaneseScheme(request.scheme))
     {
         query.cloud_eligible = true;
-        return query;
     }
-
-    if (query.query_text.empty())
-    {
-        return std::nullopt;
-    }
-    query.pinyin_segments = quanpin::split_segments(
-        request.normalized_segmentation.empty() ? query.query_text : request.normalized_segmentation);
-    query.cloud_eligible = true;
-    query.ai_eligible =
-        !query.pinyin_segments.empty() &&
-        std::all_of(query.pinyin_segments.begin(), query.pinyin_segments.end(),
-                    [](const std::string &segment) { return quanpin::is_complete_pinyin_input(segment); });
     return query;
 }
 
@@ -549,7 +472,7 @@ KeyResult InputSession::set_japanese_kana_form(JapaneseKanaForm form)
 
 SchemeType InputSession::scheme() const
 {
-    return temporary_original_scheme_.value_or(engine_.current_scheme_type());
+    return engine_.current_scheme_type();
 }
 
 bool InputSession::has_composition() const
@@ -613,7 +536,7 @@ const std::vector<WordItem> &InputSession::candidates() const
     if (fixed_positions_enabled_ ||
         ((english_input_options_.mixed_candidates || mixed_expressive_options_.emoji_candidates ||
           mixed_expressive_options_.kaomoji_candidates) &&
-         (scheme() == SchemeType::Quanpin || scheme() == SchemeType::Shuangpin)))
+         IsJapaneseScheme(scheme())))
     {
         // update_mixed_candidates() assembles this from the decoded prefix while it is active.
         return mixed_candidates_;
@@ -630,27 +553,9 @@ SchemeType InputSession::scheme_type() const
     return scheme();
 }
 
-unsigned InputSession::quanpin_autocorrect_types() const
+bool InputSession::japanese_punctuation_enabled() const
 {
-    return quanpin_autocorrect_types_;
-}
-
-bool InputSession::helpcode_enabled() const
-{
-    if (scheme() == SchemeType::Quanpin)
-    {
-        return quanpin_helpcode_enabled_;
-    }
-    if (scheme() == SchemeType::Shuangpin)
-    {
-        return shuangpin_helpcode_enabled_;
-    }
-    return false;
-}
-
-bool InputSession::chinese_punctuation_enabled() const
-{
-    return chinese_punctuation_enabled_;
+    return japanese_punctuation_enabled_;
 }
 
 bool InputSession::candidate_learning_enabled() const
@@ -675,26 +580,6 @@ KeyResult InputSession::commit(std::size_t index)
         text = preedit();
     }
     std::optional<std::string> diagnostic = learn_candidate(index);
-    if (selected && local_input_mode_ == LocalInputMode::None && !dedicated_english_mode_ &&
-        candidates_follow_pinyin() &&
-        (selected->source == CandidateSource::Database || selected->source == CandidateSource::UserDatabase))
-    {
-        const auto transition =
-            advance_composition_after_selection(selected->pinyin, selected->word, selected->canonical_pinyin);
-        auto progress = update_creating_word_progress(immediate_phrase_progress_.pinyin,
-                                                      immediate_phrase_progress_.word, selected->word, transition);
-        if (transition.continues_composition)
-        {
-            immediate_phrase_progress_ = std::move(progress);
-            discard_abandoned_phrase_progress();
-            return {true, std::move(text), std::move(diagnostic)};
-        }
-        if (!immediate_phrase_progress_.word.empty() && progress.can_store && candidate_learning_enabled_ &&
-            store_user_phrase_from_canonical_pinyin(progress.pinyin, progress.word) != 0)
-        {
-            diagnostic = "Unable to persist the composed phrase.";
-        }
-    }
     reset_composition();
     return {true, std::move(text), std::move(diagnostic)};
 }
@@ -907,19 +792,13 @@ void InputSession::reset_composition()
     immediate_phrase_progress_ = {};
     clear_pending_sequence();
     online_requests_.invalidate();
-    const std::optional<SchemeType> original_scheme = temporary_original_scheme_;
     local_input_mode_ = LocalInputMode::None;
-    temporary_original_scheme_.reset();
     local_preedit_.clear();
     local_candidates_.clear();
     dedicated_english_preedit_.clear();
     dedicated_english_candidates_.clear();
     mixed_candidates_.clear();
     engine_.reset();
-    if (original_scheme.has_value() && engine_.current_scheme_type() != *original_scheme)
-    {
-        engine_.switch_scheme(*original_scheme);
-    }
 }
 
 // The phrase assembled across segmented selections only means anything while its composition stays alive. Every path
@@ -1025,31 +904,17 @@ std::optional<std::string> InputSession::adjust_candidate_frequency(std::size_t 
         return adjusted ? std::nullopt
                         : std::optional<std::string>("English candidate frequency could not be persisted.");
     }
-    const bool super_jianpin = local_input_mode_ == LocalInputMode::SuperJianpin;
-    // A wubi code the table could not answer carries quanpin words, so it is ranked, keyed and
-    // stored as pinyin; only a code the wubi table answered is ranked under the code itself. The
-    // fallback reuses the context the fixed positions are written under, otherwise a pinned
-    // candidate would not be recognised here.
-    const bool wubi = wubi_candidates_are_native();
-    const bool pinyin_fallback = is_wubi() && !wubi;
-    std::string context_key =
-        super_jianpin     ? local_modes::jianpin_ranking_context(local_preedit_.substr(1), scheme(), shuangpin_profile_)
-        : wubi            ? engine_.get_request().raw_input
-        : pinyin_fallback ? position_context(false)
-                          : engine_.get_request().normalized_segmentation;
-    if (!super_jianpin && context_key.empty())
+    std::string context_key = engine_.get_request().normalized_segmentation;
+    if (context_key.empty())
     {
         context_key = engine_.get_request().segmentation;
     }
-    const std::string entry_key = (wubi && !super_jianpin)
-                                      ? selected.pinyin
-                                      : (selected.canonical_pinyin.empty() ? context_key : selected.canonical_pinyin);
+    const std::string entry_key = selected.canonical_pinyin.empty() ? context_key : selected.canonical_pinyin;
     bool ranking_changed = false;
     const bool adjusted = user_dictionary::adjust_candidate_ranking(
         path_to_utf8(paths_.dictionary(assets::main_dictionary)), path_to_utf8(paths_.user(assets::user_journal)),
         context_key, candidates(), entry_key, selected.word, frequency_mode_name(options.mode), options.linear_step,
-        options.trigger_count, force_top, &ranking_changed,
-        (wubi && !super_jianpin) ? user_dictionary::DictionaryKind::Wubi : user_dictionary::DictionaryKind::Pinyin);
+        options.trigger_count, force_top, &ranking_changed, user_dictionary::DictionaryKind::Pinyin);
     if (!adjusted)
     {
         return std::string("Unable to persist candidate frequency adjustment.");
@@ -1059,18 +924,6 @@ std::optional<std::string> InputSession::adjust_candidate_frequency(std::size_t 
         engine_.reset_cache();
     }
     return std::nullopt;
-}
-void InputSession::set_quanpin_autocorrect_types(unsigned autocorrect_types)
-{
-    // The Server re-applies its configuration before every key; an unchanged
-    // value must not rebuild (and copy) the mixed candidate list each time.
-    if (quanpin_autocorrect_types_ == autocorrect_types)
-    {
-        return;
-    }
-    quanpin_autocorrect_types_ = autocorrect_types;
-    engine_.set_quanpin_autocorrect_types(autocorrect_types);
-    update_mixed_candidates();
 }
 
 } // namespace metasequoia

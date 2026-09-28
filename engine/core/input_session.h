@@ -25,9 +25,8 @@ namespace metasequoia
 class InputSession
 {
   public:
-    explicit InputSession(SchemeType scheme_type = SchemeType::JapaneseRomaji,
-                          bool japanese_punctuation_enabled = true, bool candidate_learning_enabled = true,
-                          RuntimePaths paths = RuntimePaths::legacy());
+    explicit InputSession(SchemeType scheme_type = SchemeType::JapaneseRomaji, bool japanese_punctuation_enabled = true,
+                          bool candidate_learning_enabled = true, RuntimePaths paths = RuntimePaths::legacy());
 
     KeyResult handle_character(char character, bool shift_only = false);
     KeyResult handle_command(Command command);

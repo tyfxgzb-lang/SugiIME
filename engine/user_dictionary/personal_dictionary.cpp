@@ -1,5 +1,4 @@
 #include <metasequoia/personal_dictionary.h>
-#include "../quanpin/quanpin_utils.h"
 #include <utf8.h>
 #include <algorithm>
 
@@ -24,22 +23,11 @@ PersonalDictionaryValidation validate_personal_dictionary_entry(PersonalDictiona
     switch (entry.kind)
     {
     case PersonalDictionaryKind::Pinyin: {
-        // Require explicit syllables; guessing a split here could store a different pronunciation.
+        // Japanese romaji (and legacy pinyin) keys are lowercase letters and apostrophes.
         std::replace(entry.key.begin(), entry.key.end(), ' ', '\'');
-        std::size_t start = 0, count = 0;
-        while (start <= entry.key.size())
-        {
-            const auto end = entry.key.find('\'', start);
-            const auto syllable = entry.key.substr(start, end == std::string::npos ? end : end - start);
-            if (!quanpin::intact_pinyin_set().count(syllable))
-                return invalid("Use complete pinyin syllables separated by apostrophes or spaces");
-            ++count;
-            if (end == std::string::npos)
-                break;
-            start = end + 1;
-        }
-        if (count > 64 || count != static_cast<std::size_t>(utf8::distance(entry.value.begin(), entry.value.end())))
-            return invalid("Each character must have one pinyin syllable (maximum 64)");
+        if (!std::all_of(entry.key.begin(), entry.key.end(),
+                         [&](unsigned char ch) { return letters(ch) || ch == '\''; }))
+            return invalid("Use letters separated by apostrophes or spaces");
         break;
     }
     case PersonalDictionaryKind::Wubi:

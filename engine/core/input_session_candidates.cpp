@@ -3,8 +3,6 @@
 #include "../common/helpcode_utils.h"
 #include "../contracts/assets/assets.h"
 #include "../user_dictionary/user_dictionary_journal.h"
-#include "../local_modes/jianpin_query.h"
-#include "../quanpin/quanpin_utils.h"
 #include <algorithm>
 #include <cctype>
 
@@ -28,19 +26,10 @@ std::string InputSession::position_context(bool english) const
                        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
         return "english:" + input;
     }
-    if (local_input_mode_ == LocalInputMode::SuperJianpin)
-        return local_modes::jianpin_ranking_context(local_preedit_.substr(1), scheme(), shuangpin_profile_);
-    if (wubi_candidates_are_native())
-        return engine_.get_request().raw_input;
-    std::string context = get_quanpin();
+    std::string context = get_pinyin_segmentation();
     if (context.empty())
-        context = get_pinyin_segmentation();
-    if (engine_.get_request().raw_input.size() == 1)
-        return context;
-    auto plain = context;
-    plain.erase(std::remove(plain.begin(), plain.end(), '\''), plain.end());
-    const auto cuts = quanpin::cut_pinyin_by_mode(plain, "correction");
-    return cuts.empty() ? context : quanpin::join_segments(cuts.front());
+        context = engine_.get_request().raw_input;
+    return context;
 }
 
 void InputSession::apply_candidate_positions(std::vector<WordItem> &items)
@@ -53,8 +42,6 @@ void InputSession::apply_candidate_positions(std::vector<WordItem> &items)
             journal, position_context(false), items, engine_.get_request().raw_input.size() == 1,
             [this](const std::string &key, const std::string &word) { return engine_.find_candidate(key, word); },
             has_active_helpcode());
-    else if (local_input_mode_ == LocalInputMode::SuperJianpin)
-        user_dictionary::apply_fixed_positions(journal, position_context(false), items, false);
     if (std::any_of(items.begin(), items.end(),
                     [](const auto &item) { return item.source == CandidateSource::EnglishDictionary; }))
         user_dictionary::apply_fixed_positions(journal, position_context(true), items, false, {}, true);
@@ -71,10 +58,8 @@ KeyResult InputSession::set_candidate_position(std::size_t index, int position)
          IsJapaneseScheme(scheme())))
         return {};
     const auto context = position_context(english);
-    const bool wubi = wubi_candidates_are_native() && local_input_mode_ != LocalInputMode::SuperJianpin;
-    const auto key = english || wubi
-                         ? selected.pinyin
-                         : (selected.canonical_pinyin.empty() ? selected.pinyin : selected.canonical_pinyin);
+    const auto key =
+        english ? selected.pinyin : (selected.canonical_pinyin.empty() ? selected.pinyin : selected.canonical_pinyin);
     if (context.empty() || key.empty())
         return {};
     const auto journal = path_to_utf8(paths_.user(assets::user_journal));
@@ -103,13 +88,8 @@ KeyResult InputSession::remove_candidate(std::size_t index)
          IsJapaneseScheme(scheme()) || HelpcodeUtils::count_utf8_chars(selected.word) <= 1))
         return {};
 
-    const bool wubi = wubi_candidates_are_native() && local_input_mode_ != LocalInputMode::SuperJianpin;
-    const auto kind = english
-                          ? user_dictionary::DictionaryKind::English
-                          : (wubi ? user_dictionary::DictionaryKind::Wubi : user_dictionary::DictionaryKind::Pinyin);
-    // A displayed pinyin candidate already carries its exact dictionary key. Re-segmenting it
-    // (or expanding shuangpin again) can delete a different pronunciation of the same word.
-    const auto &key = english || wubi ? selected.pinyin : selected.canonical_pinyin;
+    const auto kind = english ? user_dictionary::DictionaryKind::English : user_dictionary::DictionaryKind::Pinyin;
+    const auto &key = english ? selected.pinyin : selected.canonical_pinyin;
     if (key.empty())
         return {};
     if (!user_dictionary::delete_dictionary_candidate(

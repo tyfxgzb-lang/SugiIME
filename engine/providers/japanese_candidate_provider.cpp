@@ -2,7 +2,6 @@
 #include "../japanese/japanese_glossary.h"
 #include "../japanese/japanese_matrix_search.h"
 #include "../japanese/romaji_converter.h"
-#include "../quanpin/quanpin_query.h"
 #include <algorithm>
 #include <cctype>
 #include <mutex>
@@ -75,7 +74,9 @@ std::size_t Utf8CharCount(std::string_view s)
 } // namespace
 
 JapaneseCandidateProvider::JapaneseCandidateProvider(std::string db_path, std::string model_path)
-    : db_path_(db_path.empty() ? quanpin::get_default_db_path() : std::move(db_path)),
+    : db_path_(db_path.empty()
+                   ? metasequoia::path_to_utf8(metasequoia::data_file_path(metasequoia::assets::main_dictionary))
+                   : std::move(db_path)),
       model_path_(model_path.empty()
                       ? metasequoia::path_to_utf8(metasequoia::data_file_path(metasequoia::assets::japanese_model))
                       : std::move(model_path))

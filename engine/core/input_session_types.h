@@ -105,7 +105,7 @@ struct WubiInputOptions
 // against the live composition before changing candidates.
 struct OnlineQuery
 {
-    SchemeType scheme = SchemeType::Quanpin;
+    SchemeType scheme = SchemeType::JapaneseRomaji;
     std::uint64_t generation = 0;
     std::string identity;
     std::string query_text;

@@ -1,7 +1,6 @@
 #include "../contracts/assets/assets.h"
 #include "japanese_sentence_decoder.h"
 #include "../core/data_path.h"
-#include "../shuangpin/shuangpin_utils.h"
 #include <algorithm>
 #include <cstring>
 #include <fstream>
@@ -76,7 +75,7 @@ JapaneseSentenceDecoder::JapaneseSentenceDecoder(std::string model_path)
 {
     if (model_path.empty())
     {
-        model_path = metasequoia::path_to_utf8(shuangpin::get_data_file_path(metasequoia::assets::japanese_model));
+        model_path = metasequoia::path_to_utf8(metasequoia::data_file_path(metasequoia::assets::japanese_model));
     }
     ready_ = Load(model_path);
 }
