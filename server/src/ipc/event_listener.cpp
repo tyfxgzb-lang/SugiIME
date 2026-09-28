@@ -584,10 +584,6 @@ void AppendAiContext(const std::string &committed_word)
             ++cut;
         g_ai_context.erase(0, cut);
     }
-    // 同一份上屏历史也是神经整句重排的前文（青简那边叫 InputHistory）：下一次查询会随
-    // QueryRequest 下发到词典层。词典层自己按 RerankOptions::context_chars 取末尾若干字。
-    if (g_inputSession)
-        g_inputSession->set_rescoring_context(g_ai_context);
 }
 
 std::wstring BuildCreateWordPipePayload(const std::string &remaining_raw_input_with_cases,

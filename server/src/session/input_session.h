@@ -1,7 +1,6 @@
 #pragma once
 
 #include "engine/core/input_session.h"
-#include "engine/shuangpin/shuangpin_dictionary.h"
 #include <Windows.h>
 #include <string>
 #include <vector>
@@ -49,21 +48,8 @@ class IInputSession
     // Raw offsets where one input unit starts, for segment deletion. Empty when
     // the scheme or mode has no unit model.
     virtual std::vector<std::size_t> segment_raw_boundaries() const = 0;
-    virtual std::string get_quanpin() const = 0;
     virtual bool is_all_complete_pure_pinyin() const = 0;
-    // Engine fact for wubi auto-commit: the composition is a complete four-letter wubi code the
-    // table answered with exactly one candidate. The Server decides whether the setting makes that
-    // commit immediately; the engine only reports it.
-    virtual bool wubi_unique_four_code() const = 0;
-    // Engine fact for wubi top-word commit: a complete four-letter code the table answered, no
-    // uniqueness required. The Server commits the first candidate when the user types past it.
-    virtual bool wubi_four_code_is_complete() const = 0;
     virtual bool has_active_helpcode() const = 0;
-
-    // 本会话最近上屏的文本，给神经整句重排当前文。空实现：除引擎会话外没人需要前文。
-    virtual void set_rescoring_context(std::string)
-    {
-    }
 
     virtual void set_pinyin_sequence(const std::string &pinyin_sequence) = 0;
     virtual void set_pinyin_sequence_with_cases(const std::string &pinyin_sequence) = 0;

@@ -1,53 +1,14 @@
 #include "engine_input_session.h"
 #include "config/ime_config.h"
-#include "engine/common/helpcode_utils.h"
-#include "engine/core/sentence_association_options.h"
-#include "engine/quanpin/quanpin_utils.h"
 
-EngineInputSession::EngineInputSession(SchemeType scheme, const ShuangpinProfile &profile)
-    : paths_(metasequoia::RuntimePaths::legacy()), session_(scheme, profile, paths_)
+EngineInputSession::EngineInputSession(SchemeType scheme)
+    : paths_(metasequoia::RuntimePaths::legacy()), session_(scheme, GetConfiguredJapanesePunctuation(), true, paths_)
 {
-    ApplyConfiguration();
 }
 
 void EngineInputSession::ApplyConfiguration()
 {
-    const auto scheme = session_.scheme();
-    if (scheme == SchemeType::Quanpin || scheme == SchemeType::Shuangpin)
-    {
-        const auto &schema = scheme == SchemeType::Quanpin ? GetConfiguredQuanpinHelpcodeSchema()
-                                                           : GetConfiguredShuangpinHelpcodeSchema();
-        if (schema != helpcode_schema_)
-        {
-            // Keep filtering and annotations on this session's captured resource layout.
-            // Applying unchanged settings on each key must not reload the tables.
-            auto keymap = HelpcodeUtils::load_helpcode_keymap(paths_.resources, schema);
-            if (session_.set_helpcode_schema(schema))
-            {
-                helpcode_schema_ = schema;
-                helpcode_keymap_ = std::move(keymap);
-            }
-        }
-    }
-    session_.set_shuangpin_helpcode_enabled(GetConfiguredShuangpinHelpcodeEnabled());
-    session_.set_quanpin_helpcode_enabled(GetConfiguredQuanpinHelpcodeEnabled());
-    const unsigned autocorrect_types =
-        (GetConfiguredQuanpinAutocorrectTransposition() ? quanpin::kAutocorrectTransposition : 0u) |
-        (GetConfiguredQuanpinAutocorrectNeighbor() ? quanpin::kAutocorrectNeighbor : 0u);
-    session_.set_quanpin_autocorrect_types(autocorrect_types);
-    // Fuzzy pinyin applies to both quanpin and shuangpin; the engine fuzzes on the
-    // converted quanpin syllables for shuangpin. Re-read on every key so setting
-    // changes take effect immediately.
-    session_.set_fuzzy_pinyin_options(GetConfiguredFuzzyPinyinOptions());
-    // 整句候选来源与去重补位选项，每次击键重读，改设置立即生效。
-    SentenceAssociationOptions association;
-    association.word_lattice = GetConfiguredAssocSentenceWordLattice();
-    association.google = GetConfiguredAssocSentenceGoogle();
-    association.neural_desktop = GetConfiguredAssocSentenceNeuralDesktop();
-    association.neural_keyboard = GetConfiguredAssocSentenceNeuralKeyboard();
-    association.show_next_on_duplicate = GetConfiguredAssocSentenceShowNextOnDuplicate();
-    session_.set_sentence_association(association);
-    session_.set_shuangpin_preedit_uses_raw(GetConfiguredShuangpinPreeditMode() == "shuangpin");
+    session_.set_japanese_punctuation_enabled(GetConfiguredJapanesePunctuation());
 }
 
 void EngineInputSession::handle_key(UINT vk, UINT modifiers_down, WCHAR wch)
@@ -133,34 +94,14 @@ std::vector<std::size_t> EngineInputSession::segment_raw_boundaries() const
     return session_.segment_raw_boundaries();
 }
 
-std::string EngineInputSession::get_quanpin() const
-{
-    return session_.get_quanpin();
-}
-
 bool EngineInputSession::is_all_complete_pure_pinyin() const
 {
     return session_.is_all_complete_pure_pinyin();
 }
 
-bool EngineInputSession::wubi_unique_four_code() const
-{
-    return session_.wubi_unique_four_code();
-}
-
-bool EngineInputSession::wubi_four_code_is_complete() const
-{
-    return session_.wubi_four_code_is_complete();
-}
-
 bool EngineInputSession::has_active_helpcode() const
 {
     return session_.has_active_helpcode();
-}
-
-void EngineInputSession::set_rescoring_context(std::string context)
-{
-    return session_.set_rescoring_context(std::move(context));
 }
 
 void EngineInputSession::set_pinyin_sequence(const std::string &pinyin_sequence)
@@ -245,8 +186,7 @@ IInputSession::CreatingWordProgress EngineInputSession::update_creating_word_pro
 
 std::string EngineInputSession::get_helpcode_annotation(const std::string &word, bool uppercase_all) const
 {
-    const auto scheme = session_.scheme();
-    if (!helpcode_keymap_ || (scheme != SchemeType::Quanpin && scheme != SchemeType::Shuangpin))
-        return {};
-    return HelpcodeUtils::compute_helpcodes(word, uppercase_all, helpcode_keymap_.get());
+    (void)word;
+    (void)uppercase_all;
+    return {};
 }

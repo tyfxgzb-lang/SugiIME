@@ -1,14 +1,12 @@
 #pragma once
 
 #include "input_session.h"
-#include "engine/common/helpcode_utils.h"
 #include "engine/core/input_session.h"
 
 class EngineInputSession : public IInputSession
 {
   public:
-    explicit EngineInputSession(SchemeType scheme_type = SchemeType::Shuangpin,
-                                const ShuangpinProfile &shuangpin_profile = GetXiaoheShuangpinProfile());
+    explicit EngineInputSession(SchemeType scheme_type = SchemeType::JapaneseRomaji);
 
     void handle_key(UINT vk, UINT modifiers_down, WCHAR wch) override;
     void recompute_candidates() override;
@@ -30,13 +28,9 @@ class EngineInputSession : public IInputSession
     const std::string &get_pinyin_segmentation() const override;
     std::string get_pinyin_segmentation_with_cases() const override;
     std::vector<std::size_t> segment_raw_boundaries() const override;
-    std::string get_quanpin() const override;
     bool is_all_complete_pure_pinyin() const override;
-    bool wubi_unique_four_code() const override;
-    bool wubi_four_code_is_complete() const override;
     bool has_active_helpcode() const override;
 
-    void set_rescoring_context(std::string context) override;
     void set_pinyin_sequence(const std::string &pinyin_sequence) override;
     void set_pinyin_sequence_with_cases(const std::string &pinyin_sequence) override;
 
@@ -65,6 +59,4 @@ class EngineInputSession : public IInputSession
     void ApplyConfiguration();
     const metasequoia::RuntimePaths paths_;
     metasequoia::InputSession session_;
-    std::string helpcode_schema_;
-    HelpcodeUtils::SharedKeymap helpcode_keymap_;
 };

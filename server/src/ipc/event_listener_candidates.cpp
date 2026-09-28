@@ -405,22 +405,12 @@ namespace FanyNamedPipe
 {
 std::string CurrentRankingContextKey()
 {
-    if (g_inputSession)
-    {
-        const std::string raw = g_inputSession->get_pinyin_sequence_with_cases();
-        if (IsJianpinCompositionActive(raw) && raw.size() > 1)
-            return metasequoia::local_modes::jianpin_ranking_context(
-                raw.substr(1), g_inputSession->current_scheme_type(), ConfiguredShuangpinProfile());
-    }
-    std::string converted = g_inputSession->get_quanpin();
+    if (!g_inputSession)
+        return {};
+    std::string converted = g_inputSession->get_pinyin_segmentation();
     if (converted.empty())
-        converted = g_inputSession->get_pinyin_segmentation();
-    if (g_inputSession->get_pinyin_sequence().size() == 1)
-        return converted;
-    std::string plain = converted;
-    plain.erase(std::remove(plain.begin(), plain.end(), '\''), plain.end());
-    const auto cuts = quanpin::cut_pinyin_by_mode(plain, "correction");
-    return cuts.empty() ? converted : quanpin::join_segments(cuts.front());
+        converted = g_inputSession->get_pinyin_sequence();
+    return converted;
 }
 
 std::string EnglishRankingContextKey()

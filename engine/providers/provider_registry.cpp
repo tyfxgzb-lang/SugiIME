@@ -1,4 +1,5 @@
 #include "provider_registry.h"
+#include "../contracts/assets/assets.h"
 #include <stdexcept>
 
 ProviderRegistry::ProviderRegistry(metasequoia::RuntimePaths paths)
@@ -53,7 +54,10 @@ std::optional<WordItem> ProviderRegistry::find_candidate(SchemeType scheme_type,
 
 bool ProviderRegistry::expand_initial_candidates(const QueryRequest &request, std::vector<WordItem> &candidates)
 {
-    return japanese_provider_.expand_initial_candidates(request, candidates);
+    (void)request;
+    (void)candidates;
+    // Japanese decoding has no initial-candidate expansion stage.
+    return false;
 }
 
 int ProviderRegistry::cache_dynamic_candidate_for_request(const QueryRequest &request, const std::string &word,
