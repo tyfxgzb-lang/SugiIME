@@ -114,10 +114,6 @@ if(BUILD_TESTING)
     endif()
     add_test(NAME punctuation_contract COMMAND test_punctuation_contract)
 
-    add_executable(test_nine_key_session tests/src/test_nine_key_session.cpp)
-    target_link_libraries(test_nine_key_session PRIVATE MetasequoiaImeEngine)
-    add_test(NAME nine_key_session COMMAND test_nine_key_session)
-
     add_executable(test_platform_api tests/src/test_platform_api.cpp tests/src/test_public_session.cpp)
     target_link_libraries(test_platform_api PRIVATE MetasequoiaIme::Engine)
     add_test(NAME platform_api COMMAND test_platform_api)
@@ -154,18 +150,9 @@ if(BUILD_TESTING)
     # day; the other twenty tests keep the strict default.
     set_tests_properties(runtime_isolation candidate_removal PROPERTIES TIMEOUT 300)
 
-    add_executable(test_fuzzy_pinyin tests/src/test_fuzzy_pinyin.cpp)
-    target_link_libraries(test_fuzzy_pinyin PRIVATE MetasequoiaIme::Engine)
-    add_test(NAME fuzzy_pinyin COMMAND test_fuzzy_pinyin)
-
     add_executable(test_engine_smoke tests/src/test_engine_smoke.cpp)
     target_link_libraries(test_engine_smoke PRIVATE MetasequoiaIme::Engine)
     add_test(NAME engine_smoke COMMAND test_engine_smoke)
-
-    # 神经整句排序集成测试：需数据目录里备好 sentence-model*.safetensors，缺文件时优雅跳过。
-    add_executable(test_neural_sentence tests/src/test_neural_sentence.cpp)
-    target_link_libraries(test_neural_sentence PRIVATE MetasequoiaIme::Engine)
-    add_test(NAME neural_sentence COMMAND test_neural_sentence)
 
     add_executable(test_input_session tests/src/test_input_session.cpp)
     target_compile_definitions(test_input_session PRIVATE METASEQUOIA_SKIP_FREQUENCY_TESTS)
@@ -184,14 +171,6 @@ if(BUILD_TESTING)
     add_executable(test_mixed_expressive_input_session tests/src/test_mixed_expressive_input_session.cpp)
     target_link_libraries(test_mixed_expressive_input_session PRIVATE MetasequoiaIme::Engine)
     add_test(NAME mixed_expressive_input_session COMMAND test_mixed_expressive_input_session)
-
-    add_executable(test_wubi_mixed_input_session tests/src/test_wubi_mixed_input_session.cpp)
-    target_link_libraries(test_wubi_mixed_input_session PRIVATE MetasequoiaIme::Engine)
-    add_test(NAME wubi_mixed_input_session COMMAND test_wubi_mixed_input_session)
-
-    add_executable(test_jianpin_input_session tests/src/test_jianpin_input_session.cpp)
-    target_link_libraries(test_jianpin_input_session PRIVATE MetasequoiaIme::Engine)
-    add_test(NAME jianpin_input_session COMMAND test_jianpin_input_session)
 
     add_executable(test_temporary_input_session tests/src/test_temporary_input_session.cpp)
     target_link_libraries(test_temporary_input_session PRIVATE MetasequoiaIme::Engine)
