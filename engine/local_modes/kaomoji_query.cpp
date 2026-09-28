@@ -3,7 +3,6 @@
 #include "local_database.h"
 
 #include "../core/data_path.h"
-#include "../shuangpin/shuangpin_query.h"
 
 #include <sqlite3.h>
 
@@ -50,14 +49,15 @@ LocalQueryResult query_failure(const char *diagnostic)
 }
 } // namespace
 
-LocalQueryResult query_kaomoji(const std::string &code, SchemeType scheme, int limit, const ShuangpinProfile &profile)
+LocalQueryResult query_kaomoji(const std::string &code, SchemeType scheme, int limit)
 {
-    return query_kaomoji(code, scheme, data_file_path(metasequoia::assets::other_dictionary), limit, profile);
+    return query_kaomoji(code, scheme, data_file_path(metasequoia::assets::other_dictionary), limit);
 }
 
 LocalQueryResult query_kaomoji(const std::string &code, SchemeType scheme, const std::filesystem::path &database_path,
-                               int limit, const ShuangpinProfile &profile)
+                               int limit)
 {
+    (void)scheme;
     if (!valid_code(code) || limit <= 0)
     {
         return {};
@@ -68,15 +68,7 @@ LocalQueryResult query_kaomoji(const std::string &code, SchemeType scheme, const
     }
 
     const std::string lower = lower_ascii(code);
-    std::vector<std::string> prefixes{lower};
-    if (scheme == SchemeType::Shuangpin)
-    {
-        const std::string quanpin = shuangpin::normalize_input(lower, profile);
-        if (!quanpin.empty() && quanpin != lower)
-        {
-            prefixes.push_back(quanpin);
-        }
-    }
+    const std::vector<std::string> prefixes{lower};
 
     const std::shared_ptr<sqlite3> database = open_local_database(database_path);
     if (!database)

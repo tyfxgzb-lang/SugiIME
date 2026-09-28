@@ -1,15 +1,10 @@
 #include "input_session.h"
 
-#include "../common/helpcode_utils.h"
 #include "../local_modes/date_time_query.h"
 #include "../local_modes/emoji_query.h"
-#include "../local_modes/jianpin_query.h"
 #include "../local_modes/kaomoji_query.h"
 #include "../local_modes/quick_phrase_query.h"
 #include "../local_modes/unicode_query.h"
-#include "../quanpin/quanpin_query.h"
-#include "../quanpin/quanpin_utils.h"
-#include "../shuangpin/shuangpin_query.h"
 #include "../user_dictionary/user_dictionary_journal.h"
 #include "data_path.h"
 
@@ -49,26 +44,12 @@ std::string online_identity(const QueryRequest &request)
 
 } // namespace
 
-InputSession::InputSession(SchemeType scheme_type, unsigned quanpin_autocorrect_types, bool helpcode_enabled,
-                           bool chinese_punctuation_enabled, bool candidate_learning_enabled, RuntimePaths paths)
-    : paths_(std::move(paths)), candidate_queries_(paths_, GetXiaoheShuangpinProfile()),
-      engine_(scheme_type, GetXiaoheShuangpinProfile(), paths_), quanpin_autocorrect_types_(quanpin_autocorrect_types),
-      quanpin_helpcode_enabled_(helpcode_enabled), shuangpin_helpcode_enabled_(helpcode_enabled),
-      chinese_punctuation_enabled_(chinese_punctuation_enabled),
-      candidate_learning_enabled_(candidate_learning_enabled), shuangpin_profile_(GetXiaoheShuangpinProfile())
+InputSession::InputSession(SchemeType scheme_type, bool japanese_punctuation_enabled,
+                           bool candidate_learning_enabled, RuntimePaths paths)
+    : paths_(std::move(paths)), candidate_queries_(paths_), engine_(scheme_type, paths_),
+      japanese_punctuation_enabled_(japanese_punctuation_enabled),
+      candidate_learning_enabled_(candidate_learning_enabled)
 {
-    engine_.set_quanpin_autocorrect_types(quanpin_autocorrect_types_);
-    engine_.set_quanpin_helpcode_enabled(quanpin_helpcode_enabled_);
-    engine_.set_shuangpin_helpcode_enabled(shuangpin_helpcode_enabled_);
-}
-
-InputSession::InputSession(SchemeType scheme_type, const ShuangpinProfile &shuangpin_profile, RuntimePaths paths)
-    : paths_(std::move(paths)), candidate_queries_(paths_, shuangpin_profile),
-      engine_(scheme_type, shuangpin_profile, paths_), shuangpin_profile_(shuangpin_profile)
-{
-    engine_.set_quanpin_autocorrect_types(quanpin_autocorrect_types_);
-    engine_.set_quanpin_helpcode_enabled(quanpin_helpcode_enabled_);
-    engine_.set_shuangpin_helpcode_enabled(shuangpin_helpcode_enabled_);
 }
 
 KeyResult InputSession::handle_character(char character, bool shift_only)
@@ -93,7 +74,7 @@ KeyResult InputSession::handle_character(char character, bool shift_only)
     }
 
     if (shift_only && character == 'U' && local_mode_options_.unicode && !has_composition() &&
-        (scheme() == SchemeType::Quanpin || scheme() == SchemeType::Shuangpin))
+        IsJapaneseScheme(scheme()))
     {
         local_input_mode_ = LocalInputMode::Unicode;
         local_preedit_ = "U";
@@ -101,7 +82,7 @@ KeyResult InputSession::handle_character(char character, bool shift_only)
         return {true, std::nullopt, std::nullopt};
     }
     if (shift_only && character == 'T' && local_mode_options_.date_time && !has_composition() &&
-        (scheme() == SchemeType::Quanpin || scheme() == SchemeType::Shuangpin))
+        IsJapaneseScheme(scheme()))
     {
         local_input_mode_ = LocalInputMode::DateTime;
         local_preedit_ = "T";
@@ -109,7 +90,7 @@ KeyResult InputSession::handle_character(char character, bool shift_only)
         return {true, std::nullopt, std::nullopt};
     }
     if (shift_only && character == 'K' && local_mode_options_.quick_phrase && !has_composition() &&
-        (scheme() == SchemeType::Quanpin || scheme() == SchemeType::Shuangpin))
+        IsJapaneseScheme(scheme()))
     {
         local_input_mode_ = LocalInputMode::QuickPhrase;
         local_preedit_ = "K";
@@ -117,7 +98,7 @@ KeyResult InputSession::handle_character(char character, bool shift_only)
         return {true, std::nullopt, std::nullopt};
     }
     if (shift_only && character == 'E' && local_mode_options_.emoji && !has_composition() &&
-        (scheme() == SchemeType::Quanpin || scheme() == SchemeType::Shuangpin))
+        IsJapaneseScheme(scheme()))
     {
         local_input_mode_ = LocalInputMode::Emoji;
         local_preedit_ = "E";
@@ -125,36 +106,18 @@ KeyResult InputSession::handle_character(char character, bool shift_only)
         return {true, std::nullopt, std::nullopt};
     }
     if (shift_only && character == 'M' && local_mode_options_.kaomoji && !has_composition() &&
-        (scheme() == SchemeType::Quanpin || scheme() == SchemeType::Shuangpin))
+        IsJapaneseScheme(scheme()))
     {
         local_input_mode_ = LocalInputMode::Kaomoji;
         local_preedit_ = "M";
         local_candidates_.clear();
         return {true, std::nullopt, std::nullopt};
     }
-    if (shift_only && character == 'J' && local_mode_options_.super_jianpin && !has_composition() &&
-        (scheme() == SchemeType::Quanpin || scheme() == SchemeType::Shuangpin))
-    {
-        local_input_mode_ = LocalInputMode::SuperJianpin;
-        local_preedit_ = "J";
-        local_candidates_.clear();
-        return {true, std::nullopt, std::nullopt};
-    }
     if (shift_only && character == 'Y' && local_mode_options_.temporary_english && !has_composition() &&
-        (scheme() == SchemeType::Quanpin || scheme() == SchemeType::Shuangpin))
+        IsJapaneseScheme(scheme()))
     {
         local_input_mode_ = LocalInputMode::TemporaryEnglish;
         local_preedit_ = "Y";
-        local_candidates_.clear();
-        return {true, std::nullopt, std::nullopt};
-    }
-    if (shift_only && character == 'R' && local_mode_options_.temporary_japanese && !has_composition() &&
-        (scheme() == SchemeType::Quanpin || scheme() == SchemeType::Shuangpin))
-    {
-        temporary_original_scheme_ = scheme();
-        engine_.switch_scheme(SchemeType::JapaneseRomaji);
-        local_input_mode_ = LocalInputMode::TemporaryJapanese;
-        local_preedit_ = "R";
         local_candidates_.clear();
         return {true, std::nullopt, std::nullopt};
     }

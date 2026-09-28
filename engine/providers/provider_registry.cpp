@@ -1,49 +1,27 @@
 #include "provider_registry.h"
 #include <stdexcept>
 
-ProviderRegistry::ProviderRegistry(const ShuangpinProfile &shuangpin_profile, metasequoia::RuntimePaths paths)
-    : pinyin_provider_(shuangpin_profile, paths),
-      wubi_provider_(metasequoia::path_to_utf8(paths.dictionary(metasequoia::assets::main_dictionary)), paths),
-      japanese_provider_(metasequoia::path_to_utf8(paths.dictionary(metasequoia::assets::main_dictionary)),
+ProviderRegistry::ProviderRegistry(metasequoia::RuntimePaths paths)
+    : japanese_provider_(metasequoia::path_to_utf8(paths.dictionary(metasequoia::assets::main_dictionary)),
                          metasequoia::path_to_utf8(paths.resource(metasequoia::assets::japanese_model)))
 {
 }
 
 ICandidateProvider &ProviderRegistry::resolve(SchemeType scheme_type)
 {
-    switch (scheme_type)
-    {
-    case SchemeType::Quanpin:
-    case SchemeType::Shuangpin:
-        return pinyin_provider_;
-    case SchemeType::Wubi:
-        return wubi_provider_;
-    case SchemeType::JapaneseRomaji:
-    case SchemeType::JapaneseKana:
+    if (scheme_type == SchemeType::JapaneseRomaji || scheme_type == SchemeType::JapaneseKana)
         return japanese_provider_;
-    default:
-        throw std::runtime_error("Unknown scheme type.");
-    }
+    throw std::runtime_error("Unknown scheme type.");
 }
 
 void ProviderRegistry::reset_cache(SchemeType scheme_type)
 {
-    switch (scheme_type)
+    if (scheme_type == SchemeType::JapaneseRomaji || scheme_type == SchemeType::JapaneseKana)
     {
-    case SchemeType::Quanpin:
-    case SchemeType::Shuangpin:
-        pinyin_provider_.reset_cache();
-        return;
-    case SchemeType::Wubi:
-        wubi_provider_.reset_cache();
-        return;
-    case SchemeType::JapaneseRomaji:
-    case SchemeType::JapaneseKana:
         japanese_provider_.reset_cache();
         return;
-    default:
-        throw std::runtime_error("Unknown scheme type.");
     }
+    throw std::runtime_error("Unknown scheme type.");
 }
 
 int ProviderRegistry::create_word(SchemeType scheme_type, std::string pinyin, std::string word)
@@ -75,7 +53,7 @@ std::optional<WordItem> ProviderRegistry::find_candidate(SchemeType scheme_type,
 
 bool ProviderRegistry::expand_initial_candidates(const QueryRequest &request, std::vector<WordItem> &candidates)
 {
-    return pinyin_provider_.expand_initial_candidates(request, candidates);
+    return japanese_provider_.expand_initial_candidates(request, candidates);
 }
 
 int ProviderRegistry::cache_dynamic_candidate_for_request(const QueryRequest &request, const std::string &word,

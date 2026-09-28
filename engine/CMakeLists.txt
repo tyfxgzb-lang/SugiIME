@@ -30,11 +30,9 @@ set(METASEQUOIA_IME_ENGINE_SOURCES
     common/helpcode_utils.cpp
     common/string_utils.cpp
     core/session.cpp
-    core/nine_key_session.cpp
     core/candidate_queries.cpp
     core/punctuation_policy.cpp
     core/runtime_paths.cpp
-    core/pinyin_decoder.cpp
     core/ime_session.cpp
     core/input_session.cpp
     core/input_session_composition.cpp
@@ -48,68 +46,18 @@ set(METASEQUOIA_IME_ENGINE_SOURCES
     japanese/romaji_converter.cpp
     local_modes/date_time_query.cpp
     local_modes/emoji_query.cpp
-    local_modes/jianpin_query.cpp
     local_modes/kaomoji_query.cpp
     local_modes/local_database.cpp
     local_modes/quick_phrase_query.cpp
     local_modes/unicode_query.cpp
-    neural/sentence_model.cpp
-    neural/neural_decoder.cpp
-    neural/rescore_worker.cpp
     providers/japanese_candidate_provider.cpp
-    providers/pinyin_candidate_provider.cpp
     providers/provider_registry.cpp
-    providers/wubi_candidate_provider.cpp
-    quanpin/engine.cpp
-    quanpin/quanpin_dictionary.cpp
-    quanpin/quanpin_query.cpp
-    quanpin/quanpin_utils.cpp
-    quanpin/lattice_rerank.cpp
-    quanpin/word_lattice.cpp
     schemes/japanese_kana_scheme.cpp
     schemes/japanese_romaji_scheme.cpp
-    schemes/quanpin_scheme.cpp
-    schemes/shuangpin_scheme.cpp
-    schemes/wubi_scheme.cpp
-    shuangpin/engine.cpp
-    shuangpin/shuangpin_dictionary.cpp
-    shuangpin/shuangpin_profile.cpp
-    shuangpin/shuangpin_query.cpp
-    shuangpin/shuangpin_utils.cpp
     user_dictionary/user_dictionary_journal.cpp
     user_dictionary/personal_dictionary.cpp
     user_dictionary/dictionary_state.cpp
-    googlepinyinime-rev/src/share/dictbuilder.cpp
-    googlepinyinime-rev/src/share/dictlist.cpp
-    googlepinyinime-rev/src/share/dicttrie.cpp
-    googlepinyinime-rev/src/share/lpicache.cpp
-    googlepinyinime-rev/src/share/matrixsearch.cpp
-    googlepinyinime-rev/src/share/mystdlib.cpp
-    googlepinyinime-rev/src/share/ngram.cpp
-    googlepinyinime-rev/src/share/pinyinime.cpp
-    googlepinyinime-rev/src/share/searchutility.cpp
-    googlepinyinime-rev/src/share/spellingtable.cpp
-    googlepinyinime-rev/src/share/spellingtrie.cpp
-    googlepinyinime-rev/src/share/splparser.cpp
-    googlepinyinime-rev/src/share/sync.cpp
-    googlepinyinime-rev/src/share/userdict.cpp
-    googlepinyinime-rev/src/share/utf16char.cpp
-    googlepinyinime-rev/src/share/utf16reader.cpp
 )
-
-# The vendored decoder accepts UTF-8 paths. Adapt its namespace-local file IO to native
-# Windows paths without editing googlepinyinime-rev or changing the process locale.
-if(WIN32)
-    if(MSVC)
-        set(METASEQUOIA_PINYIN_FILE_IO_OPTIONS "/FI${CMAKE_CURRENT_SOURCE_DIR}/core/pinyin_file_io.h")
-    else()
-        set(METASEQUOIA_PINYIN_FILE_IO_OPTIONS -include "${CMAKE_CURRENT_SOURCE_DIR}/core/pinyin_file_io.h")
-    endif()
-    set_property(SOURCE googlepinyinime-rev/src/share/dicttrie.cpp googlepinyinime-rev/src/share/userdict.cpp
-        APPEND PROPERTY COMPILE_OPTIONS ${METASEQUOIA_PINYIN_FILE_IO_OPTIONS})
-endif()
-
-add_subdirectory(ngram)
 
 add_library(MetasequoiaImeEngine STATIC ${METASEQUOIA_IME_ENGINE_SOURCES})
 add_library(MetasequoiaIme::Engine ALIAS MetasequoiaImeEngine)
@@ -132,7 +80,6 @@ target_link_libraries(MetasequoiaImeEngine
         fmt::fmt-header-only
         ${METASEQUOIA_IME_SQLITE_TARGET}
         Threads::Threads
-        metasequoia_ime_ngram
 )
 
 if(WIN32)
