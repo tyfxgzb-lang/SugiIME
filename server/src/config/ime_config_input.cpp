@@ -27,20 +27,16 @@ std::string GetConfiguredInputSchemeName()
 {
     switch (g_input_scheme)
     {
-    case SchemeType::Quanpin:
-        return "quanpin";
-    case SchemeType::Shuangpin:
-        return "shuangpin";
-    case SchemeType::Wubi:
-        return "wubi";
+    case SchemeType::JapaneseKana:
+        return "japanese_kana";
     default:
-        return "shuangpin";
+        return "japanese_romaji";
     }
 }
 
 bool SetConfiguredInputScheme(const std::string &scheme)
 {
-    if (scheme != "quanpin" && scheme != "shuangpin" && scheme != "wubi")
+    if (scheme != "japanese_romaji" && scheme != "japanese_kana")
     {
         return false;
     }

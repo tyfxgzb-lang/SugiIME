@@ -156,8 +156,7 @@ void ApplyAiCandidate(const std::string &candidate, const std::string &identity,
         return;
     const bool enabled = GetConfiguredAiAssistant().enabled;
     const bool has_session = static_cast<bool>(g_inputSession);
-    const bool non_pinyin = has_session && g_inputSession->current_scheme_type() != SchemeType::Quanpin &&
-                            g_inputSession->current_scheme_type() != SchemeType::Shuangpin;
+    const bool non_pinyin = true;
     const bool complete = has_session && g_inputSession->is_all_complete_pure_pinyin();
     const bool helpcode_active = has_session && g_inputSession->has_active_helpcode();
     const std::string current_identity = has_session ? g_inputSession->get_pinyin_segmentation() : std::string{};
@@ -210,8 +209,8 @@ void ApplyEnglishCandidates(std::vector<WordItem> candidates, const std::string 
     const std::string expected_input = y_mode ? session_input.substr(1) : session_input;
     if ((!dedicated_mode && !GetConfiguredEnglishCandidatesEnabled()) ||
         !EnglishIme::IsCurrent(input, generation, dedicated_mode) || g_inputSession == nullptr ||
-        (!dedicated_mode && g_inputSession->current_scheme_type() != SchemeType::Quanpin &&
-         g_inputSession->current_scheme_type() != SchemeType::Shuangpin) ||
+        (!dedicated_mode && g_inputSession->current_scheme_type() != SchemeType::JapaneseRomaji &&
+         g_inputSession->current_scheme_type() != SchemeType::JapaneseKana) ||
         expected_input != input || GlobalIme::composition.creating_word.active || g_translation_candidates_active)
     {
         return;
@@ -348,8 +347,8 @@ void ApplyEmojiCandidates(std::vector<WordItem> candidates, const std::string &i
 {
     if (!GetConfiguredEmojiMixedInputEnabled() || !EmojiIme::IsCurrent(input, generation) ||
         g_inputSession == nullptr || g_translation_candidates_active ||
-        (g_inputSession->current_scheme_type() != SchemeType::Quanpin &&
-         g_inputSession->current_scheme_type() != SchemeType::Shuangpin) ||
+        (g_inputSession->current_scheme_type() != SchemeType::JapaneseRomaji &&
+         g_inputSession->current_scheme_type() != SchemeType::JapaneseKana) ||
         g_inputSession->get_pinyin_sequence_with_cases() != input || GlobalIme::composition.creating_word.active)
     {
         return;
@@ -393,8 +392,8 @@ void ApplyKaomojiCandidates(std::vector<WordItem> candidates, const std::string 
 {
     if (!GetConfiguredKaomojiMixedInputEnabled() || !KaomojiIme::IsCurrent(input, generation) ||
         g_inputSession == nullptr || g_translation_candidates_active ||
-        (g_inputSession->current_scheme_type() != SchemeType::Quanpin &&
-         g_inputSession->current_scheme_type() != SchemeType::Shuangpin) ||
+        (g_inputSession->current_scheme_type() != SchemeType::JapaneseRomaji &&
+         g_inputSession->current_scheme_type() != SchemeType::JapaneseKana) ||
         g_inputSession->get_pinyin_sequence_with_cases() != input || GlobalIme::composition.creating_word.active)
     {
         return;

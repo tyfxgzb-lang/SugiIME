@@ -63,12 +63,6 @@ const char *SchemeTypeToString(SchemeType scheme_type)
 {
     switch (scheme_type)
     {
-    case SchemeType::Quanpin:
-        return "quanpin";
-    case SchemeType::Shuangpin:
-        return "shuangpin";
-    case SchemeType::Wubi:
-        return "wubi";
     case SchemeType::JapaneseRomaji:
         return "japanese-romaji";
     case SchemeType::JapaneseKana:

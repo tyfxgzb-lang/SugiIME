@@ -41,8 +41,8 @@ std::string g_session_backend = "legacy";
 
 namespace ime_config_detail
 {
-SchemeType g_input_scheme = SchemeType::Shuangpin;
-std::string g_input_mode = "chinese";
+SchemeType g_input_scheme = SchemeType::JapaneseRomaji;
+std::string g_input_mode = "japanese";
 std::string g_japanese_schema = "romaji";
 bool g_japanese_punctuation = true;
 bool g_japanese_katakana_fkey = true;
@@ -844,15 +844,11 @@ namespace ime_config_detail
 {
 SchemeType ParseScheme(const std::string &value)
 {
-    if (value == "quanpin")
+    if (value == "japanese_kana")
     {
-        return SchemeType::Quanpin;
+        return SchemeType::JapaneseKana;
     }
-    if (value == "wubi")
-    {
-        return SchemeType::Wubi;
-    }
-    return SchemeType::Shuangpin;
+    return SchemeType::JapaneseRomaji;
 }
 } // namespace ime_config_detail
 

@@ -169,21 +169,12 @@ bool IsCommitWithHighlightedCandidatePunctuationInCandidateMode(UINT keycode, WC
 bool IsManualPinyinSeparatorKey(UINT keycode, WCHAR wch)
 {
     return keycode == VK_OEM_7 && wch == L'\'' && g_inputSession != nullptr &&
-           g_inputSession->current_scheme_type() != SchemeType::Wubi && !g_inputSession->get_pinyin_sequence().empty();
+           !g_inputSession->get_pinyin_sequence().empty();
 }
 
-bool IsMicrosoftShuangpinIngKey(UINT keycode, WCHAR wch, const std::string &raw_input)
+bool IsMicrosoftShuangpinIngKey(UINT, WCHAR, const std::string &)
 {
-    if (keycode != VK_OEM_1 || wch != L';' || GetConfiguredShuangpinSchema() != "microsoft" ||
-        g_inputSession == nullptr || g_inputSession->current_scheme_type() != SchemeType::Shuangpin)
-    {
-        return false;
-    }
-
-    const size_t caret = (std::min)(GlobalIme::composition.caret_position, raw_input.size());
-    const size_t separator = caret == 0 ? std::string::npos : raw_input.rfind('\'', caret - 1);
-    const size_t chunk_start = separator == std::string::npos ? 0 : separator + 1;
-    return (caret - chunk_start) % 2 == 1;
+    return false;
 }
 
 bool IsSelectionKey(UINT keycode)
@@ -413,11 +404,6 @@ bool ApplyCompositionEditKey(UINT keycode, WCHAR wch, UINT modifiers_down, bool 
         else if (keycode == VK_OEM_7 && wch == L'\'')
         {
             input = '\'';
-        }
-        else if (keycode == VK_OEM_1 && wch == L';' && GetConfiguredShuangpinSchema() == "microsoft" &&
-                 g_inputSession->current_scheme_type() == SchemeType::Shuangpin)
-        {
-            input = ';';
         }
         else if (IsJapaneseLongVowelKey(keycode, wch))
         {
@@ -726,8 +712,8 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
     const std::size_t raw_length_before_key = input_before_key.size();
     const std::size_t caret_before_key = GlobalIme::composition.caret_position;
     const bool shift_only = (Global::ModifiersDown & 0b00000111u) == 0b00000001u;
-    const bool chinese_scheme = g_inputSession && (g_inputSession->current_scheme_type() == SchemeType::Quanpin ||
-                                                   g_inputSession->current_scheme_type() == SchemeType::Shuangpin);
+    const bool chinese_scheme = g_inputSession && (g_inputSession->current_scheme_type() == SchemeType::JapaneseRomaji ||
+                                                   g_inputSession->current_scheme_type() == SchemeType::JapaneseKana);
     if (Global::Keycode == VK_RETURN && !input_before_key.empty())
     {
         std::string english_word;
@@ -1029,12 +1015,7 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
         UpdateCloudInput(cloud_query_state.query_text, client_id, activation_epoch);
     }
 
-    const bool ai_eligible = !g_english_input_mode &&
-                             !IsSpecialModeCompositionActive(g_inputSession->get_pinyin_sequence_with_cases()) &&
-                             (g_inputSession->current_scheme_type() == SchemeType::Quanpin ||
-                              g_inputSession->current_scheme_type() == SchemeType::Shuangpin) &&
-                             g_inputSession->is_all_complete_pure_pinyin() && !g_inputSession->has_active_helpcode() &&
-                             !GlobalIme::composition.creating_word.active;
+    const bool ai_eligible = false;
     if (!suppress_async_lookup)
     {
         UpdateAiInput(ai_eligible ? g_inputSession->get_pinyin_segmentation() : std::string{}, client_id,

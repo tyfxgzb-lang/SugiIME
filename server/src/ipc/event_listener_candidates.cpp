@@ -188,15 +188,11 @@ std::string BuildCurrentCandidatePage()
     auto &ui = Global::candidate_ui;
     ui.clear_page();
     const SchemeType current_scheme = g_inputSession->current_scheme_type();
-    const bool uppercase_all_helpcodes = current_scheme == SchemeType::Quanpin;
+    const bool uppercase_all_helpcodes = false;
     // 副候选框里装的是译文，不是这次输入的候选：助记码、云/AI 角标和「右侧译文」都不适用，
     // 而且 g_candidate_translation_glosses 还留着原候选的译文，照常查会把译文再标注一遍。
     const bool translation_page = g_translation_candidates_active;
-    const bool show_helpcodes =
-        !translation_page && ((current_scheme == SchemeType::Shuangpin && GetConfiguredShuangpinHelpcodeEnabled() &&
-                               GetConfiguredShowShuangpinHelpcodeInCandidateWindow()) ||
-                              (current_scheme == SchemeType::Quanpin && GetConfiguredQuanpinHelpcodeEnabled() &&
-                               GetConfiguredShowQuanpinHelpcodeInCandidateWindow()));
+    const bool show_helpcodes = false;
 
     // 组页时读一次徽标配置，循环内不再逐条查
     const bool show_fixed_badge = GetConfiguredCandidateFixedBadge();
@@ -484,20 +480,13 @@ std::string CandidateDatabaseKey(const WordItem &item, const std::string &contex
 {
     if (!item.canonical_pinyin.empty())
         return item.canonical_pinyin;
-    if (g_inputSession->get_pinyin_sequence().size() == 1)
-        return item.pinyin;
-    auto segments = quanpin::split_segments(context_key);
-    const size_t han_count = HelpcodeUtils::count_han_chars(item.word);
-    if (segments.empty() || han_count == 0)
-        return item.pinyin;
-    if (segments.size() > han_count)
-        segments.resize(han_count);
-    return quanpin::join_segments(segments);
+    (void)context_key;
+    return item.pinyin;
 }
 
 bool IsWubiRankingScheme()
 {
-    return g_inputSession && g_inputSession->current_scheme_type() == SchemeType::Wubi;
+    return false;
 }
 
 std::pair<std::string, std::string> RankingKeysForCandidate(const WordItem &item)
@@ -651,7 +640,7 @@ void PrepareCandidateList(uint64_t client_id, uint64_t activation_epoch)
         g_dedicated_english_answer_pending = EnglishIme::IsRunning();
     }
     else if (!IsSpecialModeCompositionActive(current_input) && GetConfiguredEnglishCandidatesEnabled() &&
-             (scheme == SchemeType::Quanpin || scheme == SchemeType::Shuangpin) &&
+             (scheme == SchemeType::JapaneseRomaji || scheme == SchemeType::JapaneseKana) &&
              !GlobalIme::composition.creating_word.active)
     {
         UpdateEnglishInput(current_input, client_id, activation_epoch);
@@ -663,7 +652,7 @@ void PrepareCandidateList(uint64_t client_id, uint64_t activation_epoch)
     const double englishMs = segment.Split();
 
     if (!g_english_input_mode && !IsSpecialModeCompositionActive(current_input) &&
-        GetConfiguredEmojiMixedInputEnabled() && (scheme == SchemeType::Quanpin || scheme == SchemeType::Shuangpin) &&
+        GetConfiguredEmojiMixedInputEnabled() && (scheme == SchemeType::JapaneseRomaji || scheme == SchemeType::JapaneseKana) &&
         !GlobalIme::composition.creating_word.active)
     {
         UpdateEmojiInput(current_input, client_id, activation_epoch);
@@ -675,7 +664,7 @@ void PrepareCandidateList(uint64_t client_id, uint64_t activation_epoch)
     const double emojiMs = segment.Split();
 
     if (!g_english_input_mode && !IsSpecialModeCompositionActive(current_input) &&
-        GetConfiguredKaomojiMixedInputEnabled() && (scheme == SchemeType::Quanpin || scheme == SchemeType::Shuangpin) &&
+        GetConfiguredKaomojiMixedInputEnabled() && (scheme == SchemeType::JapaneseRomaji || scheme == SchemeType::JapaneseKana) &&
         !GlobalIme::composition.creating_word.active)
     {
         UpdateKaomojiInput(current_input, client_id, activation_epoch);

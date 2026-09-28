@@ -23,7 +23,7 @@ std::thread g_worker;
 std::atomic<bool> g_running{false};
 std::atomic<uint64_t> g_generation{0};
 std::string g_latest_input;
-SchemeType g_scheme = SchemeType::Quanpin;
+SchemeType g_scheme = SchemeType::JapaneseRomaji;
 std::string g_db_path;
 EmojiIme::ApplyCallback g_apply_callback;
 
@@ -108,7 +108,7 @@ void OnInputChanged(const std::string &input, SchemeType scheme)
 
 void Clear()
 {
-    OnInputChanged("", SchemeType::Quanpin);
+    OnInputChanged("", SchemeType::JapaneseRomaji);
 }
 
 bool IsCurrent(const std::string &input, uint64_t generation)

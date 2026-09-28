@@ -460,7 +460,7 @@ void UpdateEnglishInput(const std::string &input, uint64_t client_id, uint64_t a
 void UpdateEmojiInput(const std::string &input, uint64_t client_id, uint64_t activation_epoch)
 {
     std::lock_guard lock(g_async_request_mutex);
-    EmojiIme::OnInputChanged(input, g_inputSession ? g_inputSession->current_scheme_type() : SchemeType::Quanpin);
+    EmojiIme::OnInputChanged(input, g_inputSession ? g_inputSession->current_scheme_type() : SchemeType::JapaneseRomaji);
     ++g_emoji_generation;
     g_emoji_request_origin = input.empty() ? AsyncRequestOrigin{}
                                            : AsyncRequestOrigin{client_id, activation_epoch, g_emoji_generation, input};
@@ -469,7 +469,7 @@ void UpdateEmojiInput(const std::string &input, uint64_t client_id, uint64_t act
 void UpdateKaomojiInput(const std::string &input, uint64_t client_id, uint64_t activation_epoch)
 {
     std::lock_guard lock(g_async_request_mutex);
-    KaomojiIme::OnInputChanged(input, g_inputSession ? g_inputSession->current_scheme_type() : SchemeType::Quanpin);
+    KaomojiIme::OnInputChanged(input, g_inputSession ? g_inputSession->current_scheme_type() : SchemeType::JapaneseRomaji);
     ++g_kaomoji_generation;
     g_kaomoji_request_origin = input.empty()
                                    ? AsyncRequestOrigin{}
@@ -495,11 +495,7 @@ void UpdateAiInput(const std::string &identity, uint64_t client_id, uint64_t act
 {
     std::lock_guard lock(g_async_request_mutex);
     const AiAssistantConfig config = GetConfiguredAiAssistant();
-    const bool usable = config.enabled && g_inputSession &&
-                        (g_inputSession->current_scheme_type() == SchemeType::Quanpin ||
-                         g_inputSession->current_scheme_type() == SchemeType::Shuangpin) &&
-                        g_inputSession->is_all_complete_pure_pinyin() && !g_inputSession->has_active_helpcode() &&
-                        !identity.empty();
+    const bool usable = false;
     (void)0;
     AiAssistant::Request request;
     if (usable)
