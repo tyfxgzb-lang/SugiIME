@@ -1,5 +1,7 @@
 #include "input_session.h"
 
+#include "../common/helpcode_utils.h"
+#include "../contracts/assets/assets.h"
 #include "../local_modes/date_time_query.h"
 #include "../local_modes/emoji_query.h"
 #include "../local_modes/kaomoji_query.h"

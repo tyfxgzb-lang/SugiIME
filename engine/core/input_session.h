@@ -117,6 +117,7 @@ class InputSession
     const std::string &get_pinyin_segmentation() const;
     std::string get_pinyin_segmentation_with_cases() const;
     std::vector<std::size_t> segment_raw_boundaries() const;
+    bool is_all_complete_pure_pinyin() const;
     bool has_active_helpcode() const
     {
         return false;

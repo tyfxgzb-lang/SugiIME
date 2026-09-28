@@ -7,7 +7,8 @@ namespace metasequoia
 class Session::Impl
 {
   public:
-    explicit Impl(const SessionOptions &options) : session(options.scheme, options.paths)
+    explicit Impl(const SessionOptions &options)
+        : session(options.scheme, options.japanese_punctuation, options.learning, options.paths)
     {
         if (!session.set_frequency_adjustment(options.frequency) || !session.set_english_input_options(options.english))
             throw std::invalid_argument("Invalid session options");

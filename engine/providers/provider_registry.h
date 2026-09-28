@@ -2,6 +2,7 @@
 
 #include "japanese_candidate_provider.h"
 #include "../core/scheme_type.h"
+#include "../core/runtime_paths.h"
 #include <string>
 
 class ProviderRegistry

@@ -131,11 +131,6 @@ bool InputSession::is_all_complete_pure_pinyin() const
     return !segmentation.empty();
 }
 
-bool InputSession::has_active_helpcode() const
-{
-    return false;
-}
-
 void InputSession::set_pinyin_sequence(const std::string &pinyin_sequence)
 {
     pending_pinyin_sequence_ = pinyin_sequence;
