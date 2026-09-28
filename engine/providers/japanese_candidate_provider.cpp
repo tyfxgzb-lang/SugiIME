@@ -217,15 +217,37 @@ std::vector<WordItem> JapaneseCandidateProvider::query(const QueryRequest &reque
         }
     }
 
-    // Candidate 1 is always the katakana form of the whole reading. Hiragana no
-    // longer occupies a candidate slot: Return commits the rendered preedit
-    // (hiragana) directly, so the katakana conversion is what users need at the
-    // top of the list, followed by the kanji/word pool below.
+    // Candidate 1 is the kana form of the whole reading. By default it is the
+    // full-width katakana form; F6-F10 pin it to one of the five MS-IME forms.
+    // Hiragana no longer occupies a candidate slot in Auto mode: Enter commits
+    // the rendered preedit (hiragana) directly, so the katakana conversion is
+    // what users need at the top of the list, followed by the kanji/word pool
+    // below.
     std::vector<WordItem> kana_leads;
     if (hiragana_complete)
     {
-        const std::string kata = japanese::HiraganaToKatakana(conversion.hiragana);
-        AppendUnique(kana_leads, seen, request.raw_input_with_cases, kata, 1000000, CandidateSource::Generated);
+        std::string lead;
+        switch (request.japanese_kana_form)
+        {
+        case JapaneseKanaForm::Hiragana:
+            lead = conversion.hiragana;
+            break;
+        case JapaneseKanaForm::HalfWidthKatakana:
+            lead = japanese::HiraganaToHalfWidthKatakana(conversion.hiragana);
+            break;
+        case JapaneseKanaForm::FullWidthRomaji:
+            lead = japanese::AsciiToFullWidth(japanese::HiraganaToRomaji(conversion.hiragana));
+            break;
+        case JapaneseKanaForm::HalfWidthRomaji:
+            lead = japanese::HiraganaToRomaji(conversion.hiragana);
+            break;
+        case JapaneseKanaForm::Auto:
+        case JapaneseKanaForm::Katakana:
+        default:
+            lead = japanese::HiraganaToKatakana(conversion.hiragana);
+            break;
+        }
+        AppendUnique(kana_leads, seen, request.raw_input_with_cases, lead, 1000000, CandidateSource::Generated);
     }
 
     // Split the word pool: top two by weight are "common" candidates, the rest

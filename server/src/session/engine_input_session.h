@@ -14,7 +14,7 @@ class EngineInputSession : public IInputSession
     void recompute_candidates() override;
     SchemeType current_scheme_type() const override;
     void switch_scheme(SchemeType scheme_type) override;
-    bool cycle_japanese_kana_form(bool to_katakana) override;
+    bool set_japanese_kana_form(JapaneseKanaForm form) override;
 
     void reset_state() override;
     void reset_cache() override;

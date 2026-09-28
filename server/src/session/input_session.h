@@ -22,9 +22,10 @@ class IInputSession
     virtual void recompute_candidates() = 0;
     virtual SchemeType current_scheme_type() const = 0;
     virtual void switch_scheme(SchemeType scheme_type) = 0;
-    // Japanese composition only: flip the kana form of the leading candidate
-    // (F9 -> katakana, F10 -> hiragana). Returns true when handled.
-    virtual bool cycle_japanese_kana_form(bool to_katakana)
+    // Japanese composition only: pin the kana form of the leading candidate
+    // (F6 hiragana / F7 katakana / F8 half-width katakana / F9 full-width
+    // romaji / F10 half-width romaji). Returns true when handled.
+    virtual bool set_japanese_kana_form(JapaneseKanaForm form)
     {
         return false;
     }

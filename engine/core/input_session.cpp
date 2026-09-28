@@ -573,13 +573,13 @@ void InputSession::switch_scheme(SchemeType scheme_type)
     update_mixed_candidates();
 }
 
-KeyResult InputSession::cycle_japanese_kana_form(bool to_katakana)
+KeyResult InputSession::set_japanese_kana_form(JapaneseKanaForm form)
 {
     if (!is_japanese() || !has_composition())
     {
         return {};
     }
-    engine_.set_japanese_kana_form(to_katakana ? JapaneseKanaForm::Katakana : JapaneseKanaForm::Hiragana);
+    engine_.set_japanese_kana_form(form);
     update_mixed_candidates();
     return {true, std::nullopt, std::nullopt};
 }

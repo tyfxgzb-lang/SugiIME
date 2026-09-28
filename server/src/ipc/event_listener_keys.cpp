@@ -768,26 +768,73 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
         g_r_mode_triggered = true;
     }
 
-    // F9 / F10 flip the kana form of the leading Japanese candidate
-    // (F9 -> katakana, F10 -> hiragana). Only active in Japanese mode with a
-    // non-empty composition, and gated by input.japanese_katakana_fkey.
+    // F6-F10 pin the kana form of the leading Japanese candidate, matching the
+    // Microsoft Japanese IME: F6 hiragana, F7 full-width katakana, F8
+    // half-width katakana, F9 full-width romaji, F10 half-width romaji. Only
+    // active in Japanese mode with a non-empty composition, and gated by
+    // input.japanese_katakana_fkey.
     if (GetConfiguredJapaneseKatakanaFkey() && IsJapaneseInputMode() && g_inputSession && !input_before_key.empty() &&
-        (Global::Keycode == VK_F9 || Global::Keycode == VK_F10))
+        (Global::Keycode >= VK_F6 && Global::Keycode <= VK_F10))
     {
-        if (g_inputSession->cycle_japanese_kana_form(Global::Keycode == VK_F9))
+        JapaneseKanaForm form = JapaneseKanaForm::Auto;
+        bool set_preedit = true;
+        switch (Global::Keycode)
+        {
+        case VK_F6:
+            form = JapaneseKanaForm::Hiragana;
+            // Preedit is already hiragana; leave it untouched so Enter commits
+            // the natural reading.
+            set_preedit = false;
+            break;
+        case VK_F7:
+            form = JapaneseKanaForm::Katakana;
+            break;
+        case VK_F8:
+            form = JapaneseKanaForm::HalfWidthKatakana;
+            break;
+        case VK_F9:
+            form = JapaneseKanaForm::FullWidthRomaji;
+            break;
+        case VK_F10:
+            form = JapaneseKanaForm::HalfWidthRomaji;
+            break;
+        default:
+            break;
+        }
+        if (g_inputSession->set_japanese_kana_form(form))
         {
             PrepareCandidateList(client_id, activation_epoch);
-            // cycle_japanese_kana_form only flips the forced-form flag that
+            // set_japanese_kana_form only flips the forced-form flag that
             // reshapes candidates; the inline preedit (segmented_pinyin) stays
             // hiragana. Convert the preedit string itself so the user sees the
             // flip immediately, and persist it: Enter commits the rendered
             // preedit on the TSF side. Pending romaji (ASCII) is left untouched
             // by the kana-only codepoint conversion. The next letter key makes
             // the engine re-segment, naturally restoring the automatic form.
-            const std::string current_preedit = GlobalIme::composition.segmented_pinyin;
-            GlobalIme::composition.segmented_pinyin = Global::Keycode == VK_F9
-                                                          ? japanese::HiraganaToKatakana(current_preedit)
-                                                          : japanese::KatakanaToHiragana(current_preedit);
+            if (set_preedit)
+            {
+                const std::string current_preedit = GlobalIme::composition.segmented_pinyin;
+                std::string flipped;
+                switch (Global::Keycode)
+                {
+                case VK_F7:
+                    flipped = japanese::HiraganaToKatakana(current_preedit);
+                    break;
+                case VK_F8:
+                    flipped = japanese::HiraganaToHalfWidthKatakana(current_preedit);
+                    break;
+                case VK_F9:
+                    flipped = japanese::AsciiToFullWidth(japanese::HiraganaToRomaji(current_preedit));
+                    break;
+                case VK_F10:
+                    flipped = japanese::HiraganaToRomaji(current_preedit);
+                    break;
+                default:
+                    flipped = current_preedit;
+                    break;
+                }
+                GlobalIme::composition.segmented_pinyin = flipped;
+            }
             // The TSF side renders the Server preedit in Japanese mode, so the
             // flipped kana must travel as a Preedit frame (a Normal frame is
             // only consumed on selection keys and would be dropped here).

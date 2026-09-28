@@ -535,6 +535,25 @@ BOOL CCompositionProcessorEngine::IsVirtualKeyNeed( //
                 }
                 return TRUE;
 
+            // Japanese kana form conversion keys (MS-IME F6-F10). Forward to
+            // the Server while a Japanese composition is active; the Server
+            // reshapes the leading candidate and the inline preedit.
+            case VK_F6:
+            case VK_F7:
+            case VK_F8:
+            case VK_F9:
+            case VK_F10:
+                if (Global::JapaneseInputModeEnabled.load(std::memory_order_relaxed))
+                {
+                    if (pKeyState)
+                    {
+                        pKeyState->Category = CATEGORY_COMPOSING;
+                        pKeyState->Function = FUNCTION_INPUT;
+                    }
+                    return TRUE;
+                }
+                break;
+
             case VK_UP:
                 if (pKeyState)
                 {
@@ -665,6 +684,25 @@ BOOL CCompositionProcessorEngine::IsVirtualKeyNeed( //
                     pKeyState->Function = FUNCTION_DELETE;
                 }
                 return TRUE;
+
+            // Japanese kana form conversion keys (MS-IME F6-F10). Forward to
+            // the Server while a Japanese composition is active; the Server
+            // reshapes the leading candidate and the inline preedit.
+            case VK_F6:
+            case VK_F7:
+            case VK_F8:
+            case VK_F9:
+            case VK_F10:
+                if (Global::JapaneseInputModeEnabled.load(std::memory_order_relaxed))
+                {
+                    if (pKeyState)
+                    {
+                        pKeyState->Category = CATEGORY_COMPOSING;
+                        pKeyState->Function = FUNCTION_INPUT;
+                    }
+                    return TRUE;
+                }
+                break;
 
             case VK_UP:
                 if (pKeyState)

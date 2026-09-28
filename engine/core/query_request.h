@@ -9,12 +9,17 @@
 
 // Japanese kana display form requested for the first candidate. Auto lets the
 // provider decide (hiragana for regular words, katakana for loanword lemmas);
-// Hiragana/Katakana force the requested form as the top candidate.
+// the other values force the requested form as the top candidate. F6-F10 map
+// to Hiragana / Katakana / HalfWidthKatakana / FullWidthRomaji /
+// HalfWidthRomaji respectively, matching the Microsoft Japanese IME.
 enum class JapaneseKanaForm
 {
     Auto,
     Hiragana,
     Katakana,
+    HalfWidthKatakana,
+    FullWidthRomaji,
+    HalfWidthRomaji,
 };
 
 struct KeyStroke
@@ -40,7 +45,7 @@ struct QueryRequest
     bool enable_quanpin_autocorrect_transposition = false;
     bool enable_quanpin_autocorrect_neighbor = false;
     // Japanese-only: forces the top candidate kana form. Default Auto keeps the
-    // provider's word-class heuristic; F9/F10 override it per composition.
+    // provider's word-class heuristic; F6-F10 override it per composition.
     JapaneseKanaForm japanese_kana_form = JapaneseKanaForm::Auto;
     std::vector<KeyStroke> key_strokes;
     metasequoia::FuzzyPinyinOptions fuzzy_pinyin;
