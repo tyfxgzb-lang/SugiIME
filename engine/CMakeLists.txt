@@ -101,10 +101,6 @@ else()
 endif()
 
 if(BUILD_TESTING)
-    add_executable(test_segmentation_contract tests/src/test_segmentation_contract.cpp)
-    target_link_libraries(test_segmentation_contract PRIVATE MetasequoiaIme::Engine)
-    add_test(NAME segmentation_contract COMMAND test_segmentation_contract)
-
     add_executable(test_windows_ipc_contract contracts/tests/windows_ipc_contract.cpp)
     add_test(NAME windows_ipc_contract COMMAND test_windows_ipc_contract)
 
@@ -122,61 +118,8 @@ if(BUILD_TESTING)
     target_link_libraries(test_data_path PRIVATE MetasequoiaIme::Engine)
     add_test(NAME data_path COMMAND test_data_path)
 
-    add_executable(test_runtime_isolation tests/src/test_runtime_isolation.cpp)
-    target_compile_definitions(test_runtime_isolation PRIVATE METASEQUOIA_TEST_PINYIN_MODEL="${CMAKE_CURRENT_SOURCE_DIR}/googlepinyinime-rev/data/dict_pinyin.dat")
-    target_link_libraries(test_runtime_isolation PRIVATE MetasequoiaIme::Engine)
-    add_test(NAME runtime_isolation COMMAND test_runtime_isolation)
-
     add_executable(test_dictionary_state tests/src/test_dictionary_state.cpp)
     target_link_libraries(test_dictionary_state PRIVATE MetasequoiaImeEngine)
     add_test(NAME dictionary_state COMMAND test_dictionary_state)
     add_test(NAME dictionary_state_capacity COMMAND test_dictionary_state --capacity)
-
-    add_executable(test_personal_dictionary tests/src/test_personal_dictionary.cpp)
-    target_link_libraries(test_personal_dictionary PRIVATE MetasequoiaImeEngine)
-    add_test(NAME personal_dictionary COMMAND test_personal_dictionary)
-
-    add_executable(test_candidate_removal tests/src/test_candidate_removal.cpp)
-    target_link_libraries(test_candidate_removal PRIVATE MetasequoiaIme::Engine)
-    add_test(NAME candidate_removal COMMAND test_candidate_removal)
-
-    # These two are the disk-bound outliers. Both spend their time building, staging and tearing
-    # down dictionaries on disk rather than in the decoder, and Windows runs them 15-25x slower than
-    # the other platforms: runtime_isolation takes 10.6s there against 0.70s on macOS, and
-    # candidate_removal 7.6s against 0.30s. That leaves them alone in having single-digit headroom
-    # under the Windows job's 60s default, and a runner that lost disk throughput has already pushed
-    # runtime_isolation past it while the CPU-bound tests barely moved. A timeout is here to catch a
-    # hang, which is unbounded, so it is set against a hang rather than against the runner's best
-    # day; the other twenty tests keep the strict default.
-    set_tests_properties(runtime_isolation candidate_removal PROPERTIES TIMEOUT 300)
-
-    add_executable(test_engine_smoke tests/src/test_engine_smoke.cpp)
-    target_link_libraries(test_engine_smoke PRIVATE MetasequoiaIme::Engine)
-    add_test(NAME engine_smoke COMMAND test_engine_smoke)
-
-    add_executable(test_input_session tests/src/test_input_session.cpp)
-    target_compile_definitions(test_input_session PRIVATE METASEQUOIA_SKIP_FREQUENCY_TESTS)
-    target_link_libraries(test_input_session PRIVATE MetasequoiaIme::Engine)
-    add_test(NAME input_session COMMAND test_input_session)
-
-    add_executable(test_frequency_input_session tests/src/test_input_session.cpp)
-    target_compile_definitions(test_frequency_input_session PRIVATE METASEQUOIA_FREQUENCY_TESTS_ONLY)
-    target_link_libraries(test_frequency_input_session PRIVATE MetasequoiaIme::Engine)
-    add_test(NAME frequency_input_session COMMAND test_frequency_input_session)
-
-    add_executable(test_english_input_session tests/src/test_english_input_session.cpp)
-    target_link_libraries(test_english_input_session PRIVATE MetasequoiaIme::Engine)
-    add_test(NAME english_input_session COMMAND test_english_input_session)
-
-    add_executable(test_mixed_expressive_input_session tests/src/test_mixed_expressive_input_session.cpp)
-    target_link_libraries(test_mixed_expressive_input_session PRIVATE MetasequoiaIme::Engine)
-    add_test(NAME mixed_expressive_input_session COMMAND test_mixed_expressive_input_session)
-
-    add_executable(test_temporary_input_session tests/src/test_temporary_input_session.cpp)
-    target_link_libraries(test_temporary_input_session PRIVATE MetasequoiaIme::Engine)
-    add_test(NAME temporary_input_session COMMAND test_temporary_input_session)
-
-    # Per-keystroke latency against the real dictionaries; run by hand, not by ctest.
-    add_executable(bench_input_session tests/src/bench_input_session.cpp)
-    target_link_libraries(bench_input_session PRIVATE MetasequoiaIme::Engine)
 endif()

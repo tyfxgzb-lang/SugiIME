@@ -18,7 +18,6 @@
 #include "skin/candidate_skin_catalog.h"
 #include "utils/common_utils.h"
 #include "utils/single_instance.h"
-#include "voice-input/voice_providers.h"
 
 #include <WebView2.h>
 #include <WebView2EnvironmentOptions.h>
@@ -360,7 +359,6 @@ std::wstring BuildConfigMessage(bool refresh_skin_catalog)
     }
     // 规则位取不门控视图：总开关关闭时复选框仍要展示用户已存的勾选；
     // 总开关本身单独下发。
-    const metasequoia::FuzzyPinyinOptions fuzzy_rules = GetConfiguredFuzzyPinyinRuleStates();
     nlohmann::json payload = {
         {"type", "configSnapshot"},
         {"data",
@@ -383,19 +381,7 @@ std::wstring BuildConfigMessage(bool refresh_skin_catalog)
             {"smart_punctuation_direct_letter", GetConfiguredSmartPunctuationDirectLetterEnabled()},
             {"smart_punctuation_repeat_to_chinese", GetConfiguredSmartPunctuationRepeatToChineseEnabled()},
             {"paired_punctuation", GetConfiguredPairedPunctuationEnabled()},
-            {"punctuation_lock", GetConfiguredPunctuationLock()},
-            {"fuzzy_pinyin", GetConfiguredFuzzyPinyinEnabled()},
-            {"fuzzy_z_zh", fuzzy_rules.enabled(metasequoia::FuzzyPinyinRule::Z_ZH)},
-            {"fuzzy_c_ch", fuzzy_rules.enabled(metasequoia::FuzzyPinyinRule::C_CH)},
-            {"fuzzy_s_sh", fuzzy_rules.enabled(metasequoia::FuzzyPinyinRule::S_SH)},
-            {"fuzzy_n_l", fuzzy_rules.enabled(metasequoia::FuzzyPinyinRule::N_L)},
-            {"fuzzy_f_h", fuzzy_rules.enabled(metasequoia::FuzzyPinyinRule::F_H)},
-            {"fuzzy_r_l", fuzzy_rules.enabled(metasequoia::FuzzyPinyinRule::R_L)},
-            {"fuzzy_an_ang", fuzzy_rules.enabled(metasequoia::FuzzyPinyinRule::AN_ANG)},
-            {"fuzzy_en_eng", fuzzy_rules.enabled(metasequoia::FuzzyPinyinRule::EN_ENG)},
-            {"fuzzy_in_ing", fuzzy_rules.enabled(metasequoia::FuzzyPinyinRule::IN_ING)},
-            {"fuzzy_ian_iang", fuzzy_rules.enabled(metasequoia::FuzzyPinyinRule::IAN_IANG)},
-            {"fuzzy_uan_uang", fuzzy_rules.enabled(metasequoia::FuzzyPinyinRule::UAN_UANG)}}},
+            {"punctuation_lock", GetConfiguredPunctuationLock()}}},
           {"general",
            {{"diagnostic_log", GetConfiguredDiagnosticLogEnabled()},
             {"candidate_window_diagnostic_log", GetConfiguredDiagnosticLogEnabled()},
