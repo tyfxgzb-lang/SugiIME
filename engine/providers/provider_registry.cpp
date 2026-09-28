@@ -1,4 +1,5 @@
 #include "provider_registry.h"
+#include "../core/data_path.h"
 #include "../contracts/assets/assets.h"
 #include <stdexcept>
 

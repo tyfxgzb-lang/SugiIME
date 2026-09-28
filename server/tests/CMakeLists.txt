@@ -1,42 +1,22 @@
 set(TEST_EXECUTABLE_NAME "MetasequoiaImeServerTests")
 
-add_executable(test_voice_control_dispatch src/test_voice_control_dispatch.cpp
-    ../src/ipc/voice_control_dispatch.cpp)
-target_include_directories(test_voice_control_dispatch PRIVATE ../src "${MSIME_ENGINE_DIR}")
-target_compile_features(test_voice_control_dispatch PRIVATE cxx_std_17)
-add_test(NAME voice_control_dispatch COMMAND test_voice_control_dispatch)
-
 set(TEST_SOURCE_FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_date_time_query.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_emoji_query.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_kaomoji_query.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_jianpin_query.cpp"
     "${CMAKE_SOURCE_DIR}/src/clipboard/clipboard_history.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_kaomoji_sql.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_shuangpin_scheme.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_quanpin_scheme.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_wubi.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_japanese_romaji.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_shuangpin_query.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_engine_shuangpin_session.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_caret_prefix_input_session.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_english_dictionary.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_translation_gloss.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_default_config_credentials.cpp"
-    "${CMAKE_SOURCE_DIR}/src/cloud/translation_gloss.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_custom_translation.cpp"
-    "${CMAKE_SOURCE_DIR}/src/cloud/custom_translation.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_niutrans_translation.cpp"
-    "${CMAKE_SOURCE_DIR}/src/cloud/niutrans_translation.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_active_client_state.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_outbound_session_state.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_pipe_write_policy.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_input_key_policy.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_candidate_ui_owner.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_async_request_origin.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_candidate_ui_action_policy.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_candidate_translation_policy.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_candidate_ui_state.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_composition_selection_history.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_candidate_render_sync.cpp"
@@ -52,11 +32,6 @@ set(TEST_SOURCE_FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_candidate_size_estimator.cpp"
     "${CMAKE_SOURCE_DIR}/src/utils/candidate_size_estimator.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_ipc_protocol_constants.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_voice_composition_pipe.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_voice_providers.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_voice_batch_protocol.cpp"
-    "${CMAKE_SOURCE_DIR}/src/voice-input/voice_batch_protocol.cpp"
-    "${CMAKE_SOURCE_DIR}/src/voice-input/voice_providers.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_floating_toolbar_visibility_policy.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_caret_state_indicator_policy.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_terminal_deactivation_policy.cpp"
@@ -127,7 +102,6 @@ add_dependencies(${TEST_EXECUTABLE_NAME} ${DICTIONARY_REPLAY_EXECUTABLE_NAME})
 target_link_libraries(${TEST_EXECUTABLE_NAME}
     PRIVATE
     MetasequoiaIme::Engine
-    MetasequoiaIme::Voice
     nlohmann_json::nlohmann_json
     fmt::fmt
     spdlog::spdlog

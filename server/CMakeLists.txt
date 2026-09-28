@@ -60,38 +60,16 @@ find_package(ZLIB REQUIRED)
 # executables out of the default build.
 #
 # Which is also why BUILD_TESTING has to be off across that add_subdirectory: the engine registers
-# eleven add_test() entries behind that flag, and EXCLUDE_FROM_ALL then never builds the
-# executables they point at, so ctest reports eleven "Unable to find executable" failures. The
-# engine's own suite runs in the separate Engine job of ci.yml (scripts/ci/test-engine.ps1), which
+# add_test() entries behind that flag, and EXCLUDE_FROM_ALL then never builds the
+# executables they point at, so ctest reports "Unable to find executable" failures. The
+# engine's own suite runs in the separate Engine job of ci.yml, which
 # builds the engine standalone. Restored immediately afterwards so this repository's own tests/
 # still register.
 set(_metasequoia_saved_build_testing "${BUILD_TESTING}")
 set(BUILD_TESTING OFF)
-set(METASEQUOIA_IME_BUILD_VOICE ON CACHE BOOL "" FORCE)
-set(MSIME_VOICE_CAPTURE ON CACHE BOOL "" FORCE)
 add_subdirectory("${MSIME_ENGINE_DIR}" "${CMAKE_BINARY_DIR}/engine" EXCLUDE_FROM_ALL)
 set(BUILD_TESTING "${_metasequoia_saved_build_testing}")
 unset(_metasequoia_saved_build_testing)
-
-# Build the OpenCC submodule as a static dependency of the server.
-add_subdirectory("${MSIME_VENDOR_DIR}/opencc" "${CMAKE_BINARY_DIR}/opencc" EXCLUDE_FROM_ALL)
-
-# OpenCC's Windows dictionary helper copies the library into the tools output
-# directory before MSBuild has necessarily created that directory.
-add_custom_target(opencc_tools_output_dir
-    COMMAND ${CMAKE_COMMAND} -E make_directory
-        "${CMAKE_BINARY_DIR}/opencc/src/tools/$<CONFIG>"
-)
-add_dependencies(copy_libopencc_to_dir_of_opencc_dict opencc_tools_output_dir)
-
-# cpp-pinyin: settings uses it to annotate pure-Chinese phrase imports.
-set(_cpp_pinyin_saved_shared_libs "${BUILD_SHARED_LIBS}")
-set(BUILD_SHARED_LIBS OFF)
-set(CPP_PINYIN_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(CPP_PINYIN_INSTALL OFF CACHE BOOL "" FORCE)
-add_subdirectory("${MSIME_VENDOR_DIR}/cpp-pinyin" "${CMAKE_BINARY_DIR}/cpp-pinyin" EXCLUDE_FROM_ALL)
-set(BUILD_SHARED_LIBS "${_cpp_pinyin_saved_shared_libs}")
-unset(_cpp_pinyin_saved_shared_libs)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -103,15 +81,6 @@ add_definitions(
     /DUNICODE=1
     /DFANY_DEBUG=1
 )
-
-# HandwritingPanel still uses the legacy <experimental/coroutine>; on newer
-# MSVC STL the deprecation is a hard error, so silence it explicitly.
-add_definitions(/D_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS)
-
-# add_definitions(
-#     /DFANY_DEBUG=1
-#     /DFANY_IPC_DEBUG=1
-# )
 
 # For utf8cpp, make it use C++11 and later
 add_compile_options(/Zc:__cplusplus /FS /utf-8)
@@ -145,22 +114,10 @@ if(MSVC)
 endif()
 
 set(SRC_FILES
-    "./src/ai/ai_assistant.cpp"
-    "./src/ai/ai_assistant.h"
     "./src/clipboard/clipboard_history.cpp"
     "./src/clipboard/clipboard_history.h"
     "./src/cloud/cloud_ime.cpp"
     "./src/cloud/cloud_ime.h"
-    "./src/cloud/cloud_translation.cpp"
-    "./src/cloud/cloud_translation.h"
-    "./src/cloud/custom_translation.cpp"
-    "./src/cloud/custom_translation.h"
-    "./src/cloud/niutrans_translation.cpp"
-    "./src/cloud/niutrans_translation.h"
-    "./src/cloud/tencent_tmt.cpp"
-    "./src/cloud/tencent_tmt.h"
-    "./src/cloud/translation_gloss.cpp"
-    "./src/cloud/translation_gloss.h"
     "./src/config/ime_config.cpp"
     "./src/config/ime_config.h"
     "./src/config/ime_config_appearance.cpp"
@@ -175,8 +132,6 @@ set(SRC_FILES
     "./src/config/ime_config_toml.cpp"
     "./src/config/ime_config_toolbar.cpp"
     "./src/config/ime_config_write.cpp"
-    "./src/conversion/chinese_converter.cpp"
-    "./src/conversion/chinese_converter.h"
     "./src/defines/defines.h"
     "./src/emoji/emoji_ime.cpp"
     "./src/emoji/emoji_ime.h"
@@ -195,9 +150,6 @@ set(SRC_FILES
     "./src/ipc/event_listener_worker.cpp"
     "./src/ipc/ipc.cpp"
     "./src/ipc/ipc.h"
-    "./src/ipc/voice_composition_pipe.h"
-    "./src/ipc/voice_control_dispatch.cpp"
-    "./src/ipc/voice_control_dispatch.h"
     "./src/kaomoji/kaomoji_ime.cpp"
     "./src/kaomoji/kaomoji_ime.h"
     "./src/log/fanylog.cpp"
@@ -272,21 +224,6 @@ set(SRC_FILES
     "./src/window/ime_windows_toolbar.cpp"
     "./src/window/window_hook.cpp"
     "./src/window/window_hook.h"
-    "./src/voice-input/voice_input_service.cpp"
-    "./src/voice-input/voice_input_service.h"
-    "./src/voice-input/system_audio_muter.cpp"
-    "./src/voice-input/system_audio_muter.h"
-    "./src/voice-input/doubao_asr_client.cpp"
-    "./src/voice-input/doubao_asr_client.h"
-    "./src/voice-input/voice_batch_protocol.cpp"
-    "./src/voice-input/voice_providers.cpp"
-    "./src/voice-input/voice_providers.h"
-    "./src/voice-input/wave_overlay.cpp"
-    "./src/voice-input/wave_overlay.h"
-    "./src/voice-input/cue_player.cpp"
-    "./src/voice-input/cue_player.h"
-    "./src/voice-input/mvi_utils.h"
-    "./src/voice-input/voice_input_overlay_utils.cpp"
     "./src/main.cpp"
 )
 
@@ -294,17 +231,14 @@ add_executable(${MY_EXECUTABLE_NAME} WIN32
     ${SRC_FILES}
 )
 
-# Tomlplusplus, Webview2 and other head-only libraries
+# Tomlplusplus, WebView2 and other head-only libraries
 target_include_directories(${PROJECT_NAME}
     PRIVATE
     "${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/include"
-    "${CMAKE_SOURCE_DIR}/src/voice-input"
-    "${MSIME_ENGINE_DIR}/voice/third_party/miniaudio"
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE MetasequoiaIme::Engine MetasequoiaIme::Voice MetasequoiaIme::VoiceCapture)
+target_link_libraries(${PROJECT_NAME} PRIVATE MetasequoiaIme::Engine)
 target_link_libraries(${PROJECT_NAME} PRIVATE unofficial::sqlite3::sqlite3 fmt::fmt spdlog::spdlog Boost::locale Boost::json nlohmann_json::nlohmann_json)
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenCC::OpenCC)
 add_dependencies(${PROJECT_NAME} Dictionaries)
 target_link_libraries(${PROJECT_NAME} PRIVATE winhttp)
 target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl)
@@ -396,27 +330,6 @@ if(MSVC)
 endif()
 add_dependencies(${PROJECT_NAME} ${KEYBOARD_EXECUTABLE_NAME})
 
-set(HANDWRITING_EXECUTABLE_NAME "MetasequoiaImeHandwritingPanel")
-add_executable(${HANDWRITING_EXECUTABLE_NAME} WIN32
-    "./src/handwriting-panel/HandwritingPanel.cpp"
-    "./src/handwriting-panel/HandwritingPanel.h"
-    "./src/handwriting-panel/main.cpp"
-    "./src/handwriting-panel/handwriting_panel.rc"
-    "./src/handwriting-panel/resource.h"
-    "./src/utils/ime_paths.cpp"
-    "./src/utils/surface_theme_config.cpp"
-    "./src/utils/surface_theme_config.h"
-)
-target_link_libraries(${HANDWRITING_EXECUTABLE_NAME} PRIVATE msimeui windowsapp.lib shell32 advapi32 ole32)
-target_compile_definitions(${HANDWRITING_EXECUTABLE_NAME} PRIVATE
-    NOMINMAX=1
-    WIN32_LEAN_AND_MEAN=1
-)
-if(MSVC)
-    target_compile_options(${HANDWRITING_EXECUTABLE_NAME} PRIVATE /W4 /permissive-)
-endif()
-add_dependencies(${PROJECT_NAME} ${HANDWRITING_EXECUTABLE_NAME})
-
 # WebView2 loader (required for CreateCoreWebView2EnvironmentWithOptions)
 set(WEBVIEW2_VCPKG_ROOT "${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows")
 set(WEBVIEW2_LOADER_RELEASE "${WEBVIEW2_VCPKG_ROOT}/lib/WebView2Loader.dll.lib")
@@ -459,18 +372,6 @@ add_executable(${SETTINGS_EXECUTABLE_NAME} WIN32
     "./src/config/ime_config_toml.cpp"
     "./src/config/ime_config_toolbar.cpp"
     "./src/config/ime_config_write.cpp"
-    "./src/cloud/custom_translation.cpp"
-    "./src/cloud/custom_translation.h"
-    "./src/cloud/niutrans_translation.cpp"
-    "./src/cloud/niutrans_translation.h"
-    "./src/cloud/tencent_tmt.cpp"
-    "./src/cloud/tencent_tmt.h"
-    "./src/cloud/translation_gloss.cpp"
-    "./src/cloud/translation_gloss.h"
-    "./src/voice-input/doubao_asr_client.cpp"
-    "./src/voice-input/doubao_asr_client.h"
-    "./src/voice-input/voice_providers.cpp"
-    "./src/voice-input/voice_providers.h"
     "./src/clipboard/clipboard_history.cpp"
     "./src/clipboard/clipboard_history.h"
     "./src/utils/common_utils.cpp"
@@ -490,7 +391,6 @@ target_link_libraries(${SETTINGS_EXECUTABLE_NAME} PRIVATE
     nlohmann_json::nlohmann_json
     unofficial::sqlite3::sqlite3
     spdlog::spdlog
-    cpp-pinyin::cpp-pinyin
     CURL::libcurl
     ZLIB::ZLIB
     bcrypt
@@ -514,9 +414,6 @@ add_custom_command(TARGET ${SETTINGS_EXECUTABLE_NAME} POST_BUILD
         $<$<CONFIG:Debug>:${WEBVIEW2_VCPKG_ROOT}/debug/bin/WebView2Loader.dll>
         $<$<CONFIG:Release>:${WEBVIEW2_VCPKG_ROOT}/bin/WebView2Loader.dll>
         $<TARGET_FILE_DIR:${SETTINGS_EXECUTABLE_NAME}>
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${MSIME_VENDOR_DIR}/cpp-pinyin/res/dict"
-        "$<TARGET_FILE_DIR:${SETTINGS_EXECUTABLE_NAME}>/dict"
 )
 
 # Ensure the loader DLL is next to the executable
@@ -525,21 +422,6 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         $<$<CONFIG:Debug>:${WEBVIEW2_VCPKG_ROOT}/debug/bin/WebView2Loader.dll>
         $<$<CONFIG:Release>:${WEBVIEW2_VCPKG_ROOT}/bin/WebView2Loader.dll>
         $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    COMMAND ${CMAKE_COMMAND} -E make_directory
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/audios
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CMAKE_SOURCE_DIR}/assets/audios/start.mp3
-        ${CMAKE_SOURCE_DIR}/assets/audios/end.mp3
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/audios
-    COMMAND ${CMAKE_COMMAND} -E make_directory
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/opencc
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${MSIME_VENDOR_DIR}/opencc/data/config/s2t.json
-        ${CMAKE_BINARY_DIR}/opencc/data/CJK_Compatibility_Ideographs.ocd2
-        ${CMAKE_BINARY_DIR}/opencc/data/STCharacters.ocd2
-        ${CMAKE_BINARY_DIR}/opencc/data/STPhrases.ocd2
-        ${CMAKE_BINARY_DIR}/opencc/data/STPhrases_GeneratedFromRegionalPhrases.ocd2
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/opencc
 )
 
 if(BUILD_TESTING)
