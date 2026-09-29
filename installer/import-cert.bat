@@ -1,41 +1,40 @@
 @echo off
-chcp 65001 >nul 2>&1
 cd /d "%~dp0"
 
-:: 自动提权到管理员
+:: Auto-elevate to admin
 net session >nul 2>&1
 if %errorLevel% neq 0 (
     powershell -Command "Start-Process cmd -ArgumentList '/c \"%~f0\"' -Verb RunAs"
     exit /b
 )
 
-echo === 导入 SugiIME 测试证书 ===
+echo === Import SugiIME Test Certificate ===
 echo.
 
 if not exist "SugiIME-Test.cer" (
-    echo [错误] 找不到 SugiIME-Test.cer
-    echo 请确认此脚本与证书文件在同一目录。
+    echo [ERROR] SugiIME-Test.cer not found.
+    echo Make sure this script and the .cer file are in the same folder.
     pause
     exit /b 1
 )
 
-echo 正在导入到 Trusted Root Certification Authorities...
+echo Importing to Trusted Root Certification Authorities...
 certutil -addstore Root "SugiIME-Test.cer"
 if %errorLevel% neq 0 (
-    echo [错误] 导入 Root 失败
+    echo [ERROR] Failed to import to Root store.
     pause
     exit /b 1
 )
 
 echo.
-echo 正在导入到 Trusted Publishers...
+echo Importing to Trusted Publishers...
 certutil -addstore TrustedPublisher "SugiIME-Test.cer"
 if %errorLevel% neq 0 (
-    echo [错误] 导入 TrustedPublisher 失败
+    echo [ERROR] Failed to import to TrustedPublisher store.
     pause
     exit /b 1
 )
 
 echo.
-echo 证书导入成功！接下来运行 install.bat 安装。
+echo Certificate imported successfully. Now run install.bat
 pause
