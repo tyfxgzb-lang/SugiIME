@@ -9,7 +9,7 @@
 class IInputSession
 {
   public:
-    using WordItem = DictionaryUlPb::WordItem;
+    using WordItem = ::WordItem;
 
     using SelectionTransition = metasequoia::InputSession::SelectionTransition;
     using CloudQueryState = metasequoia::InputSession::CloudQueryState;
