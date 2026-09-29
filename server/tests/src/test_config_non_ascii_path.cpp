@@ -102,7 +102,7 @@ TEST_CASE(config_round_trips_under_non_ascii_profile_path)
         REQUIRE(fs::exists(data_dir / L"config.toml"));
 
         REQUIRE(SetConfiguredInputMode("japanese"));
-        REQUIRE(SetConfiguredInputScheme("wubi"));
+        REQUIRE(SetConfiguredInputScheme("japanese_kana"));
         for (const std::string &position : {"top-left", "top", "top-right", "bottom-left", "bottom", "bottom-right"})
         {
             REQUIRE(SetConfiguredCaretStateIndicatorPosition(position));
@@ -122,7 +122,7 @@ TEST_CASE(config_round_trips_under_non_ascii_profile_path)
 
         InitImeConfig();
         REQUIRE_EQ(GetConfiguredInputMode(), std::string("japanese"));
-        REQUIRE_EQ(GetConfiguredInputSchemeName(), std::string("wubi"));
+        REQUIRE_EQ(GetConfiguredInputSchemeName(), std::string("japanese_kana"));
 
         const std::vector<std::string> fonts = {"SimSun", "Font#1", "Font]2", "Font\\\"3", "微软雅黑"};
         REQUIRE(SetConfiguredCandidateFallbackFonts(fonts));
@@ -232,10 +232,10 @@ TEST_CASE(config_migrates_legacy_acp_mangled_path)
         ScopedConfigLocation local_app_data_env(local_app_data);
         InitImeConfig();
         REQUIRE_EQ(GetConfiguredInputMode(), std::string("japanese"));
-        REQUIRE(SetConfiguredInputScheme("wubi"));
+        REQUIRE(SetConfiguredInputScheme("japanese_kana"));
         InitImeConfig();
         REQUIRE_EQ(GetConfiguredInputMode(), std::string("japanese"));
-        REQUIRE_EQ(GetConfiguredInputSchemeName(), std::string("wubi"));
+        REQUIRE_EQ(GetConfiguredInputSchemeName(), std::string("japanese_kana"));
     }
 
     fs::remove_all(unique_root, ec);
