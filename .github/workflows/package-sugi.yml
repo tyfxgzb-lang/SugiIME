@@ -1,0 +1,117 @@
+name: Package SugiIME
+
+# 手动触发的打包工作流。在 GitHub 托管的 windows-2025 公共 runner 上编译
+# TSF(x64+Win32)、Server 和设置页，用 Prepare-PackageFiles.ps1 -Light 收集轻量
+# 安装文件，用 Compile-Installer.ps1 编译未签名的安装包，上传为 artifact 供下载。
+#
+# 轻量包不含词库、辅助码、拼音表和出厂配置，安装后只含 TSF/Server/HTML。
+# 日语词库 (msime.db / dict_japanese.dat 等) 需通过其他方式获取后放入用户数据目录。
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: package-sugi-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    name: Build and package SugiIME
+    runs-on: windows-2025
+    timeout-minutes: 120
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # ===== TSF x64 =====
+      - name: Install TSF dependencies (x64)
+        shell: pwsh
+        working-directory: windows
+        run: vcpkg install --triplet x64-windows-static
+      - name: Configure TSF x64
+        shell: pwsh
+        run: >
+          cmake -S windows -B windows/build64-release -A x64
+          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+          -DVCPKG_TARGET_TRIPLET=x64-windows-static
+      - name: Build TSF x64
+        shell: pwsh
+        run: cmake --build windows/build64-release --config Release --parallel
+
+      # ===== TSF Win32 =====
+      - name: Install TSF dependencies (Win32)
+        shell: pwsh
+        working-directory: windows
+        run: vcpkg install --triplet x86-windows-static
+      - name: Configure TSF Win32
+        shell: pwsh
+        run: >
+          cmake -S windows -B windows/build32-release -A Win32
+          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+          -DVCPKG_TARGET_TRIPLET=x86-windows-static
+      - name: Build TSF Win32
+        shell: pwsh
+        run: cmake --build windows/build32-release --config Release --parallel
+
+      # ===== Server =====
+      - name: Install Boost
+        shell: pwsh
+        run: ./scripts/ci/install-boost.ps1
+      - name: Configure Server
+        shell: pwsh
+        run: >
+          cmake -S server -B server/build-release -A x64
+          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+          -DVCPKG_TARGET_TRIPLET=x64-windows
+      - name: Build Server
+        shell: pwsh
+        run: cmake --build server/build-release --config Release --parallel
+      - name: Embed the Server uiAccess manifest
+        shell: pwsh
+        run: ./scripts/ci/embed-server-manifest.ps1 -BuildDir server/build-release/bin/Release
+
+      # ===== Settings page =====
+      - name: Set up pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 10
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: ui-html/webview2/settings/ime-settings/pnpm-lock.yaml
+      - name: Install and build the settings page
+        working-directory: ui-html/webview2/settings/ime-settings
+        shell: pwsh
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+
+      # ===== Package =====
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup -y --no-progress
+      - name: Install the Chinese language file for Inno Setup
+        shell: pwsh
+        run: ./scripts/ci/install-inno-language.ps1
+      - name: Collect the installer payload (light)
+        shell: pwsh
+        working-directory: installer
+        run: >
+          pwsh -File ./Prepare-PackageFiles.ps1 -Light -TargetVersion "0.1.0"
+          -RepoRoot (Resolve-Path '..').Path
+          -TsfDirectory windows -ServerDirectory server -UiHtmlDirectory ui-html -NoticesDirectory .
+      - name: Compile the installer
+        shell: pwsh
+        working-directory: installer
+        run: pwsh -File ./Compile-Installer.ps1 -Light
+      - name: Upload the installer
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: SugiIME-installer-light
+          path: installer/Output/*.exe
+          if-no-files-found: error
