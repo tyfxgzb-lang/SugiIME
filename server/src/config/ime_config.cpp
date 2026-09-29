@@ -402,12 +402,8 @@ bool LoadImeConfig()
         g_quanpin_autocorrect_neighbor = tbl["quanpin"]["autocorrect_neighbor"].value_or(false);
         g_fuzzy_pinyin_enabled = tbl["input"]["fuzzy_pinyin"].value_or(false);
         g_fuzzy_seeded = tbl["input"]["fuzzy_seeded"].value_or(false);
+        // SugiIME dropped the fuzzy-pinyin engine: the rule bitmask is always zero.
         g_fuzzy_pinyin_rules = 0;
-        for (const auto &entry : kFuzzyPinyinRuleKeys)
-        {
-            if (tbl["input"][entry.key].value_or(false))
-                g_fuzzy_pinyin_rules |= static_cast<std::uint32_t>(entry.rule);
-        }
         g_floating_toolbar_enabled = tbl["general"]["floating_toolbar"].value_or(true);
         g_caret_state_indicator_enabled = tbl["general"]["caret_state_indicator"].value_or(false);
         g_caret_state_indicator_on_focus = tbl["general"]["caret_state_indicator_on_focus"].value_or(false);

@@ -712,8 +712,9 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
     const std::size_t raw_length_before_key = input_before_key.size();
     const std::size_t caret_before_key = GlobalIme::composition.caret_position;
     const bool shift_only = (Global::ModifiersDown & 0b00000111u) == 0b00000001u;
-    const bool chinese_scheme = g_inputSession && (g_inputSession->current_scheme_type() == SchemeType::JapaneseRomaji ||
-                                                   g_inputSession->current_scheme_type() == SchemeType::JapaneseKana);
+    const bool chinese_scheme =
+        g_inputSession && (g_inputSession->current_scheme_type() == SchemeType::JapaneseRomaji ||
+                           g_inputSession->current_scheme_type() == SchemeType::JapaneseKana);
     if (Global::Keycode == VK_RETURN && !input_before_key.empty())
     {
         std::string english_word;

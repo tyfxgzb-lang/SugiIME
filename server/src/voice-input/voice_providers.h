@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 // Voice input was removed from SugiIME. This stub keeps the config and UI code
@@ -20,9 +21,9 @@ inline const std::vector<PolishPromptPreset> &BuiltinPolishPromptPresets()
     return kEmpty;
 }
 
-inline std::string NormalizeProviderId(const std::string &provider)
+inline std::string NormalizeProviderId(std::string_view provider)
 {
-    return provider;
+    return std::string{provider};
 }
 
 inline std::string NormalizeDoubaoAuthMode(const std::string &mode, const std::string &)

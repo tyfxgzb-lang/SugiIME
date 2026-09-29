@@ -32,27 +32,6 @@ constexpr int kEnglishMixedInputMinCharsMin = 1;
 constexpr int kEnglishMixedInputMinCharsMax = 8;
 constexpr int kEnglishMixedInputMinCharsDefault = 2;
 
-// Config key ↔ engine rule bit. The key mirrors the enumerator name lowercased, so the
-// only mapping to review is this table; the bit position lives in the enum itself.
-struct FuzzyPinyinRuleKey
-{
-    const char *key;
-    metasequoia::FuzzyPinyinRule rule;
-};
-constexpr FuzzyPinyinRuleKey kFuzzyPinyinRuleKeys[] = {
-    {"fuzzy_z_zh", metasequoia::FuzzyPinyinRule::Z_ZH},
-    {"fuzzy_c_ch", metasequoia::FuzzyPinyinRule::C_CH},
-    {"fuzzy_s_sh", metasequoia::FuzzyPinyinRule::S_SH},
-    {"fuzzy_n_l", metasequoia::FuzzyPinyinRule::N_L},
-    {"fuzzy_f_h", metasequoia::FuzzyPinyinRule::F_H},
-    {"fuzzy_r_l", metasequoia::FuzzyPinyinRule::R_L},
-    {"fuzzy_an_ang", metasequoia::FuzzyPinyinRule::AN_ANG},
-    {"fuzzy_en_eng", metasequoia::FuzzyPinyinRule::EN_ENG},
-    {"fuzzy_in_ing", metasequoia::FuzzyPinyinRule::IN_ING},
-    {"fuzzy_ian_iang", metasequoia::FuzzyPinyinRule::IAN_IANG},
-    {"fuzzy_uan_uang", metasequoia::FuzzyPinyinRule::UAN_UANG},
-};
-
 class ConfigFileLock
 {
   public:

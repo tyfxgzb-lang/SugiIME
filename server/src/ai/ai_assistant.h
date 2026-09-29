@@ -16,8 +16,7 @@ class AiAssistant
         AiAssistantConfig config;
     };
 
-    template <typename Callback>
-    static void Start(Callback)
+    template <typename Callback> static void Start(Callback)
     {
     }
 

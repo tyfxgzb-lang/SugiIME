@@ -126,25 +126,10 @@ void run(bool capacity)
             deleted_ownership = p->deleted && p->user_inserted;
     }
     check(selection && ownership && deleted_ownership, "counter or ownership lost");
-    SessionOptions options;
-    options.paths = second;
-    options.learning = false;
-    Session session(options);
-    for (char ch : std::string("nihao"))
-        session.character(ch);
-    const auto candidates = session.snapshot().candidates;
-    check(!candidates.empty() && candidates.front().word == "拟蒿", "fixed position not applied");
-    for (const auto &candidate : candidates)
-        check(candidate.word != "你好", "deleted candidate returned");
-    // A complete replacement starts from resources, not the previously overlaid dictionaries.
-    const auto empty = stage(resources, root / "empty", {});
-    SessionOptions plain;
-    plain.paths = empty;
-    plain.learning = false;
-    Session baseline(plain);
-    for (char ch : std::string("nihao"))
-        baseline.character(ch);
-    check(baseline.snapshot().candidates.front().word == "你好", "old deletion leaked into replacement");
+    // SugiIME dropped the pinyin engine, so the fixed-position candidate ordering that used
+    // to be verified through a live Session ("nihao" -> 拟蒿) is no longer observable here.
+    // The journal round-trip, ownership and rejection contracts above still cover the
+    // DictionaryState storage layer that SugiIME keeps for Japanese/English/quick entries.
     auto rejected = [&](const char *name, std::vector<DictionaryStateRecord> invalid) {
         const auto path = root / name;
         bool failed = false;

@@ -317,57 +317,20 @@ bool GetConfiguredFuzzyPinyinEnabled()
 
 bool SetConfiguredFuzzyPinyinEnabled(bool enabled)
 {
-    // 首次启用播种：出厂态第一次开总开关，11 条规则全部置 true 并持久化；之后总开关的
-    // 任何翻动只写总开关一个键，用户修剪过的选择在临时停用/恢复间原样保留。不能拿
-    // 「规则位全零」当首次信号——用户故意全部取消勾选后位图同样是零，无标记会把每次
-    // 开启都误判成首次启用，反复改写用户的空选择。
-    if (enabled && !g_fuzzy_seeded)
-    {
-        std::vector<ConfigValueUpdate> updates;
-        updates.reserve(std::size(kFuzzyPinyinRuleKeys) + 2);
-        updates.push_back({"input", "fuzzy_pinyin", "true"});
-        updates.push_back({"input", "fuzzy_seeded", "true"});
-        for (const auto &entry : kFuzzyPinyinRuleKeys)
-            updates.push_back({"input", entry.key, "true"});
-        // 一次批量写：WriteConfiguredValues 走单文件临时改名，无部分失败态。
-        if (!WriteConfiguredValues(updates))
-            return false;
-        g_fuzzy_pinyin_enabled = true;
-        g_fuzzy_seeded = true;
-        for (const auto &entry : kFuzzyPinyinRuleKeys)
-            g_fuzzy_pinyin_rules |= static_cast<std::uint32_t>(entry.rule);
-        return true;
-    }
+    // SugiIME removed the fuzzy-pinyin engine; only the master-switch key is still
+    // persisted so old configs round-trip. No rule seeding or bitmask updates.
     if (!WriteConfiguredValue("input", "fuzzy_pinyin", enabled ? "true" : "false"))
         return false;
     g_fuzzy_pinyin_enabled = enabled;
     return true;
 }
 
-// The master switch is gated here and nowhere else: sessions see all-zero rules while it is
-// off, and the cached rule bits survive the toggle so re-enabling restores the prior choice.
-
 bool SetConfiguredFuzzyPinyinRule(const std::string &key, bool enabled)
 {
-    const FuzzyPinyinRuleKey *entry = nullptr;
-    for (const auto &candidate : kFuzzyPinyinRuleKeys)
-    {
-        if (key == candidate.key)
-        {
-            entry = &candidate;
-            break;
-        }
-    }
-    if (!entry)
-        return false;
-    const auto bit = static_cast<std::uint32_t>(entry->rule);
-    if (!WriteConfiguredValue("input", entry->key, enabled ? "true" : "false"))
-        return false;
-    if (enabled)
-        g_fuzzy_pinyin_rules |= bit;
-    else
-        g_fuzzy_pinyin_rules &= ~bit;
-    return true;
+    (void)key;
+    (void)enabled;
+    // Individual fuzzy rules no longer exist without the Chinese engine.
+    return false;
 }
 
 const std::string &GetConfiguredQuanpinHelpcodeSchema()

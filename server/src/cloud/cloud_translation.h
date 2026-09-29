@@ -18,8 +18,7 @@ inline bool IsUsableSecret(const std::string &value)
     return !value.empty();
 }
 
-template <typename Callback>
-void Start(const std::string &, Callback)
+template <typename Callback> void Start(const std::string &, Callback)
 {
 }
 
