@@ -219,7 +219,7 @@ punctuation_lock = "follow"
 # session_backend = "legacy"
 session_backend = "engine"
 # 输入模式，可选："chinese", "japanese"。切换模式时保留各语言上次使用的方案。
-mode = "chinese"
+mode = "japanese"
 # 输入方案，可选："quanpin", "shuangpin", "wubi"
 schema = "quanpin"
 # schema = "quanpin"

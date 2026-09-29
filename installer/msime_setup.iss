@@ -18,9 +18,9 @@
 ; 上面两条都不把 PDB 打进包；要带符号用 .\test-symbols.ps1。
 ; 本仓库不包含任何预置代码签名证书。
 
-#define MyAppName      "Metasequoia IME 水杉输入法"
-#define MyAppVersion   "0.0.1"
-#define MyAppPublisher "Metasequoia"
+#define MyAppName      "SugiIME 水杉日语输入法"
+#define MyAppVersion   "0.1.0"
+#define MyAppPublisher "SugiIME"
 #define MyAppExeName   "MetasequoiaImeServer.exe"
 #define MySettingsExeName "MetasequoiaImeSettings.exe"
 ; 与 settings_app.cpp / settings_launcher.cpp 的 kQuitSettings 保持一致：WM_APP + 5。
@@ -41,7 +41,7 @@
 #endif
 
 [Setup]
-AppId={{A7C3E91F-4B2D-4E8A-9F1C-6D5E8B0A2C4D}
+AppId={{660e51cf-af80-493a-8914-7302709ec1a8}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
