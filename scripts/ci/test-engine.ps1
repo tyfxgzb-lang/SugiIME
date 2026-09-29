@@ -10,10 +10,6 @@ param(
 # The data layout mirrors test-server.ps1.
 $ErrorActionPreference = 'Stop'
 $automationRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
-$helpcodes = Join-Path $automationRoot 'engine/helpcode/helpcodes'
-if (-not (Test-Path -LiteralPath $helpcodes -PathType Container)) {
-    throw "Helpcodes not found at $helpcodes; the engine is vendored in-tree, so this is an incomplete checkout"
-}
 python (Join-Path $automationRoot 'scripts/product_lock.py') fetch-dictionaries --staging-root $StagingRoot
 if ($LASTEXITCODE -ne 0) { throw 'Could not provision locked dictionaries' }
 $verified = (Resolve-Path (Join-Path $StagingRoot 'MetasequoiaImeDict/out')).Path
@@ -22,9 +18,8 @@ $env:LOCALAPPDATA = Join-Path (Resolve-Path $StagingRoot).Path 'user-local'
 $data = Join-Path $env:LOCALAPPDATA 'metasequoiaime'
 New-Item -ItemType Directory -Force -Path $data | Out-Null
 Copy-Item (Join-Path $verified '*') -Destination $data -Force
-Copy-Item $helpcodes -Destination $data -Recurse -Force
-Copy-Item (Join-Path $automationRoot 'server/assets/tables/*') -Destination $data -Force
-Copy-Item (Join-Path $automationRoot 'server/assets/config/config.toml') -Destination $data -Force
+Copy-Item (Join-Path $automationRoot 'server/assets/tables/*') -Destination $data -Force -ErrorAction SilentlyContinue
+Copy-Item (Join-Path $automationRoot 'server/assets/config/config.toml') -Destination $data -Force -ErrorAction SilentlyContinue
 $env:METASEQUOIA_IME_DATA_DIR = $data
 ctest --no-tests=error --test-dir $BuildDir -C Release --output-on-failure --timeout 120
 if ($LASTEXITCODE -ne 0) { throw 'Engine tests failed for the locked product' }

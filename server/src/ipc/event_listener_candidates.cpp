@@ -18,7 +18,6 @@
 #include "engine/common/helpcode_utils.h"
 #include "engine/japanese/japanese_glossary.h"
 #include "engine/core/scheme_type.h"
-#include "engine/quanpin/quanpin_query.h"
 #include "engine/user_dictionary/user_dictionary_journal.h"
 #include "cloud/cloud_translation.h"
 #include "english/english_ime.h"
@@ -28,22 +27,12 @@
 #include "engine/local_modes/date_time_query.h"
 #include "engine/local_modes/emoji_query.h"
 #include "engine/local_modes/kaomoji_query.h"
-#include "engine/local_modes/jianpin_query.h"
-#include "engine/shuangpin/shuangpin_profile.h"
 #include "log/candidate_diag_log.h"
 
 using namespace event_listener_detail;
 
 namespace
 {
-// The engine's local mode queries take a resolved ShuangpinProfile and default it to Xiaohe. The
-// modules this file used to call resolved the *configured* scheme instead, so every call site here
-// has to pass this explicitly: letting the default through would silently decode J mode, emoji and
-// kaomoji as Xiaohe for anyone on Ziranma, Shoudao or Microsoft shuangpin.
-const ShuangpinProfile &ConfiguredShuangpinProfile()
-{
-    return GetShuangpinProfile(GetConfiguredShuangpinSchema());
-}
 
 std::string BuildCurrentCandidatePage();
 void PrepareCandidateTranslationRequest();
@@ -137,12 +126,6 @@ bool IsKaomojiInput(const std::string &raw)
     return IsKaomojiCompositionActive(raw) && raw.size() > 1;
 }
 
-bool IsJianpinInput(const std::string &raw)
-{
-    return IsJianpinCompositionActive(raw) && raw.size() > 1 &&
-           std::all_of(raw.begin() + 1, raw.end(),
-                       [](unsigned char ch) { return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'); });
-}
 } // namespace
 
 namespace event_listener_detail
@@ -559,29 +542,15 @@ void PrepareCandidateList(uint64_t client_id, uint64_t activation_epoch)
     }
     else if (IsEmojiInput(current_input))
     {
-        items = metasequoia::local_modes::query_emoji(current_input.substr(1), g_inputSession->current_scheme_type(),
-                                                      10, ConfiguredShuangpinProfile())
-                    .candidates;
+        items =
+            metasequoia::local_modes::query_emoji(current_input.substr(1), g_inputSession->current_scheme_type(), 10)
+                .candidates;
     }
     else if (IsKaomojiInput(current_input))
     {
-        items = metasequoia::local_modes::query_kaomoji(current_input.substr(1), g_inputSession->current_scheme_type(),
-                                                        10, ConfiguredShuangpinProfile())
-                    .candidates;
-    }
-    else if (IsJianpinInput(current_input))
-    {
-        const int limit = current_input.size() == 2 ? 24 : 100;
-        items = metasequoia::local_modes::query_jianpin(current_input.substr(1), g_inputSession->current_scheme_type(),
-                                                        limit, ConfiguredShuangpinProfile())
-                    .candidates;
-        const std::string typed = g_inputSession->get_pinyin_sequence();
-        for (auto &item : items)
-            item.pinyin = typed;
-        queryMs = segment.Split();
-        user_dictionary::apply_fixed_positions(user_dictionary::default_user_db_path(), CurrentRankingContextKey(),
-                                               items, false);
-        fixedPosMs = segment.Split();
+        items =
+            metasequoia::local_modes::query_kaomoji(current_input.substr(1), g_inputSession->current_scheme_type(), 10)
+                .candidates;
     }
     else if (IsYModeInput(current_input))
     {
@@ -652,7 +621,8 @@ void PrepareCandidateList(uint64_t client_id, uint64_t activation_epoch)
     const double englishMs = segment.Split();
 
     if (!g_english_input_mode && !IsSpecialModeCompositionActive(current_input) &&
-        GetConfiguredEmojiMixedInputEnabled() && (scheme == SchemeType::JapaneseRomaji || scheme == SchemeType::JapaneseKana) &&
+        GetConfiguredEmojiMixedInputEnabled() &&
+        (scheme == SchemeType::JapaneseRomaji || scheme == SchemeType::JapaneseKana) &&
         !GlobalIme::composition.creating_word.active)
     {
         UpdateEmojiInput(current_input, client_id, activation_epoch);
@@ -664,7 +634,8 @@ void PrepareCandidateList(uint64_t client_id, uint64_t activation_epoch)
     const double emojiMs = segment.Split();
 
     if (!g_english_input_mode && !IsSpecialModeCompositionActive(current_input) &&
-        GetConfiguredKaomojiMixedInputEnabled() && (scheme == SchemeType::JapaneseRomaji || scheme == SchemeType::JapaneseKana) &&
+        GetConfiguredKaomojiMixedInputEnabled() &&
+        (scheme == SchemeType::JapaneseRomaji || scheme == SchemeType::JapaneseKana) &&
         !GlobalIme::composition.creating_word.active)
     {
         UpdateKaomojiInput(current_input, client_id, activation_epoch);

@@ -28,7 +28,6 @@
 #include "ai/ai_assistant.h"
 #include "english/english_ime.h"
 #include "config/ime_config.h"
-#include "conversion/chinese_converter.h"
 #include "emoji/emoji_ime.h"
 #include "kaomoji/kaomoji_ime.h"
 #include "log/candidate_diag_log.h"
@@ -460,7 +459,8 @@ void UpdateEnglishInput(const std::string &input, uint64_t client_id, uint64_t a
 void UpdateEmojiInput(const std::string &input, uint64_t client_id, uint64_t activation_epoch)
 {
     std::lock_guard lock(g_async_request_mutex);
-    EmojiIme::OnInputChanged(input, g_inputSession ? g_inputSession->current_scheme_type() : SchemeType::JapaneseRomaji);
+    EmojiIme::OnInputChanged(input,
+                             g_inputSession ? g_inputSession->current_scheme_type() : SchemeType::JapaneseRomaji);
     ++g_emoji_generation;
     g_emoji_request_origin = input.empty() ? AsyncRequestOrigin{}
                                            : AsyncRequestOrigin{client_id, activation_epoch, g_emoji_generation, input};
@@ -469,7 +469,8 @@ void UpdateEmojiInput(const std::string &input, uint64_t client_id, uint64_t act
 void UpdateKaomojiInput(const std::string &input, uint64_t client_id, uint64_t activation_epoch)
 {
     std::lock_guard lock(g_async_request_mutex);
-    KaomojiIme::OnInputChanged(input, g_inputSession ? g_inputSession->current_scheme_type() : SchemeType::JapaneseRomaji);
+    KaomojiIme::OnInputChanged(input,
+                               g_inputSession ? g_inputSession->current_scheme_type() : SchemeType::JapaneseRomaji);
     ++g_kaomoji_generation;
     g_kaomoji_request_origin = input.empty()
                                    ? AsyncRequestOrigin{}
@@ -563,9 +564,7 @@ AsyncRequestOrigin FindAiRequestOrigin(const std::string &input, uint64_t genera
 
 std::string CandidateTextForOutput(const std::string &text)
 {
-    if (g_inputSession && IsJapaneseScheme(g_inputSession->current_scheme_type()))
-        return text;
-    return GetConfiguredCharacterSet() == "traditional" ? ChineseConverter::ToTraditional(text) : text;
+    return text;
 }
 
 // 每次提交都把上屏文本追加进 AI 联想的上下文，并按 UTF-8 边界裁剪到 1024 字节。

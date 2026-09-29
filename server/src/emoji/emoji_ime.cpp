@@ -2,7 +2,6 @@
 
 #include "engine/local_modes/emoji_query.h"
 #include "engine/core/data_path.h"
-#include "engine/shuangpin/shuangpin_profile.h"
 #include "config/ime_config.h"
 #include <atomic>
 #include <condition_variable>
@@ -50,8 +49,7 @@ void WorkerLoop()
         }
 
         auto candidates = metasequoia::local_modes::query_emoji(
-                              input, scheme, metasequoia::path_from_utf8(g_db_path.c_str()), kMixedCandidateLimit,
-                              GetShuangpinProfile(GetConfiguredShuangpinSchema()))
+                              input, scheme, metasequoia::path_from_utf8(g_db_path.c_str()), kMixedCandidateLimit)
                               .candidates;
         if (!g_running || g_generation.load() != observed_generation)
         {

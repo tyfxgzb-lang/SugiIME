@@ -18,6 +18,7 @@
 #include "skin/candidate_skin_catalog.h"
 #include "utils/common_utils.h"
 #include "utils/single_instance.h"
+#include "voice-input/voice_providers.h"
 
 #include <WebView2.h>
 #include <WebView2EnvironmentOptions.h>
