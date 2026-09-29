@@ -1,10 +1,10 @@
 #pragma once
 #include "resource.h"
 
-#define IME_NAME L"MetasequoiaImeTsf"
+#define IME_NAME L"SugiIME"
 
 #define TEXTSERVICE_MODEL L"Apartment"
-#define TEXTSERVICE_LANGID MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED)
+#define TEXTSERVICE_LANGID MAKELANGID(LANG_JAPANESE, SUBLANG_JAPANESE_JAPAN)
 #define TEXTSERVICE_ICON_INDEX -IDIS_METASEQUOIAIME
 #define TEXTSERVICE_DIC L"MetasequoiaIMESimplifiedQuanPin.txt"
 #define TEXTSERVICE_DIC_DB L"cutted_flyciku_with_jp.db"
@@ -24,8 +24,8 @@
 #define IME_PUNCTUATION_ON_INDEX IDI_PUNCTUATION_ON
 #define IME_PUNCTUATION_OFF_INDEX IDI_PUNCTUATION_OFF
 
-#define METASEQUOIAIME_FONT_DEFAULT L"Microsoft YaHei UI"
-#define METASEQUOIAIME_LOCALE_DEFAULT L"zh-CN"
+#define METASEQUOIAIME_FONT_DEFAULT L"Yu Gothic UI"
+#define METASEQUOIAIME_LOCALE_DEFAULT L"ja-JP"
 
 //---------------------------------------------------------------------
 // defined max pinyin input length

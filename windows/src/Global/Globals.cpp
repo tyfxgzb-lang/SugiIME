@@ -22,15 +22,15 @@ HFONT defaultlFontHandle; // Global font object we use everywhere
 //---------------------------------------------------------------------
 // MetasequoiaIME CLSID
 //---------------------------------------------------------------------
-// {E3062E9A-D834-4637-8958-ED8CFA427D01}
-extern const CLSID MetasequoiaIMECLSID = {0xe3062e9a, 0xd834, 0x4637, {0x89, 0x58, 0xed, 0x8c, 0xfa, 0x42, 0x7d, 0x01}};
+// {144AB26B-E6E3-404F-8C27-C530C183805B}
+extern const CLSID MetasequoiaIMECLSID = {0x144ab26b, 0xe6e3, 0x404f, {0x8c, 0x27, 0xc5, 0x30, 0xc1, 0x83, 0x80, 0x5b}};
 
 //---------------------------------------------------------------------
 // Profile GUID
 //---------------------------------------------------------------------
-// {4D59B1B4-D503-44AE-9259-BAD9BB2778AB}
+// {D8D572FD-68A8-4AE1-8997-10C3EBBC7BF2}
 extern const GUID MetasequoiaIMEGuidProfile = {
-    0x4d59b1b4, 0xd503, 0x44ae, {0x92, 0x59, 0xba, 0xd9, 0xbb, 0x27, 0x78, 0xab}};
+    0xd8d572fd, 0x68a8, 0x4ae1, {0x89, 0x97, 0x10, 0xc3, 0xeb, 0xbc, 0x7b, 0xf2}};
 
 //---------------------------------------------------------------------
 // PreserveKey GUID

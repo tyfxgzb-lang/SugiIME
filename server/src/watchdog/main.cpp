@@ -21,10 +21,10 @@ constexpr DWORD kProfileReadyTimeoutMilliseconds = 30'000;
 constexpr DWORD kProfileReadyRetryIntervalMilliseconds = 1'000;
 
 // Keep these identifiers in sync with MetasequoiaImeTsf/src/Global/Globals.cpp.
-constexpr CLSID kMetasequoiaImeClsid = {0xe3062e9a, 0xd834, 0x4637, {0x89, 0x58, 0xed, 0x8c, 0xfa, 0x42, 0x7d, 0x01}};
+constexpr CLSID kMetasequoiaImeClsid = {0x144ab26b, 0xe6e3, 0x404f, {0x8c, 0x27, 0xc5, 0x30, 0xc1, 0x83, 0x80, 0x5b}};
 constexpr GUID kMetasequoiaImeProfileGuid = {
-    0x4d59b1b4, 0xd503, 0x44ae, {0x92, 0x59, 0xba, 0xd9, 0xbb, 0x27, 0x78, 0xab}};
-constexpr LANGID kMetasequoiaImeLanguage = MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED);
+    0xd8d572fd, 0x68a8, 0x4ae1, {0x89, 0x97, 0x10, 0xc3, 0xeb, 0xbc, 0x7b, 0xf2}};
+constexpr LANGID kMetasequoiaImeLanguage = MAKELANGID(LANG_JAPANESE, SUBLANG_JAPANESE_JAPAN);
 
 bool IsMetasequoiaImeEnabledForCurrentUser()
 {
