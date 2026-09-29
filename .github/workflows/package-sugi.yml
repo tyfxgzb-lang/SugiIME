@@ -164,6 +164,6 @@ jobs:
           path: |
             installer/Output/*.exe
             installer/SugiIME-Test.cer
-            installer/import-test-cert.ps1
-            installer/install.ps1
+            installer/import-cert.bat
+            installer/install.bat
           if-no-files-found: error
