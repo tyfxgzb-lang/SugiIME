@@ -28,8 +28,6 @@ vi.mock('./input', () => ({
   applyTencentTmtConfig: vi.fn(),
   applyZhEnMixedInputConfig: vi.fn()
 }));
-vi.mock('./voice', () => ({ applyVoiceConfig: vi.fn() }));
-vi.mock('./ai-settings', () => ({ applyAiConfig: vi.fn() }));
 vi.mock('./floating-toolbar', () => ({
   applyCaretStateIndicatorPosition: vi.fn(),
   applyFloatingToolbarAppearanceConfig: vi.fn(),

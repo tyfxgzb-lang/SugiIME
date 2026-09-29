@@ -3,14 +3,10 @@ import { notifySettingsModuleReady } from './config-sync';
 
 const BACKGROUND_MODULES = [
   'input',
-  'helpcode',
   'shortcut',
   'dict',
-  'voice',
   'screenkb-settings',
-  'handwriting-settings',
   'tools-settings',
-  'ai-settings',
   'floating-toolbar',
   'help-settings',
   'about-settings',
@@ -25,9 +21,6 @@ const setupLoaders: Record<string, () => Promise<void>> = {
   input: async () => {
     (await import('./input')).setupInput();
   },
-  helpcode: async () => {
-    (await import('./helpcode')).setupHelpcode();
-  },
   dict: async () => {
     (await import('./dict')).setupDictionary();
   },
@@ -35,22 +28,12 @@ const setupLoaders: Record<string, () => Promise<void>> = {
     await (await import('./skin')).setupSkin();
     (await import('./theme')).reapplyThemeConfig();
   },
-  voice: async () => {
-    (await import('./voice')).setupVoiceInput();
-  },
   'screenkb-settings': async () => {
     (await import('./screenkb-settings')).setupScreenKeyboardSettings();
     (await import('./theme')).reapplyThemeConfig();
   },
-  'handwriting-settings': async () => {
-    (await import('./handwriting-settings')).setupHandwritingSettings();
-    (await import('./theme')).reapplyThemeConfig();
-  },
   'tools-settings': async () => {
     (await import('./tools-settings')).setupToolsSettings();
-  },
-  'ai-settings': async () => {
-    (await import('./ai-settings')).setupAiSettings();
   },
   shortcut: async () => {
     (await import('./shortcut')).setupShortcut();

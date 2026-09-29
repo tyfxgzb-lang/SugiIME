@@ -333,7 +333,7 @@ function applyConfigData(data: Record<string, any>, target?: string): void {
     }
   }
 
-  if (applies('input') || applies('helpcode') || applies('tools-settings')) {
+  if (applies('input') || applies('tools-settings')) {
     void import('./input').then((module) => {
       if (data !== lastSnapshot) return;
       module.applyInputConfig(
@@ -357,12 +357,6 @@ function applyConfigData(data: Record<string, any>, target?: string): void {
       module.applyNiuTransConfig(data?.niutrans);
       module.applyCustomTranslationConfig(data?.custom_translation);
     });
-  }
-  if (applies('voice') && data?.voice_input && typeof data.voice_input === 'object') {
-    void import('./voice').then((module) => { if (data === lastSnapshot) module.applyVoiceConfig(data.voice_input); });
-  }
-  if (applies('ai-settings') && data?.ai_assistant && typeof data.ai_assistant === 'object') {
-    void import('./ai-settings').then((module) => { if (data === lastSnapshot) module.applyAiConfig(data.ai_assistant); });
   }
   if (applies('floating-toolbar')) {
     void import('./floating-toolbar').then((module) => {

@@ -117,12 +117,6 @@ export function applyThemeConfig(config: ThemeConfig | undefined): void {
       module.applyScreenKeyboardPreviewTheme(screenKeyboardTheme);
     });
   }
-  if (document.querySelector('.handwriting-preview')) {
-    const handwritingTheme = resolveTheme(mode, normalizeSurfaceTheme(config?.theme_handwriting));
-    void import('./handwriting-settings').then((module) => {
-      module.applyHandwritingPreviewTheme(handwritingTheme);
-    });
-  }
 
   applyDropdownLabel('themeBtn', THEME_MODE_LABELS[mode]);
   applyDropdownLabel('settingsThemeBtn', SURFACE_THEME_LABELS[settingsTheme]);
