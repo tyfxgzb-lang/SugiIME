@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include "../core/data_path.h"
 #include "../contracts/assets/assets.h"
+#include <utf8.h>
 #include <unordered_set>
 #include <utility>
 
@@ -218,12 +219,94 @@ std::vector<WordItem> JapaneseCandidateProvider::query(const QueryRequest &reque
         }
     }
 
-    // Candidate 1 is the kana form of the whole reading. By default it is the
-    // full-width katakana form; F6-F10 pin it to one of the five MS-IME forms.
-    // Hiragana no longer occupies a candidate slot in Auto mode: Enter commits
-    // the rendered preedit (hiragana) directly, so the katakana conversion is
-    // what users need at the top of the list, followed by the kanji/word pool
-    // below.
+    // Fuzzy voicing (濁音・半濁音の曖昧入力): users who confuse ga/ka, za/sa,
+    // da/ta, ba/ha, pa/ha etc. get the corrected reading offered as a candidate.
+    // For each mora we try adding / stripping dakuten (and handakuten on the
+    // は row) and surface any lemmas the swapped reading resolves to.
+    if (sentence_decoder_ && sentence_decoder_->ready() && hiragana_complete)
+    {
+        const std::string &reading = conversion.hiragana;
+        std::vector<std::uint32_t> cps;
+        {
+            auto it = reading.begin();
+            while (it != reading.end())
+            {
+                try
+                {
+                    cps.push_back(utf8::next(it, reading.end()));
+                }
+                catch (...)
+                {
+                    break;
+                }
+            }
+        }
+        // Clear kana that take dakuten: かきくけこ さしすせそ たちつてと はひふへほ
+        static const std::unordered_set<std::uint32_t> kDakutenCapable = {
+            0x304B, 0x304D, 0x304F, 0x3051, 0x3053, // かきくけこ
+            0x3055, 0x3057, 0x3059, 0x305B, 0x305D, // さしすせそ
+            0x305F, 0x3061, 0x3064, 0x3066, 0x3068, // たちつてと
+            0x306F, 0x3072, 0x3075, 0x3078, 0x307B  // はひふへほ
+        };
+        // は行 (U+306F..) supports handakuten as well: clear + 2.
+        static const std::unordered_set<std::uint32_t> kHandakutenCapable = {0x306F, 0x3072, 0x3075, 0x3078, 0x307B};
+        // Dakuten versions: clear + 1. Handakuten: は行 clear + 2.
+        auto is_dakuten = [](std::uint32_t cp) {
+            return (cp >= 0x304C && cp <= 0x3054 && cp % 2 == 0) || // がぎぐげご etc (+1 from clear)
+                   (cp >= 0x3056 && cp <= 0x305E && cp % 2 == 0) || (cp >= 0x3060 && cp <= 0x3069 && cp % 2 == 0) ||
+                   (cp >= 0x3070 && cp <= 0x307D); // ばびぶべぼ (+1 from は行)
+        };
+        auto is_handakuten = [](std::uint32_t cp) {
+            return cp >= 0x3071 && cp <= 0x307D && (cp - 0x306F) % 3 == 2; // ぱぴぷぺぽ
+        };
+
+        const int kMaxFuzzyVariants = 12;
+        int variants_tried = 0;
+        for (std::size_t i = 0; i < cps.size() && variants_tried < kMaxFuzzyVariants; ++i)
+        {
+            const std::uint32_t cp = cps[i];
+            std::vector<std::uint32_t> swaps;
+            if (kDakutenCapable.count(cp))
+            {
+                swaps.push_back(cp + 1); // add dakuten
+                if (kHandakutenCapable.count(cp))
+                    swaps.push_back(cp + 2); // add handakuten
+            }
+            else if (is_dakuten(cp))
+            {
+                swaps.push_back(cp - 1); // strip dakuten
+            }
+            else if (is_handakuten(cp))
+            {
+                swaps.push_back(cp - 2); // strip handakuten → clear
+                swaps.push_back(cp - 1); // strip handakuten → dakuten
+            }
+            for (std::uint32_t swapped : swaps)
+            {
+                if (variants_tried >= kMaxFuzzyVariants)
+                    break;
+                ++variants_tried;
+                std::vector<std::uint32_t> variant_cps = cps;
+                variant_cps[i] = swapped;
+                std::string variant_reading;
+                for (std::uint32_t v : variant_cps)
+                    utf8::append(v, std::back_inserter(variant_reading));
+                for (const auto &lemma : sentence_decoder_->PrefixLemmas(variant_reading, 8))
+                {
+                    if (lemma.reading == variant_reading)
+                    {
+                        AppendUnique(word_pool, seen, request.raw_input_with_cases, lemma.surface,
+                                     970000 - lemma.word_cost, CandidateSource::Generated);
+                    }
+                }
+            }
+        }
+    }
+
+    // Candidate 1 is the kana form of the whole reading. In Auto mode the lead
+    // is hiragana by default, matching the inline preedit; if the top decoded
+    // surface is a katakana-only loanword (外来語), the lead flips to katakana
+    // so loanwords like アルバイト surface directly. F6-F11 pin a specific form.
     std::vector<WordItem> kana_leads;
     if (hiragana_complete)
     {
@@ -242,7 +325,39 @@ std::vector<WordItem> JapaneseCandidateProvider::query(const QueryRequest &reque
         case JapaneseKanaForm::HalfWidthRomaji:
             lead = japanese::HiraganaToRomaji(conversion.hiragana);
             break;
-        case JapaneseKanaForm::Auto:
+        case JapaneseKanaForm::Auto: {
+            // Default lead is hiragana. If the top decoded surface is a
+            // katakana-only loanword (外来語), flip the lead to katakana so
+            // words like アルバイト appear directly as candidate 1.
+            lead = conversion.hiragana;
+            for (const auto &item : word_pool)
+            {
+                if (item.word.empty())
+                    continue;
+                // Decode UTF-8 and check every codepoint is katakana.
+                auto it = item.word.begin();
+                std::vector<std::uint32_t> cps;
+                while (it != item.word.end())
+                {
+                    try
+                    {
+                        cps.push_back(utf8::next(it, item.word.end()));
+                    }
+                    catch (...)
+                    {
+                        break;
+                    }
+                }
+                if (!cps.empty() && std::all_of(cps.begin(), cps.end(), [](std::uint32_t cp) {
+                        return (cp >= 0x30A1 && cp <= 0x30FA) || cp == 0x30FC;
+                    }))
+                {
+                    lead = japanese::HiraganaToKatakana(conversion.hiragana);
+                }
+                break;
+            }
+            break;
+        }
         case JapaneseKanaForm::Katakana:
         default:
             lead = japanese::HiraganaToKatakana(conversion.hiragana);

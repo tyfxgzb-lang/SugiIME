@@ -543,6 +543,7 @@ BOOL CCompositionProcessorEngine::IsVirtualKeyNeed( //
             case VK_F8:
             case VK_F9:
             case VK_F10:
+            case VK_F11:
                 if (Global::JapaneseInputModeEnabled.load(std::memory_order_relaxed))
                 {
                     if (pKeyState)
@@ -693,6 +694,7 @@ BOOL CCompositionProcessorEngine::IsVirtualKeyNeed( //
             case VK_F8:
             case VK_F9:
             case VK_F10:
+            case VK_F11:
                 if (Global::JapaneseInputModeEnabled.load(std::memory_order_relaxed))
                 {
                     if (pKeyState)

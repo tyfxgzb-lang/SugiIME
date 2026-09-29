@@ -755,13 +755,14 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
         g_r_mode_triggered = true;
     }
 
-    // F6-F10 pin the kana form of the leading Japanese candidate, matching the
+    // F6-F11 pin the kana form of the leading Japanese candidate, matching the
     // Microsoft Japanese IME: F6 hiragana, F7 full-width katakana, F8
-    // half-width katakana, F9 full-width romaji, F10 half-width romaji. Only
+    // half-width katakana, F9 full-width romaji, F10 half-width romaji, F11
+    // romaji (alias of F10 for users who want a single romaji key). Only
     // active in Japanese mode with a non-empty composition, and gated by
     // input.japanese_katakana_fkey.
     if (GetConfiguredJapaneseKatakanaFkey() && IsJapaneseInputMode() && g_inputSession && !input_before_key.empty() &&
-        (Global::Keycode >= VK_F6 && Global::Keycode <= VK_F10))
+        (Global::Keycode >= VK_F6 && Global::Keycode <= VK_F11))
     {
         JapaneseKanaForm form = JapaneseKanaForm::Auto;
         bool set_preedit = true;
@@ -783,6 +784,9 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
             form = JapaneseKanaForm::FullWidthRomaji;
             break;
         case VK_F10:
+            form = JapaneseKanaForm::HalfWidthRomaji;
+            break;
+        case VK_F11:
             form = JapaneseKanaForm::HalfWidthRomaji;
             break;
         default:
@@ -814,6 +818,7 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
                     flipped = japanese::AsciiToFullWidth(japanese::HiraganaToRomaji(current_preedit));
                     break;
                 case VK_F10:
+                case VK_F11:
                     flipped = japanese::HiraganaToRomaji(current_preedit);
                     break;
                 default:
