@@ -9,7 +9,7 @@ import { serializeHostMessage } from '../../../../shared/messages';
 type DictionaryType = 'quanpin' | 'wubi' | 'english' | 'japanese';
 type DictionaryRow = { code?: string; word: string; weight?: number; display?: string };
 
-let dictionary: DictionaryType = 'quanpin';
+let dictionary: DictionaryType = 'japanese';
 let editing: DictionaryRow | null = null;
 let requestCounter = 0;
 let lastQuery = '';
