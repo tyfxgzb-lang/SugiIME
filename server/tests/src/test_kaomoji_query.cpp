@@ -1,7 +1,5 @@
 #include "tests/includes/test_framework.h"
 #include "engine/local_modes/kaomoji_query.h"
-#include "engine/shuangpin/shuangpin_profile.h"
-#include "config/ime_config.h"
 #include "utils/common_utils.h"
 
 #include <filesystem>
@@ -24,23 +22,12 @@ bool Contains(const std::vector<WordItem> &items, const std::string &word)
 }
 } // namespace
 
+// Direct code lookup only: pinyin/shuangpin expansion was removed with the Chinese engine.
 TEST_CASE(kaomoji_query_prefix_matches_full_pinyin)
 {
     if (!KaomojiDatabaseAvailable())
         return;
-    const auto results = metasequoia::local_modes::query_kaomoji("haixiu", SchemeType::Quanpin, 10,
-                                                                 GetShuangpinProfile(GetConfiguredShuangpinSchema()))
-                             .candidates;
-    REQUIRE(Contains(results, "(*/ω＼*)"));
-}
-
-TEST_CASE(kaomoji_query_prefix_matches_jianpin)
-{
-    if (!KaomojiDatabaseAvailable())
-        return;
-    const auto results = metasequoia::local_modes::query_kaomoji("hx", SchemeType::Quanpin, 10,
-                                                                 GetShuangpinProfile(GetConfiguredShuangpinSchema()))
-                             .candidates;
+    const auto results = metasequoia::local_modes::query_kaomoji("haixiu", SchemeType::JapaneseRomaji, 10).candidates;
     REQUIRE(Contains(results, "(*/ω＼*)"));
 }
 
@@ -48,35 +35,16 @@ TEST_CASE(kaomoji_query_prefix_matches_english_word)
 {
     if (!KaomojiDatabaseAvailable())
         return;
-    const auto results = metasequoia::local_modes::query_kaomoji("kiss", SchemeType::Quanpin, 10,
-                                                                 GetShuangpinProfile(GetConfiguredShuangpinSchema()))
-                             .candidates;
+    const auto results = metasequoia::local_modes::query_kaomoji("kiss", SchemeType::JapaneseRomaji, 10).candidates;
     REQUIRE(!results.empty());
     REQUIRE(results[0].source == CandidateSource::Kaomoji);
-}
-
-TEST_CASE(kaomoji_query_shuangpin_expands_to_quanpin)
-{
-    if (!KaomojiDatabaseAvailable())
-        return;
-    // Xiaohe hx -> haixiu: must reach the haixiu kaomoji via Chinese pinyin.
-    const auto results = metasequoia::local_modes::query_kaomoji("hx", SchemeType::Shuangpin, 10,
-                                                                 GetShuangpinProfile(GetConfiguredShuangpinSchema()))
-                             .candidates;
-    REQUIRE(Contains(results, "(*/ω＼*)"));
 }
 
 TEST_CASE(kaomoji_query_single_char_pinyin_prefix)
 {
     if (!KaomojiDatabaseAvailable())
         return;
-    // "Mk": one char after the trigger must return pinyin-"k"-prefixed kaomoji.
-    const auto quanpin = metasequoia::local_modes::query_kaomoji("k", SchemeType::Quanpin, 10,
-                                                                 GetShuangpinProfile(GetConfiguredShuangpinSchema()))
-                             .candidates;
-    REQUIRE(!quanpin.empty());
-    const auto shuangpin = metasequoia::local_modes::query_kaomoji("k", SchemeType::Shuangpin, 10,
-                                                                   GetShuangpinProfile(GetConfiguredShuangpinSchema()))
-                               .candidates;
-    REQUIRE(!shuangpin.empty());
+    // "k" after the trigger returns kaomoji stored under the "k" code prefix.
+    const auto results = metasequoia::local_modes::query_kaomoji("k", SchemeType::JapaneseRomaji, 10).candidates;
+    REQUIRE(!results.empty());
 }

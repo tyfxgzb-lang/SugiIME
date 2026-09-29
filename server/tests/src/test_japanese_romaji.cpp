@@ -155,23 +155,23 @@ TEST_CASE(JapanesePreeditPreservesTypedCasesAcrossEngineAndCandidateUi)
     REQUIRE_EQ(session.get_pinyin_segmentation_with_cases(), std::string("にほんご"));
 }
 
-TEST_CASE(TemporaryJapaneseSessionDoesNotMutateChineseSession)
+TEST_CASE(TemporaryRomajiSessionDoesNotMutateOriginalSession)
 {
-    EngineInputSession chinese(SchemeType::Quanpin);
-    chinese.handle_key('N', 0, L'n');
-    chinese.handle_key('I', 0, L'i');
+    EngineInputSession original(SchemeType::JapaneseRomaji);
+    original.handle_key('N', 0, L'n');
+    original.handle_key('I', 0, L'i');
 
-    const auto japanese = std::make_shared<EngineInputSession>(SchemeType::JapaneseRomaji);
+    const auto temporary = std::make_shared<EngineInputSession>(SchemeType::JapaneseRomaji);
     for (const char ch : std::string("nihongo"))
     {
         const char vk = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
-        japanese->handle_key(static_cast<UINT>(vk), 0, static_cast<WCHAR>(ch));
+        temporary->handle_key(static_cast<UINT>(vk), 0, static_cast<WCHAR>(ch));
     }
 
-    REQUIRE_EQ(chinese.current_scheme_type(), SchemeType::Quanpin);
-    REQUIRE_EQ(chinese.get_pinyin_sequence_with_cases(), std::string("ni"));
-    REQUIRE_EQ(japanese->current_scheme_type(), SchemeType::JapaneseRomaji);
-    REQUIRE_EQ(japanese->get_pinyin_sequence_with_cases(), std::string("nihongo"));
+    REQUIRE_EQ(original.current_scheme_type(), SchemeType::JapaneseRomaji);
+    REQUIRE_EQ(original.get_pinyin_sequence_with_cases(), std::string("ni"));
+    REQUIRE_EQ(temporary->current_scheme_type(), SchemeType::JapaneseRomaji);
+    REQUIRE_EQ(temporary->get_pinyin_sequence_with_cases(), std::string("nihongo"));
 }
 
 TEST_CASE(JapaneseProviderCombinesGeneratedKanaAndSqliteCandidates)

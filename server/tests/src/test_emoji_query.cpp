@@ -1,7 +1,5 @@
 #include "tests/includes/test_framework.h"
 #include "engine/local_modes/emoji_query.h"
-#include "engine/shuangpin/shuangpin_profile.h"
-#include "config/ime_config.h"
 #include "utils/common_utils.h"
 
 #include <filesystem>
@@ -26,45 +24,23 @@ bool Contains(const std::vector<WordItem> &items, const std::string &word)
 }
 } // namespace
 
+// The query matches the stored code directly; the scheme argument is retained for API
+// compatibility but ignored. SugiIME dropped pinyin/shuangpin expansion, so only the direct
+// full-code and English lookups are exercised here.
 TEST_CASE(emoji_query_prefix_matches_full_pinyin)
 {
     if (!EmojiDatabaseAvailable())
         return;
-    const auto results = metasequoia::local_modes::query_emoji("xiaolian", SchemeType::Quanpin, 10,
-                                                               GetShuangpinProfile(GetConfiguredShuangpinSchema()))
-                             .candidates;
+    const auto results = metasequoia::local_modes::query_emoji("xiaolian", SchemeType::JapaneseRomaji, 10).candidates;
     REQUIRE(!results.empty());
     REQUIRE_EQ(results[0].word, kSmiley);
     REQUIRE(results[0].source == CandidateSource::Emoji);
-}
-
-TEST_CASE(emoji_query_prefix_matches_jianpin)
-{
-    if (!EmojiDatabaseAvailable())
-        return;
-    const auto results = metasequoia::local_modes::query_emoji("xl", SchemeType::Quanpin, 200,
-                                                               GetShuangpinProfile(GetConfiguredShuangpinSchema()))
-                             .candidates;
-    REQUIRE(Contains(results, kSmiley));
 }
 
 TEST_CASE(emoji_query_prefix_matches_english_word)
 {
     if (!EmojiDatabaseAvailable())
         return;
-    const auto results = metasequoia::local_modes::query_emoji("laugh", SchemeType::Quanpin, 50,
-                                                               GetShuangpinProfile(GetConfiguredShuangpinSchema()))
-                             .candidates;
-    REQUIRE(Contains(results, kSmiley));
-}
-
-TEST_CASE(emoji_query_xiaohe_shuangpin_expands_to_quanpin)
-{
-    if (!EmojiDatabaseAvailable())
-        return;
-    // Xiaohe xnlm -> xiaolian, which must reach the smiley via Chinese pinyin.
-    const auto results = metasequoia::local_modes::query_emoji("xnlm", SchemeType::Shuangpin, 10,
-                                                               GetShuangpinProfile(GetConfiguredShuangpinSchema()))
-                             .candidates;
+    const auto results = metasequoia::local_modes::query_emoji("laugh", SchemeType::JapaneseRomaji, 50).candidates;
     REQUIRE(Contains(results, kSmiley));
 }
