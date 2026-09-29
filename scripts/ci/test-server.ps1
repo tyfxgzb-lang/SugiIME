@@ -6,13 +6,6 @@ param(
 $ErrorActionPreference = 'Stop'
 $automationRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $server = (Resolve-Path $ServerRoot).Path
-# The helpcodes live in the engine, which is a directory of this repository, so the commit under
-# test pins the tables and there is no gitlink left for the lock to drift away from. A missing
-# directory here is an incomplete checkout rather than an uninitialized submodule.
-$helpcodes = Join-Path $automationRoot 'engine/helpcode/helpcodes'
-if (-not (Test-Path -LiteralPath $helpcodes -PathType Container)) {
-    throw "Helpcodes not found at $helpcodes; the engine is vendored in-tree, so this is an incomplete checkout"
-}
 python (Join-Path $automationRoot 'scripts/product_lock.py') fetch-dictionaries --staging-root $StagingRoot
 if ($LASTEXITCODE -ne 0) { throw 'Could not provision locked dictionaries' }
 $verified = (Resolve-Path (Join-Path $StagingRoot 'MetasequoiaImeDict/out')).Path
@@ -22,7 +15,6 @@ $env:LOCALAPPDATA = Join-Path (Resolve-Path $StagingRoot).Path 'user-local'
 $data = Join-Path $env:LOCALAPPDATA 'metasequoiaime'
 New-Item -ItemType Directory -Force -Path $data | Out-Null
 Copy-Item (Join-Path $verified '*') -Destination $data -Force
-Copy-Item $helpcodes -Destination $data -Recurse -Force
 Copy-Item (Join-Path $server 'assets/tables/*') -Destination $data -Force
 Copy-Item (Join-Path $server 'assets/config/config.toml') -Destination $data -Force
 $env:METASEQUOIA_IME_DATA_DIR = $data
