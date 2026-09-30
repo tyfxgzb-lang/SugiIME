@@ -1,4 +1,4 @@
-set(TEST_EXECUTABLE_NAME "MetasequoiaImeServerTests")
+set(TEST_EXECUTABLE_NAME "sugiimeServerTests")
 
 set(TEST_SOURCE_FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp"

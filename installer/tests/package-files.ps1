@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 $fixture = Join-Path ([IO.Path]::GetTempPath()) ('msime-package-' + [Guid]::NewGuid())
 function Write-Fixture([string]$Relative, [string]$Text = 'fixture') {
@@ -13,12 +13,12 @@ try {
     Copy-Item (Join-Path $PSScriptRoot '../msime_setup.iss') $installer
     Copy-Item (Join-Path $PSScriptRoot '../default_config') $installer -Recurse
     foreach ($file in @(
-        'server/build-release/bin/Release/MetasequoiaImeServer.exe',
-        'server/build-release/bin/Release/MetasequoiaImeServer.pdb',
-        'server/build-release/bin/Release/MetasequoiaImeDictionaryReplay.exe',
-        'server/build-release/bin/Release/MetasequoiaImeDictionaryReplay.pdb',
-        'server/build-release/bin/Release/MetasequoiaImeServerTests.exe',
-        'server/build-release/bin/Release/MetasequoiaImeServerTests.pdb',
+        'server/build-release/bin/Release/sugiimeServer.exe',
+        'server/build-release/bin/Release/sugiimeServer.pdb',
+        'server/build-release/bin/Release/sugiimeDictionaryReplay.exe',
+        'server/build-release/bin/Release/sugiimeDictionaryReplay.pdb',
+        'server/build-release/bin/Release/sugiimeServerTests.exe',
+        'server/build-release/bin/Release/sugiimeServerTests.pdb',
         'server/build-release/bin/Release/test_webview_contract.exe',
         'server/build-release/bin/Release/test_webview_contract.pdb',
         'windows/build32-release/Release/MetasequoiaImeTsf.dll',
@@ -58,8 +58,8 @@ try {
                          'app_data/chinese-ime-lm-NOTICE.md',
                          'tsf_dll/32/MetasequoiaImeTsf.dll', 'tsf_dll/32/MetasequoiaImeTsf.pdb',
                          'tsf_dll/64/MetasequoiaImeTsf.dll', 'tsf_dll/64/MetasequoiaImeTsf.pdb',
-                         'server_exe/MetasequoiaImeServer.pdb',
-                         'server_exe/MetasequoiaImeDictionaryReplay.pdb',
+                         'server_exe/sugiimeServer.pdb',
+                         'server_exe/sugiimeDictionaryReplay.pdb',
                          'app_data/helpcodes/helpcode.txt', 'THIRD_PARTY_NOTICES.txt', 'LICENSE.txt')) {
         if (-not (Test-Path (Join-Path $installer $file))) { throw "Missing packaged file: $file" }
     }
@@ -67,8 +67,8 @@ try {
     # 自造词顶掉，而且每次升级顶一次，所以它必须由引擎在用户数据目录下自建。
     if (Test-Path (Join-Path $installer 'app_data/user_dict.dat')) { throw 'Packaged the writable user dictionary' }
     foreach ($testFile in @(
-        'server_exe/MetasequoiaImeServerTests.exe',
-        'server_exe/MetasequoiaImeServerTests.pdb',
+        'server_exe/sugiimeServerTests.exe',
+        'server_exe/sugiimeServerTests.pdb',
         'server_exe/test_webview_contract.exe',
         'server_exe/test_webview_contract.pdb'
     )) {
@@ -78,7 +78,7 @@ try {
     & (Join-Path $installer 'Prepare-PackageFiles.ps1') -RepoRoot $fixture -TargetVersion '2026.9.1'
     foreach ($file in @('app_data/html/webview2/shared/runtime.js',
                          'tsf_dll/32/MetasequoiaImeTsf.dll', 'tsf_dll/64/MetasequoiaImeTsf.dll',
-                         'server_exe/MetasequoiaImeServer.exe')) {
+                         'server_exe/sugiimeServer.exe')) {
         if (-not (Test-Path (Join-Path $installer $file))) { throw "Missing packaged file: $file" }
     }
     $stagedSymbols = @(
@@ -88,7 +88,7 @@ try {
     if ($stagedSymbols.Count -gt 0) {
         throw "Packaged symbols without -IncludeSymbols: $($stagedSymbols.Name -join ', ')"
     }
-    $serverPdbFixture = Join-Path $fixture 'server/build-release/bin/Release/MetasequoiaImeServer.pdb'
+    $serverPdbFixture = Join-Path $fixture 'server/build-release/bin/Release/sugiimeServer.pdb'
     Remove-Item $serverPdbFixture -Force
     $rejected = $false
     try { & (Join-Path $installer 'Prepare-PackageFiles.ps1') -RepoRoot $fixture } catch { $rejected = $_.Exception.Message -match 'PDB' }

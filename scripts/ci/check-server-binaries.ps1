@@ -5,10 +5,10 @@ param([string]$BuildDir = 'build/bin/Release')
 $ErrorActionPreference = 'Stop'
 
 $required = @(
-    'MetasequoiaImeServer.exe',
-    'MetasequoiaImeSettings.exe',
-    'MetasequoiaImeWatchdog.exe',
-    'MetasequoiaImeDictionaryReplay.exe'
+    'sugiimeServer.exe',
+    'sugiimeSettings.exe',
+    'sugiimeWatchdog.exe',
+    'sugiimeDictionaryReplay.exe'
 )
 
 $missing = $required | Where-Object { -not (Test-Path (Join-Path $BuildDir $_)) }
