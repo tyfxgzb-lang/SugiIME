@@ -35,10 +35,7 @@ extern bool g_unicode_mode_triggered;
 extern bool g_date_time_mode_triggered;
 extern bool g_emoji_mode_triggered;
 extern bool g_kaomoji_mode_triggered;
-extern bool g_jianpin_mode_triggered;
 extern bool g_y_mode_triggered;
-extern bool g_r_mode_triggered;
-extern std::shared_ptr<IInputSession> g_r_mode_original_session;
 extern bool g_english_input_mode;
 // Glosses are a cache keyed by TranslationIdentity, not the current page's
 // results: the next keystroke's page mostly repeats the same words, and
@@ -65,7 +62,6 @@ bool IsUnicodeCompositionActive(const std::string &raw);
 bool IsDateTimeCompositionActive(const std::string &raw);
 bool IsEmojiCompositionActive(const std::string &raw);
 bool IsKaomojiCompositionActive(const std::string &raw);
-bool IsJianpinCompositionActive(const std::string &raw);
 bool IsYModeCompositionActive(const std::string &raw);
 bool IsYModeInput(const std::string &raw);
 void ClearSpecialModeTriggers();

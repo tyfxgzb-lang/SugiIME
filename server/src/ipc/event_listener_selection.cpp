@@ -216,11 +216,6 @@ void ProcessSelectionKey(UINT keycode, uint64_t client_id, uint64_t activation_e
             UpdateEmojiInput("");
             UpdateKaomojiInput("");
             g_inputSession->reset_state();
-            if (g_r_mode_original_session)
-            {
-                g_inputSession = g_r_mode_original_session;
-                g_r_mode_original_session.reset();
-            }
             GlobalIme::composition.clear();
             ClearSpecialModeTriggers();
             return;
@@ -397,11 +392,6 @@ void ProcessSelectionKey(UINT keycode, uint64_t client_id, uint64_t activation_e
         if (!isNeedCreateWord)
         {
             g_inputSession->reset_state();
-            if (g_r_mode_original_session)
-            {
-                g_inputSession = g_r_mode_original_session;
-                g_r_mode_original_session.reset();
-            }
             GlobalIme::composition.caret_position = 0;
             GlobalIme::composition.raw_input_with_cases.clear();
             // The composition is over; stale snapshots must not survive into the

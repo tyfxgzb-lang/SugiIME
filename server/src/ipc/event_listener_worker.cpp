@@ -31,7 +31,7 @@ namespace
 {
 std::shared_ptr<IInputSession> PersistentInputSession()
 {
-    return g_r_mode_original_session ? g_r_mode_original_session : g_inputSession;
+    return g_inputSession;
 }
 
 // A task that waited at least this long was delivered behind a stalled worker,
@@ -705,7 +705,7 @@ void WorkerThread()
             const bool has_session = g_inputSession != nullptr;
             const bool configured_scheme_matches = has_session && g_inputSession->current_scheme_type() == wanted;
             const bool session_is_japanese = has_session && IsJapaneseScheme(g_inputSession->current_scheme_type());
-            if (FanyImeIpc::InputSessionMatchesConfig(configured_scheme_matches, g_r_mode_triggered,
+            if (FanyImeIpc::InputSessionMatchesConfig(configured_scheme_matches, false,
                                                       session_is_japanese))
             {
                 break;

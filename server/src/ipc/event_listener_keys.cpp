@@ -28,8 +28,7 @@ namespace
 bool IsShiftLetterSpecialModeTriggered()
 {
     return g_quick_phrase_triggered || g_unicode_mode_triggered || g_date_time_mode_triggered ||
-           g_emoji_mode_triggered || g_kaomoji_mode_triggered || g_jianpin_mode_triggered || g_y_mode_triggered ||
-           g_r_mode_triggered;
+           g_emoji_mode_triggered || g_kaomoji_mode_triggered || g_y_mode_triggered;
 }
 
 // 日语模式由配置项决定，和 R 模式（中文里临时切日语）无关：TSF 侧只能看到配置，
@@ -695,14 +694,6 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
         }
     }
 
-    if (g_r_mode_triggered && !GlobalIme::composition.raw_input_with_cases.empty() &&
-        GlobalIme::composition.raw_input_with_cases.front() == 'R' && GlobalIme::composition.caret_position > 0)
-    {
-        // The published preedit has one extra display-only prefix. Normalize
-        // the caret before every R-mode key, including paging and selection.
-        --GlobalIme::composition.caret_position;
-    }
-
     const std::string input_before_key =
         g_inputSession ? g_inputSession->get_pinyin_sequence_with_cases() : std::string{};
     // 顶字要的是「插入之前」的原始串长度与光标位置：ApplyCompositionEditKey 会把第五个字母插进
@@ -721,7 +712,7 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
         const bool shift_letter_special_mode = IsShiftLetterSpecialModeTriggered();
         if (FanyImeIpc::ShouldLearnEnteredEnglishWord(g_english_input_mode, shift_letter_special_mode, chinese_scheme,
                                                       g_inputSession->is_all_complete_pure_pinyin()))
-            english_word = g_r_mode_triggered ? "R" + input_before_key : input_before_key;
+            english_word = input_before_key;
         EnqueueLearnEnteredEnglishWordTask(english_word);
     }
     if (chinese_scheme && !g_english_input_mode && GetConfiguredQuickPhraseEnabled() && input_before_key.empty() &&
@@ -917,12 +908,7 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
     // Ctrl+方向）的键位与修饰键条件仍由各自的 chord 判定把守，这里放宽键位限制不影
     // 响它们。
     const bool client_supports_restore = is_composition_edit_key && ClientNegotiatedCompositionRestore(client_id);
-    const bool r_mode_prefix_backspace = g_r_mode_triggered && Global::Keycode == VK_BACK && input_before_key.empty();
-    if (r_mode_prefix_backspace)
-    {
-        ClearState();
-    }
-    else if (is_composition_edit_key && !r_mode_trigger_key)
+    if (is_composition_edit_key)
     {
         retreat_backspace_shape_before_key =
             Global::Keycode == VK_BACK &&
@@ -943,18 +929,9 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
         // the Chinese pinyin session's syllable boundaries in the preedit.
         GlobalIme::composition.segmented_pinyin = GlobalIme::composition.raw_input_with_cases;
     }
-    if (g_inputSession->get_pinyin_sequence_with_cases().empty() && !g_r_mode_triggered)
+    if (g_inputSession->get_pinyin_sequence_with_cases().empty())
     {
         ClearSpecialModeTriggers();
-    }
-    if (!g_english_input_mode && g_r_mode_triggered)
-    {
-        // R is a visible mode prefix but is not part of the romaji sent to the
-        // temporary Japanese engine. Keep both TSF and candidate-window preedit
-        // aligned, including their caret coordinates.
-        GlobalIme::composition.segmented_pinyin.insert(0, 1, 'R');
-        GlobalIme::composition.raw_input_with_cases.insert(0, 1, 'R');
-        ++GlobalIme::composition.caret_position;
     }
     if (!g_english_input_mode && IsUnicodeCompositionActive(GlobalIme::composition.raw_input_with_cases))
     {
@@ -978,11 +955,6 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
     if (!g_english_input_mode && IsKaomojiCompositionActive(GlobalIme::composition.raw_input_with_cases))
     {
         // Keep preedit identical to the typed M-prefixed code.
-        GlobalIme::composition.segmented_pinyin = GlobalIme::composition.raw_input_with_cases;
-    }
-    if (!g_english_input_mode && IsJianpinCompositionActive(GlobalIme::composition.raw_input_with_cases))
-    {
-        // Keep preedit identical to the typed J-prefixed code.
         GlobalIme::composition.segmented_pinyin = GlobalIme::composition.raw_input_with_cases;
     }
     if (!g_english_input_mode && IsYModeCompositionActive(GlobalIme::composition.raw_input_with_cases))

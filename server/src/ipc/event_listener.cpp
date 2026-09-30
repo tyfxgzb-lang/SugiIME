@@ -42,10 +42,7 @@ bool g_unicode_mode_triggered = false;
 bool g_date_time_mode_triggered = false;
 bool g_emoji_mode_triggered = false;
 bool g_kaomoji_mode_triggered = false;
-bool g_jianpin_mode_triggered = false;
 bool g_y_mode_triggered = false;
-bool g_r_mode_triggered = false;
-std::shared_ptr<IInputSession> g_r_mode_original_session;
 bool g_english_input_mode = false;
 } // namespace event_listener_detail
 
@@ -245,11 +242,6 @@ bool IsKaomojiCompositionActive(const std::string &raw)
            });
 }
 
-bool IsJianpinCompositionActive(const std::string &raw)
-{
-    return g_jianpin_mode_triggered && !raw.empty() && raw.front() == 'J';
-}
-
 bool IsYModeCompositionActive(const std::string &raw)
 {
     return g_y_mode_triggered && !raw.empty() && raw.front() == 'Y' &&
@@ -269,18 +261,16 @@ void ClearSpecialModeTriggers()
     g_date_time_mode_triggered = false;
     g_emoji_mode_triggered = false;
     g_kaomoji_mode_triggered = false;
-    g_jianpin_mode_triggered = false;
     g_y_mode_triggered = false;
-    g_r_mode_triggered = false;
 }
 
-// True whenever a K/U/T/E/M/J/Y special-mode composition is in progress, even when the
+// True whenever a K/U/T/E/M/Y special-mode composition is in progress, even when the
 // typed text is not yet a complete keyword/hex sequence. Such input must never
 // be interpreted as normal pinyin.
 bool IsSpecialModeCompositionActive(const std::string &raw)
 {
     return IsQuickPhraseCompositionActive(raw) || IsUnicodeCompositionActive(raw) || IsDateTimeCompositionActive(raw) ||
-           IsEmojiCompositionActive(raw) || IsKaomojiCompositionActive(raw) || IsJianpinCompositionActive(raw) ||
+           IsEmojiCompositionActive(raw) || IsKaomojiCompositionActive(raw) ||
            IsYModeCompositionActive(raw);
 }
 } // namespace event_listener_detail
@@ -659,7 +649,6 @@ bool SendUiLessCompositionToClient(uint64_t client_id, uint64_t activation_epoch
 
 void ClearState()
 {
-    const auto r_mode_original_session = g_r_mode_original_session;
     ClearSpecialModeTriggers();
     ClearCandidateUiOwner();
     UpdateCloudInput("");
@@ -679,11 +668,6 @@ void ClearState()
     UpdateAiInput("");
     /* Clear dict engine state */
     g_inputSession->reset_state();
-    if (r_mode_original_session)
-    {
-        g_inputSession = r_mode_original_session;
-        g_r_mode_original_session.reset();
-    }
     /* 造词的状态也要清理 */
     GlobalIme::composition.clear();
     HideCandidateWindowAndDropItems();
