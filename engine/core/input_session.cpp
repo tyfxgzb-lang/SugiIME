@@ -856,8 +856,7 @@ std::optional<std::string> InputSession::learn_candidate(std::size_t index)
     {
         return std::nullopt;
     }
-    if ((selected.source != CandidateSource::Database && selected.source != CandidateSource::UserDatabase) ||
-        IsJapaneseScheme(engine_.current_scheme_type()))
+    if ((selected.source != CandidateSource::Database && selected.source != CandidateSource::UserDatabase))
     {
         return std::nullopt;
     }
@@ -871,8 +870,7 @@ KeyResult InputSession::pin_candidate(std::size_t index)
         return {};
     const auto source = candidates()[index].source;
     if (source != CandidateSource::EnglishDictionary &&
-        ((source != CandidateSource::Database && source != CandidateSource::UserDatabase) ||
-         IsJapaneseScheme(scheme())))
+        (source != CandidateSource::Database && source != CandidateSource::UserDatabase))
         return {};
 
     // Manual pinning is independent of automatic learning preferences and never selects text.
@@ -918,10 +916,12 @@ std::optional<std::string> InputSession::adjust_candidate_frequency(std::size_t 
     }
     const std::string entry_key = selected.canonical_pinyin.empty() ? context_key : selected.canonical_pinyin;
     bool ranking_changed = false;
+    const auto kind = IsJapaneseScheme(scheme()) ? user_dictionary::DictionaryKind::Japanese
+                                                 : user_dictionary::DictionaryKind::Pinyin;
     const bool adjusted = user_dictionary::adjust_candidate_ranking(
         path_to_utf8(paths_.dictionary(assets::main_dictionary)), path_to_utf8(paths_.user(assets::user_journal)),
         context_key, candidates(), entry_key, selected.word, frequency_mode_name(options.mode), options.linear_step,
-        options.trigger_count, force_top, &ranking_changed, user_dictionary::DictionaryKind::Pinyin);
+        options.trigger_count, force_top, &ranking_changed, kind);
     if (!adjusted)
     {
         return std::string("Unable to persist candidate frequency adjustment.");

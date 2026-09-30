@@ -947,21 +947,22 @@ SerialTaskRunner &DictionaryWriter()
 
 // The candidates are copied because the page moves on before the write runs. Called from the
 // worker thread only, which is also what serializes the replay guard.
-void EnqueueAdjustCandidateRankingTask(bool english, const std::string &context_key, const std::string &entry_key,
-                                       const std::string &word, uint64_t client_id, uint64_t activation_epoch)
+void EnqueueAdjustCandidateRankingTask(bool english, bool japanese, const std::string &context_key,
+                                       const std::string &entry_key, const std::string &word, uint64_t client_id,
+                                       uint64_t activation_epoch)
 {
     static FanyImeIpc::SelectionRankingReplayGuard replay_guard;
-    const bool wubi = !english && IsWubiRankingScheme();
-    const std::string replay_key =
-        std::string(english ? "e" : (wubi ? "w" : "p")) + '\x1f' + context_key + '\x1f' + entry_key + '\x1f' + word;
+    const bool wubi = !english && !japanese && IsWubiRankingScheme();
+    const std::string replay_key = std::string(english ? "e" : (japanese ? "j" : (wubi ? "w" : "p"))) + '\x1f' +
+                                   context_key + '\x1f' + entry_key + '\x1f' + word;
     if (!replay_guard.should_apply(replay_key, client_id, activation_epoch, GetTickCount64()))
     {
         CAND_DIAG_LOGF(L"candidate-ranking-replay-skipped client={} epoch={}", client_id, activation_epoch);
         return;
     }
     const auto &frequency = GetConfiguredFrequencyAdjustment();
-    DictionaryWriter().Post([english, wubi, context_key, candidates = Global::candidate_ui.items, entry_key, word,
-                             mode = frequency.mode, linear_step = frequency.linear_step,
+    DictionaryWriter().Post([english, japanese, wubi, context_key, candidates = Global::candidate_ui.items, entry_key,
+                             word, mode = frequency.mode, linear_step = frequency.linear_step,
                              trigger_count = frequency.trigger_count] {
         if (english)
         {
@@ -971,10 +972,14 @@ void EnqueueAdjustCandidateRankingTask(bool english, const std::string &context_
             return;
         }
         bool ranking_changed = false;
+        user_dictionary::DictionaryKind kind = user_dictionary::DictionaryKind::Pinyin;
+        if (japanese)
+            kind = user_dictionary::DictionaryKind::Japanese;
+        else if (wubi)
+            kind = user_dictionary::DictionaryKind::Wubi;
         (void)user_dictionary::adjust_candidate_ranking(
             CommonUtils::get_ime_data_path() + "\\msime.db", user_dictionary::default_user_db_path(), context_key,
-            candidates, entry_key, word, mode, linear_step, trigger_count, false, &ranking_changed,
-            wubi ? user_dictionary::DictionaryKind::Wubi : user_dictionary::DictionaryKind::Pinyin);
+            candidates, entry_key, word, mode, linear_step, trigger_count, false, &ranking_changed, kind);
         if (ranking_changed)
         {
             EnqueueResetInputSessionCacheTask();

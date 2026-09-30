@@ -55,6 +55,8 @@ const char *kind_name(DictionaryKind kind)
         return "quick";
     case DictionaryKind::English:
         return "english";
+    case DictionaryKind::Japanese:
+        return "japanese";
     }
     return "";
 }
@@ -249,11 +251,25 @@ bool update_wubi_weight(sqlite3 *main_db, sqlite3_stmt *journal_upsert, const st
            write_upsert_journal(journal_upsert, DictionaryKind::Wubi, key, value, weight);
 }
 
+bool update_japanese_weight(sqlite3 *main_db, sqlite3_stmt *journal_upsert, const std::string &key,
+                            const std::string &value, std::int64_t weight)
+{
+    weight = clamp_managed_weight(weight);
+    if (main_db == nullptr || journal_upsert == nullptr || key.empty() || value.empty())
+        return false;
+    auto stmt = prepare(main_db, "UPDATE japanese_lexicon SET weight=?1 WHERE code=?2 AND value=?3");
+    return stmt && sqlite3_bind_int64(stmt.get(), 1, weight) == SQLITE_OK && bind_text(stmt.get(), 2, key) &&
+           bind_text(stmt.get(), 3, value) && sqlite3_step(stmt.get()) == SQLITE_DONE && sqlite3_changes(main_db) > 0 &&
+           write_upsert_journal(journal_upsert, DictionaryKind::Japanese, key, value, weight);
+}
+
 bool update_ranked_weight(sqlite3 *main_db, sqlite3_stmt *journal_upsert, DictionaryKind kind, const std::string &key,
                           const std::string &value, std::int64_t weight)
 {
     if (kind == DictionaryKind::Wubi)
         return update_wubi_weight(main_db, journal_upsert, key, value, weight);
+    if (kind == DictionaryKind::Japanese)
+        return update_japanese_weight(main_db, journal_upsert, key, value, weight);
     return update_pinyin_weight(main_db, journal_upsert, key, value, weight);
 }
 
@@ -708,6 +724,9 @@ bool delete_dictionary_candidate(const std::string &dictionary_db_path, const st
     case DictionaryKind::English:
         table = "english_words";
         break;
+    case DictionaryKind::Japanese:
+        table = "japanese_lexicon";
+        break;
     default:
         return false;
     }
@@ -727,7 +746,9 @@ bool delete_dictionary_candidate(const std::string &dictionary_db_path, const st
         (void)execute_sql(database.get(), "ROLLBACK");
         return false;
     };
-    const std::string columns = kind == DictionaryKind::English ? "word=?1 AND display=?2" : "key=?1 AND value=?2";
+    const std::string columns = kind == DictionaryKind::English
+                                    ? "word=?1 AND display=?2"
+                                    : (kind == DictionaryKind::Japanese ? "code=?1 AND value=?2" : "key=?1 AND value=?2");
     auto remove = prepare(database.get(), "DELETE FROM main.\"" + table + "\" WHERE " + columns);
     if (!remove || !bind_text(remove.get(), 1, entry_key) || !bind_text(remove.get(), 2, value) ||
         sqlite3_step(remove.get()) != SQLITE_DONE || sqlite3_changes(database.get()) == 0)

@@ -208,8 +208,8 @@ void ProcessSelectionKey(UINT keycode, uint64_t client_id, uint64_t activation_e
             AppendAiContext(curWord);
             if (curWordItem.source == CandidateSource::EnglishDictionary && isNeedUpdateWeight)
             {
-                EnqueueAdjustCandidateRankingTask(/*english=*/true, EnglishRankingContextKey(), curWordItem.pinyin,
-                                                  curWordItem.word, client_id, activation_epoch);
+                EnqueueAdjustCandidateRankingTask(/*english=*/true, /*japanese=*/false, EnglishRankingContextKey(),
+                                                  curWordItem.pinyin, curWordItem.word, client_id, activation_epoch);
             }
             UpdateCloudInput("");
             UpdateEnglishInput("");
@@ -417,8 +417,9 @@ void ProcessSelectionKey(UINT keycode, uint64_t client_id, uint64_t activation_e
             // changes the order, the worker drops its candidate cache and the next lookup sees
             // the new order; a lookup that lands before the write finishes still shows the old
             // one.
-            EnqueueAdjustCandidateRankingTask(/*english=*/false, ranking_context_key, ranking_entry_key, curWord,
-                                              client_id, activation_epoch);
+            const bool japanese = g_inputSession && IsJapaneseScheme(g_inputSession->current_scheme_type());
+            EnqueueAdjustCandidateRankingTask(/*english=*/false, japanese, ranking_context_key, ranking_entry_key,
+                                              curWord, client_id, activation_epoch);
         }
     }
     else

@@ -14,6 +14,7 @@ enum class DictionaryKind
     Wubi,
     QuickPhrase,
     English,
+    Japanese,
 };
 
 std::string default_user_db_path();
