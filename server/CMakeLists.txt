@@ -93,9 +93,9 @@ include_directories("${MSIME_REPO_ROOT}")
 include_directories("${MSIME_VENDOR_DIR}")
 include_directories("${MSIME_ENGINE_DIR}/utfcpp/source/")
 
-set(MY_EXECUTABLE_NAME "MetasequoiaImeServer")
-set(WATCHDOG_EXECUTABLE_NAME "MetasequoiaImeWatchdog")
-set(DICTIONARY_REPLAY_EXECUTABLE_NAME "MetasequoiaImeDictionaryReplay")
+set(MY_EXECUTABLE_NAME "sugiimeServer")
+set(WATCHDOG_EXECUTABLE_NAME "sugiimeWatchdog")
+set(DICTIONARY_REPLAY_EXECUTABLE_NAME "sugiimeDictionaryReplay")
 
 add_executable(${WATCHDOG_EXECUTABLE_NAME} WIN32
     "./src/watchdog/main.cpp"
@@ -273,7 +273,7 @@ set(BUILD_TESTING OFF)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../ui" "${CMAKE_BINARY_DIR}/msimeui" EXCLUDE_FROM_ALL)
 set(BUILD_TESTING "${_metasequoia_saved_build_testing}")
 unset(_metasequoia_saved_build_testing)
-set(EMOJI_EXECUTABLE_NAME "MetasequoiaImeEmojiPanel")
+set(EMOJI_EXECUTABLE_NAME "sugiimeEmojiPanel")
 add_executable(${EMOJI_EXECUTABLE_NAME} WIN32
     "./src/emoji-panel/EmojiPanel.cpp"
     "./src/emoji-panel/EmojiPanel.h"
@@ -310,7 +310,7 @@ add_custom_command(TARGET ${EMOJI_EXECUTABLE_NAME} POST_BUILD
         $<TARGET_FILE_DIR:${EMOJI_EXECUTABLE_NAME}>
 )
 
-set(KEYBOARD_EXECUTABLE_NAME "MetasequoiaImeKeyboardPanel")
+set(KEYBOARD_EXECUTABLE_NAME "sugiimeKeyboardPanel")
 add_executable(${KEYBOARD_EXECUTABLE_NAME} WIN32
     "./src/keyboard-panel/KeyboardPanel.cpp"
     "./src/keyboard-panel/KeyboardPanel.h"

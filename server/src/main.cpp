@@ -40,7 +40,7 @@ void StartWatchdogIfNeeded(const char *command_line)
     const size_t separator = watchdog_path.find_last_of(L"\\/");
     if (separator == std::wstring::npos)
         return;
-    watchdog_path.replace(separator + 1, std::wstring::npos, L"MetasequoiaImeWatchdog.exe");
+    watchdog_path.replace(separator + 1, std::wstring::npos, L"sugiimeWatchdog.exe");
     if (GetFileAttributesW(watchdog_path.c_str()) == INVALID_FILE_ATTRIBUTES)
         return;
 

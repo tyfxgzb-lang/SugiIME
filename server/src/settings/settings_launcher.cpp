@@ -93,7 +93,7 @@ bool CloseSettingsApplication()
 
 bool OpenEmojiPanelApplication()
 {
-    return OpenSiblingApplication(L"MetasequoiaImeEmojiPanel.exe", kEmojiPanelWindowClass);
+    return OpenSiblingApplication(L"sugiimeEmojiPanel.exe", kEmojiPanelWindowClass);
 }
 
 bool CloseEmojiPanelApplication()
@@ -103,7 +103,7 @@ bool CloseEmojiPanelApplication()
 
 bool OpenKeyboardPanelApplication()
 {
-    return OpenSiblingApplication(L"MetasequoiaImeKeyboardPanel.exe", kKeyboardPanelWindowClass);
+    return OpenSiblingApplication(L"sugiimeKeyboardPanel.exe", kKeyboardPanelWindowClass);
 }
 
 bool CloseKeyboardPanelApplication()
@@ -113,7 +113,7 @@ bool CloseKeyboardPanelApplication()
 
 bool OpenHandwritingPanelApplication()
 {
-    return OpenSiblingApplication(L"MetasequoiaImeHandwritingPanel.exe", kHandwritingPanelWindowClass);
+    return OpenSiblingApplication(L"sugiimeHandwritingPanel.exe", kHandwritingPanelWindowClass);
 }
 
 bool CloseHandwritingPanelApplication()

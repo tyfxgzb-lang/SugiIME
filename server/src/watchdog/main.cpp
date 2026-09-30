@@ -13,7 +13,7 @@
 
 namespace
 {
-constexpr wchar_t kServerFileName[] = L"MetasequoiaImeServer.exe";
+constexpr wchar_t kServerFileName[] = L"sugiimeServer.exe";
 constexpr wchar_t kWatchdogMutex[] = L"Local\\SugiIMEWatchdog.SingleInstance";
 constexpr DWORD kHealthyRunMilliseconds = 30'000;
 constexpr DWORD kMaximumRestartDelayMilliseconds = 30'000;
