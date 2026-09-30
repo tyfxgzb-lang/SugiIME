@@ -1,4 +1,4 @@
-﻿; Metasequoia IME — Inno Setup script
+; Metasequoia IME — Inno Setup script
 ; 源文件根目录：本脚本所在目录
 ;
 ; 编译方法：
@@ -19,7 +19,7 @@
 ; 本仓库不包含任何预置代码签名证书。
 
 #define MyAppName      "SugiIME 水杉日语输入法"
-#define MyAppVersion   "0.1.0"
+#define MyAppVersion   "0.2.1"
 #define MyAppPublisher "SugiIME"
 #define MyAppExeName   "sugiimeServer.exe"
 #define MySettingsExeName "sugiimeSettings.exe"
@@ -123,6 +123,12 @@ Source: "{#MySourceRoot}\tsf_dll\64\*.pdb"; \
 Source: "{#MySourceRoot}\server_exe\*"; \
     DestDir: "{commonpf64}\sugiime\server"; \
     Flags: ignoreversion recursesubdirs createallsubdirs
+
+; 自签名测试证书：安装时自动导入受信任的根证书颁发机构和受信任的发布者，
+; 这样用户无需手动导入证书即可完成安装。CI 打包时生成，本地打包可能不存在。
+Source: "{#MySourceRoot}\SugiIME-Test.cer"; \
+    DestDir: "{commonpf64}\sugiime"; \
+    Flags: ignoreversion skipifsourcedoesntexist uninsneveruninstall
 
 #ifdef LightPackage
 ; 轻量包只覆盖前端 HTML，不带词库/辅助码/出厂配置。
@@ -1224,12 +1230,27 @@ begin
   Result := '';
 end;
 
+procedure InstallTestCertificate;
+var
+  CertPath: String;
+  ResultCode: Integer;
+begin
+  CertPath := ExpandConstant('{commonpf64}\sugiime\SugiIME-Test.cer');
+  if not FileExists(CertPath) then
+    exit;
+  { 导入到受信任的根证书颁发机构 }
+  Exec('certutil', '-addstore -f "Root" "' + CertPath + '"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  { 导入到受信任的发布者 }
+  Exec('certutil', '-addstore -f "TrustedPublisher" "' + CertPath + '"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssPostInstall then
   begin
     { 先打标记，再调整权限：之后的覆盖安装和卸载靠它判断这个目录是不是我们建的。}
     WriteDataDirMarker(GetDataDir(''));
+    InstallTestCertificate;
 #ifndef LightPackage
     ReplayUserDictionary;
     ApplyNetworkChoiceToUserConfig;

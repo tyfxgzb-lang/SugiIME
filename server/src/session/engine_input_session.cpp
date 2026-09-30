@@ -11,7 +11,9 @@ void EngineInputSession::ApplyConfiguration()
     session_.set_japanese_punctuation_enabled(GetConfiguredJapanesePunctuation());
     session_.set_japanese_fuzzy_mask(GetConfiguredJapaneseFuzzyMask());
     const JapaneseKanaForm default_form =
-        GetConfiguredCharacterSet() == "katakana" ? JapaneseKanaForm::Katakana : JapaneseKanaForm::Auto;
+        GetConfiguredCharacterSet() == "katakana"    ? JapaneseKanaForm::Katakana
+        : GetConfiguredCharacterSet() == "hiragana" ? JapaneseKanaForm::Hiragana
+                                                    : JapaneseKanaForm::Auto;
     session_.set_default_japanese_kana_form(default_form);
 }
 

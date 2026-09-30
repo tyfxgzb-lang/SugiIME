@@ -113,7 +113,7 @@ jobs:
         shell: pwsh
         working-directory: installer
         run: >
-          pwsh -File ./Prepare-PackageFiles.ps1 -Sugi -TargetVersion "0.1.0"
+          pwsh -File ./Prepare-PackageFiles.ps1 -Sugi -TargetVersion "0.2.1"
           -RepoRoot (Resolve-Path '..').Path
           -TsfDirectory windows -ServerDirectory server -UiHtmlDirectory ui-html -NoticesDirectory .
 

@@ -406,6 +406,15 @@ std::vector<WordItem> JapaneseCandidateProvider::query(const QueryRequest &reque
     });
 
     std::vector<WordItem> candidates;
+    // When the user pinned a specific kana form (hiragana/katakana/romaji via
+    // F6-F11 or the character-set switch), the candidate bar must show kana
+    // only — no kanji words from the dictionary.
+    if (request.japanese_kana_form != JapaneseKanaForm::Auto)
+    {
+        candidates.reserve(kana_leads.size());
+        candidates.insert(candidates.end(), kana_leads.begin(), kana_leads.end());
+        return candidates;
+    }
     candidates.reserve(kana_leads.size() + common.size() + association.size());
     candidates.insert(candidates.end(), kana_leads.begin(), kana_leads.end());
     candidates.insert(candidates.end(), common.begin(), common.end());
