@@ -28,6 +28,10 @@ class IInputSession
     {
         return false;
     }
+    // Japanese-only: default kana form for every new composition.
+    virtual void set_default_japanese_kana_form(JapaneseKanaForm form)
+    {
+    }
 
     virtual void reset_state() = 0;
     virtual void reset_cache() = 0;

@@ -1,6 +1,7 @@
 import { onHostMessage } from '../utils/host-messages';
 import { serializeHostMessage } from '../../../../shared/messages';
 import { applyCandidateArrange, applyDropdownValue as applyDropdown, applyToggleState as applyToggle, setFuzzyRuleOptionsDisabled, setSmartPunctuationOptionsDisabled } from './shared';
+import { t } from '../locales/i18n';
 
 let lastSnapshot: Record<string, any> | null = null;
 const readyModules = new Set<string>();
@@ -142,24 +143,18 @@ function applyConfigData(data: Record<string, any>, target?: string): void {
   if (typeof data?.quanpin?.autocorrect_neighbor === 'boolean') {
     applyToggleState('autocorrectNeighborToggleBtn', data.quanpin.autocorrect_neighbor);
   }
-  // 先回填总开关再回填规则：总开关关闭时规则复选禁用并提示，但勾选状态仍按已存值展示。
-  if (typeof data?.input?.fuzzy_pinyin === 'boolean') {
-    applyToggleState('fuzzyPinyinToggleBtn', data.input.fuzzy_pinyin);
-    setFuzzyRuleOptionsDisabled(!data.input.fuzzy_pinyin);
+  // 先回填总开关再回填行对：总开关关闭时行对复选禁用并提示，但勾选状态仍按已存值展示。
+  if (typeof data?.input?.japanese_fuzzy === 'boolean') {
+    applyToggleState('japaneseFuzzyToggleBtn', data.input.japanese_fuzzy);
+    setFuzzyRuleOptionsDisabled(!data.input.japanese_fuzzy);
   }
-  // 模糊音 11 键逐键回填；单键缺失/类型不符不影响其余键（AC4）。
+  // 模糊音行对逐键回填；单键缺失/类型不符不影响其余键。
   const fuzzyRuleCheckboxes: [string, string][] = [
-    ['fuzzyZZhCheckbox', 'fuzzy_z_zh'],
-    ['fuzzyCChCheckbox', 'fuzzy_c_ch'],
-    ['fuzzySShCheckbox', 'fuzzy_s_sh'],
-    ['fuzzyNlCheckbox', 'fuzzy_n_l'],
-    ['fuzzyFhCheckbox', 'fuzzy_f_h'],
-    ['fuzzyRlCheckbox', 'fuzzy_r_l'],
-    ['fuzzyAnAngCheckbox', 'fuzzy_an_ang'],
-    ['fuzzyEnEngCheckbox', 'fuzzy_en_eng'],
-    ['fuzzyInIngCheckbox', 'fuzzy_in_ing'],
-    ['fuzzyIanIangCheckbox', 'fuzzy_ian_iang'],
-    ['fuzzyUanUangCheckbox', 'fuzzy_uan_uang']
+    ['fuzzyKaGaCheckbox', 'japanese_fuzzy_ka_ga'],
+    ['fuzzySaZaCheckbox', 'japanese_fuzzy_sa_za'],
+    ['fuzzyTaDaCheckbox', 'japanese_fuzzy_ta_da'],
+    ['fuzzyHaBaCheckbox', 'japanese_fuzzy_ha_ba'],
+    ['fuzzyHaPaCheckbox', 'japanese_fuzzy_ha_pa']
   ];
   for (const [id, key] of fuzzyRuleCheckboxes) {
     const value = data?.input?.[key];
@@ -223,14 +218,8 @@ function applyConfigData(data: Record<string, any>, target?: string): void {
   if (typeof data?.utility?.kaomoji_mode === 'boolean') {
     applyToggleState('kaomojiModeToggleBtn', data.utility.kaomoji_mode);
   }
-  if (typeof data?.utility?.jianpin_mode === 'boolean') {
-    applyToggleState('jianpinModeToggleBtn', data.utility.jianpin_mode);
-  }
   if (typeof data?.utility?.y_mode === 'boolean') {
     applyToggleState('yModeToggleBtn', data.utility.y_mode);
-  }
-  if (typeof data?.utility?.r_mode === 'boolean') {
-    applyToggleState('rModeToggleBtn', data.utility.r_mode);
   }
   if (typeof data?.utility?.clipboard_history === 'boolean') {
     applyToggleState('clipboardHistoryToggleBtn', data.utility.clipboard_history);
@@ -289,7 +278,7 @@ function applyConfigData(data: Record<string, any>, target?: string): void {
   }
   if (typeof data?.helpcode?.custom_directory === 'string') {
     const directory = findElement('customHelpcodeDirectory');
-    if (directory) directory.textContent = `文件夹：${data.helpcode.custom_directory}`;
+    if (directory) directory.textContent = `${t('dict.customDirectory')}：${data.helpcode.custom_directory}`;
   }
   if (typeof data?.helpcode?.shuangpin_helpcode === 'boolean') {
     applyToggleState('shuangpinHelpcodeToggleBtn', data.helpcode.shuangpin_helpcode);
@@ -337,9 +326,7 @@ function applyConfigData(data: Record<string, any>, target?: string): void {
     void import('./input').then((module) => {
       if (data !== lastSnapshot) return;
       module.applyInputConfig(
-        data?.input?.mode,
         data?.input?.schema,
-        data?.input?.character_set,
         data?.input?.shuangpin_schema,
         data?.input?.wubi_schema,
         data?.input?.default_ime_mode,
@@ -378,6 +365,12 @@ function applyConfigData(data: Record<string, any>, target?: string): void {
         data?.general?.floating_toolbar_auto_hide,
         data?.general?.floating_toolbar_auto_hide_delay
       );
+    });
+  }
+  if (applies('ai-settings')) {
+    void import('./ai-settings').then((module) => {
+      if (data !== lastSnapshot) return;
+      module.applyAiConfig(data?.ai_assistant);
     });
   }
   if (applies('stats')) {

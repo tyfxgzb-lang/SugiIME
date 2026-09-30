@@ -1,8 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include <string>
 
-// Skins are folders a user drops into %LOCALAPPDATA%\metasequoiaime\skins, so their CSS is
+// Skins are folders a user drops into %LOCALAPPDATA%\sugiime\skins, so their CSS is
 // third-party content that ends up inside the candidate window document. Deciding what a URL in
 // that CSS is allowed to do is a policy question, kept here as pure functions so it can be tested
 // without a WebView2 host.

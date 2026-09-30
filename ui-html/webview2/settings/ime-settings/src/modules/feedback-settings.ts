@@ -1,4 +1,5 @@
 import { serializeHostMessage } from '../../../../shared/messages';
+import { t } from '../locales/i18n';
 function postNativeMessage(type: 'openExternalUrl' | 'copyText', data: string): void {
   window.chrome?.webview?.postMessage(serializeHostMessage({ type, data }));
 }
@@ -28,7 +29,7 @@ export function setupFeedbackSettings(): void {
       if (!value) return;
       postNativeMessage('copyText', value);
       const originalLabel = button.textContent;
-      button.textContent = '已复制';
+      button.textContent = t('common.copied');
       window.setTimeout(() => { button.textContent = originalLabel; }, 1600);
     });
   });

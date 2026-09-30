@@ -60,6 +60,7 @@ class InputSession
     bool candidate_learning_enabled() const;
     void switch_scheme(SchemeType scheme_type);
     KeyResult set_japanese_kana_form(JapaneseKanaForm form);
+    void set_default_japanese_kana_form(JapaneseKanaForm form);
     SchemeType scheme() const;
 
     bool has_composition() const;
@@ -143,6 +144,12 @@ class InputSession
     void set_japanese_punctuation_enabled(bool enabled)
     {
         japanese_punctuation_enabled_ = enabled;
+    }
+    // Japanese-only: enabled fuzzy-voicing pairs (kJapaneseFuzzy* bits from
+    // query_request.h); zero disables fuzzy correction candidates entirely.
+    void set_japanese_fuzzy_mask(std::uint32_t mask)
+    {
+        engine_.set_japanese_fuzzy_mask(mask);
     }
     void set_candidate_learning_enabled(bool enabled)
     {

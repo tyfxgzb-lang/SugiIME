@@ -371,16 +371,7 @@ HRESULT OnControllerCreatedSettingsWnd(            //
                         {
                             const auto &data = val.at("data").as_object();
                             const std::string path = json::value_to<std::string>(data.at("path"));
-                            if (path == "input.mode")
-                            {
-                                const std::string value = json::value_to<std::string>(data.at("value"));
-                                if (SetConfiguredInputMode(value))
-                                {
-                                    ApplyConfiguredInputScheme();
-                                    PostSettingsConfig();
-                                }
-                            }
-                            else if (path == "input.schema")
+                            if (path == "input.schema")
                             {
                                 const std::string value = json::value_to<std::string>(data.at("value"));
                                 if (SetConfiguredInputScheme(value))
@@ -845,6 +836,24 @@ HRESULT OnControllerCreatedSettingsWnd(            //
                                     PostSettingsConfig();
                                 }
                             }
+                            else if (path == "input.japanese_fuzzy")
+                            {
+                                const bool value = json::value_to<bool>(data.at("value"));
+                                if (SetConfiguredJapaneseFuzzyEnabled(value))
+                                {
+                                    PostSettingsConfig();
+                                }
+                            }
+                            else if (path == "input.japanese_fuzzy_ka_ga" || path == "input.japanese_fuzzy_sa_za" ||
+                                     path == "input.japanese_fuzzy_ta_da" || path == "input.japanese_fuzzy_ha_ba" ||
+                                     path == "input.japanese_fuzzy_ha_pa")
+                            {
+                                const bool value = json::value_to<bool>(data.at("value"));
+                                if (SetConfiguredJapaneseFuzzyRule(path.substr(std::string("input.").size()), value))
+                                {
+                                    PostSettingsConfig();
+                                }
+                            }
                             else if (path == "general.candidate_translations")
                             {
                                 const bool value = json::value_to<bool>(data.at("value"));
@@ -926,6 +935,20 @@ HRESULT OnControllerCreatedSettingsWnd(            //
                                     FanyNamedPipe::EnqueueRefreshCandidatePageTask();
                                     PostSettingsConfig();
                                 }
+                            }
+                            else if (path.rfind("ai_assistant.", 0) == 0)
+                            {
+                                const std::string key = path.substr(std::string("ai_assistant.").size());
+                                const json::value &value = data.at("value");
+                                bool ok = false;
+                                if (value.is_bool())
+                                    ok = SetConfiguredAiAssistantBool(key, json::value_to<bool>(value));
+                                else if (value.is_string())
+                                    ok = SetConfiguredAiAssistantString(key, json::value_to<std::string>(value));
+                                else if (value.is_int64())
+                                    ok = SetConfiguredAiAssistantInt(key, static_cast<int>(value.as_int64()));
+                                if (ok)
+                                    PostSettingsConfig();
                             }
                             else if (path == "general.cn_en_mixed_input_min_chars")
                             {
@@ -1047,26 +1070,10 @@ HRESULT OnControllerCreatedSettingsWnd(            //
                                     PostSettingsConfig();
                                 }
                             }
-                            else if (path == "utility.jianpin_mode")
-                            {
-                                const bool value = json::value_to<bool>(data.at("value"));
-                                if (SetConfiguredJianpinModeEnabled(value))
-                                {
-                                    PostSettingsConfig();
-                                }
-                            }
                             else if (path == "utility.y_mode")
                             {
                                 const bool value = json::value_to<bool>(data.at("value"));
                                 if (SetConfiguredYModeEnabled(value))
-                                {
-                                    PostSettingsConfig();
-                                }
-                            }
-                            else if (path == "utility.r_mode")
-                            {
-                                const bool value = json::value_to<bool>(data.at("value"));
-                                if (SetConfiguredRModeEnabled(value))
                                 {
                                     PostSettingsConfig();
                                 }
@@ -1162,6 +1169,26 @@ HRESULT OnControllerCreatedSettingsWnd(            //
                                 {
                                     PostSettingsConfig();
                                 }
+                            }
+                            else if (path == "keybindings.maintain_candidate_delete")
+                            {
+                                SetConfiguredMaintainCandidateDeleteEnabled(json::value_to<bool>(data.at("value")));
+                                PostSettingsConfig();
+                            }
+                            else if (path == "keybindings.maintain_clear_cache")
+                            {
+                                SetConfiguredMaintainClearCacheEnabled(json::value_to<bool>(data.at("value")));
+                                PostSettingsConfig();
+                            }
+                            else if (path == "keybindings.maintain_restart")
+                            {
+                                SetConfiguredMaintainRestartEnabled(json::value_to<bool>(data.at("value")));
+                                PostSettingsConfig();
+                            }
+                            else if (path == "keybindings.maintain_exit")
+                            {
+                                SetConfiguredMaintainExitEnabled(json::value_to<bool>(data.at("value")));
+                                PostSettingsConfig();
                             }
                             else if (path == "helpcode.show_sp_helpcode_in_candidate_window")
                             {
@@ -1302,15 +1329,21 @@ void PostSettingsConfig()
     const FloatingToolbarItemsConfig &toolbar = GetConfiguredFloatingToolbarItems();
     const TencentTmtConfig &tencent_tmt = GetConfiguredTencentTmt();
     const CustomTranslationConfig &custom_translation = GetConfiguredCustomTranslation();
+    const AiAssistantConfig &ai = GetConfiguredAiAssistant();
     nlohmann::json payload = {
         {"type", "configSnapshot"},
         {"data",
          {{"input",
-           {{"mode", GetConfiguredInputMode()},
-            {"schema", GetConfiguredInputSchemeName()},
+           {{"schema", GetConfiguredInputSchemeName()},
             {"japanese_schema", GetConfiguredJapaneseSchema()},
             {"japanese_punctuation", GetConfiguredJapanesePunctuation()},
             {"japanese_katakana_fkey", GetConfiguredJapaneseKatakanaFkey()},
+            {"japanese_fuzzy", GetConfiguredJapaneseFuzzyEnabled()},
+            {"japanese_fuzzy_ka_ga", GetConfiguredJapaneseFuzzyRule("japanese_fuzzy_ka_ga")},
+            {"japanese_fuzzy_sa_za", GetConfiguredJapaneseFuzzyRule("japanese_fuzzy_sa_za")},
+            {"japanese_fuzzy_ta_da", GetConfiguredJapaneseFuzzyRule("japanese_fuzzy_ta_da")},
+            {"japanese_fuzzy_ha_ba", GetConfiguredJapaneseFuzzyRule("japanese_fuzzy_ha_ba")},
+            {"japanese_fuzzy_ha_pa", GetConfiguredJapaneseFuzzyRule("japanese_fuzzy_ha_pa")},
             {"character_set", GetConfiguredCharacterSet()},
             {"default_ime_mode", GetConfiguredDefaultImeMode()},
             {"ime_mode_scope", GetConfiguredImeModeScope()},
@@ -1367,7 +1400,11 @@ void PostSettingsConfig()
            {{"switch_language_shift", GetConfiguredSwitchLanguageShiftEnabled()},
             {"switch_language_ctrl", GetConfiguredSwitchLanguageCtrlEnabled()},
             {"switch_language_ctrl_alt_space", GetConfiguredSwitchLanguageCtrlAltSpaceEnabled()},
-            {"toggle_character_set_ctrl_shift_f", GetConfiguredCharacterSetShortcutEnabled()}}},
+            {"toggle_character_set_ctrl_shift_f", GetConfiguredCharacterSetShortcutEnabled()},
+            {"maintain_candidate_delete", GetConfiguredMaintainCandidateDeleteEnabled()},
+            {"maintain_clear_cache", GetConfiguredMaintainClearCacheEnabled()},
+            {"maintain_restart", GetConfiguredMaintainRestartEnabled()},
+            {"maintain_exit", GetConfiguredMaintainExitEnabled()}}},
           {"tencent_tmt",
            {{"secret_id", tencent_tmt.secret_id},
             {"secret_key", tencent_tmt.secret_key},
@@ -1377,15 +1414,26 @@ void PostSettingsConfig()
            {{"enabled", custom_translation.enabled},
             {"endpoint", custom_translation.endpoint},
             {"api_key", custom_translation.api_key}}},
+          {"ai_assistant",
+           {{"enabled", ai.enabled},
+            {"provider", ai.provider},
+            {"token", ai.token},
+            {"tokens", ai.tokens},
+            {"endpoint", ai.endpoint},
+            {"model", ai.model},
+            {"candidate_limit", ai.candidate_limit},
+            {"prompt", ai.prompt},
+            {"prompt_id", ai.prompt_id},
+            {"prompt_custom_1", ai.prompt_custom_1},
+            {"prompt_custom_2", ai.prompt_custom_2},
+            {"prompt_custom_3", ai.prompt_custom_3}}},
           {"utility",
            {{"unicode_mode", GetConfiguredUnicodeModeEnabled()},
             {"quick_phrase", GetConfiguredQuickPhraseEnabled()},
             {"date_time_mode", GetConfiguredDateTimeModeEnabled()},
             {"emoji_mode", GetConfiguredEmojiModeEnabled()},
             {"kaomoji_mode", GetConfiguredKaomojiModeEnabled()},
-            {"jianpin_mode", GetConfiguredJianpinModeEnabled()},
-            {"y_mode", GetConfiguredYModeEnabled()},
-            {"r_mode", GetConfiguredRModeEnabled()}}},
+            {"y_mode", GetConfiguredYModeEnabled()}}},
           {"appearance",
            {{"ui_backend", GetConfiguredUiBackend()},
             {"settings_window_linger", GetConfiguredSettingsWindowLinger()},

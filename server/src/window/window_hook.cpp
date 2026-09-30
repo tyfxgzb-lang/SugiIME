@@ -76,7 +76,7 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
         //
         // Ctrl + Shift + Alt + T to terminate
         //
-        if (ctrl && shift && alt && p->vkCode == 'T')
+        if (ctrl && shift && alt && p->vkCode == 'T' && GetConfiguredMaintainExitEnabled())
         {
             CloseSettingsApplication();
             CloseEmojiPanelApplication();
@@ -88,7 +88,7 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
         //
         // Ctrl + Shift + Alt + R to restart
         //
-        if (ctrl && shift && alt && p->vkCode == 'R')
+        if (ctrl && shift && alt && p->vkCode == 'R' && GetConfiguredMaintainRestartEnabled())
         {
             RestartServerProcess();
         }
@@ -96,7 +96,7 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
         //
         // Ctrl + Shift + Alt + C to clear ime engine cache
         //
-        if (ctrl && shift && alt && p->vkCode == 'C')
+        if (ctrl && shift && alt && p->vkCode == 'C' && GetConfiguredMaintainClearCacheEnabled())
         {
             PostMessage(::global_hwnd, WM_CLEAR_IME_ENGINE_CACHE, 0, 0);
         }
@@ -109,7 +109,7 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
             return CallNextHookEx(g_hHook, nCode, wParam, lParam);
         }
 
-        if (ctrl && alt && shift)
+        if (ctrl && alt && shift && GetConfiguredMaintainCandidateDeleteEnabled())
         {
             // 只处理主键盘数字
             int idx = -1;

@@ -1,6 +1,6 @@
-# Metasequoia IME Server(水杉输入法 Server 端)
+﻿# Metasequoia IME Server(水杉输入法 Server 端)
 
-This is the server end of [MSIME-Windows](https://github.com/metasequoiaime/MSIME-Windows).
+This is the server end of [MSIME-Windows](https://github.com/sugiime/MSIME-Windows).
 
 ## How to build
 
@@ -20,14 +20,14 @@ Make sure vcpkg and Boost are installed by **Scoop**.
 Clone the product and provision the reviewed dictionary release from its root:
 
 ```powershell
-git clone --recursive https://github.com/metasequoiaime/MSIME-Windows.git
+git clone --recursive https://github.com/sugiime/MSIME-Windows.git
 cd MSIME-Windows
 python scripts/product_lock.py fetch-dictionaries --staging-root .
 if ($LASTEXITCODE -ne 0) { throw 'Dictionary verification failed' }
 $devLocalData = Join-Path $PWD 'build/dev-local'
-$devData = Join-Path $devLocalData 'metasequoiaime'
+$devData = Join-Path $devLocalData 'sugiime'
 New-Item -ItemType Directory -Force $devData | Out-Null
-Copy-Item MetasequoiaImeDict/out/* $devData -Force
+Copy-Item sugiimeDict/out/* $devData -Force
 Copy-Item engine/helpcode/helpcodes $devData -Recurse -Force
 Copy-Item server/assets/tables/* $devData -Force
 Copy-Item server/assets/config/config.toml $devData -Force
@@ -76,7 +76,7 @@ If you want to build and run in **one step**, run the following command,
 
 ## Watchdog
 
-`MetasequoiaImeWatchdog.exe` is built next to the server. Starting the server directly also starts the watchdog,
+`sugiimeWatchdog.exe` is built next to the server. Starting the server directly also starts the watchdog,
 which monitors the server from the same directory and restarts it after an unexpected exit. Repeated early crashes use
 an exponential restart delay (up to 30 seconds) to avoid a restart storm.
 
@@ -85,7 +85,7 @@ after the current process exits.
 
 ## English prefix candidates
 
-Place `english.db` next to `msime.db` in `%LOCALAPPDATA%\metasequoiaime`. Set
+Place `english.db` next to `msime.db` in `%LOCALAPPDATA%\sugiime`. Set
 `general.cn_en_mixed_input = true` in `config.toml` to enable asynchronous English prefix candidates for Quanpin and
 Shuangpin.
 
@@ -94,9 +94,9 @@ Shuangpin.
 The server process includes a few built-in global shortcuts that are useful during development:
 
 - `Ctrl + Shift + Alt + T`
-  - terminate `MetasequoiaImeServer` immediately
+  - terminate `sugiimeServer` immediately
 - `Ctrl + Shift + Alt + R`
-  - restart `MetasequoiaImeServer`
+  - restart `sugiimeServer`
   - Settings exposes the same restart under 外观 → 重启输入法进程; it reaches the
     server over the Aux pipe because Settings runs in its own process
 - `Ctrl + Shift + Alt + C`

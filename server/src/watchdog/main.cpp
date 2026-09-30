@@ -14,13 +14,13 @@
 namespace
 {
 constexpr wchar_t kServerFileName[] = L"MetasequoiaImeServer.exe";
-constexpr wchar_t kWatchdogMutex[] = L"Local\\MetasequoiaImeWatchdog.SingleInstance";
+constexpr wchar_t kWatchdogMutex[] = L"Local\\SugiIMEWatchdog.SingleInstance";
 constexpr DWORD kHealthyRunMilliseconds = 30'000;
 constexpr DWORD kMaximumRestartDelayMilliseconds = 30'000;
 constexpr DWORD kProfileReadyTimeoutMilliseconds = 30'000;
 constexpr DWORD kProfileReadyRetryIntervalMilliseconds = 1'000;
 
-// Keep these identifiers in sync with MetasequoiaImeTsf/src/Global/Globals.cpp.
+// Keep these identifiers in sync with windows/src/Global/Globals.cpp.
 constexpr CLSID kMetasequoiaImeClsid = {0x144ab26b, 0xe6e3, 0x404f, {0x8c, 0x27, 0xc5, 0x30, 0xc1, 0x83, 0x80, 0x5b}};
 constexpr GUID kMetasequoiaImeProfileGuid = {
     0xd8d572fd, 0x68a8, 0x4ae1, {0x89, 0x97, 0x10, 0xc3, 0xeb, 0xbc, 0x7b, 0xf2}};

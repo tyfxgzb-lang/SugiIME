@@ -1,4 +1,4 @@
-#include "emoji_panel_splash.h"
+﻿#include "emoji_panel_splash.h"
 
 #include <d2d1.h>
 #include <d2d1helper.h>
@@ -18,7 +18,7 @@ using Microsoft::WRL::ComPtr;
 
 namespace
 {
-constexpr wchar_t kSplashClass[] = L"MetasequoiaImeEmojiPanelSplash";
+constexpr wchar_t kSplashClass[] = L"SugiIMEEmojiPanelSplash";
 constexpr UINT_PTR kAnimTimer = 1;
 constexpr UINT kAnimIntervalMs = 16;
 constexpr float kSpinnerRadiusDip = 18.0f;

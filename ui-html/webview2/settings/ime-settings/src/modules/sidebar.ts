@@ -41,6 +41,9 @@ const setupLoaders: Record<string, () => Promise<void>> = {
   'floating-toolbar': async () => {
     (await import('./floating-toolbar')).setupFloatingToolbar();
   },
+  'ai-settings': async () => {
+    (await import('./ai-settings')).setupAiSettings();
+  },
   // 统计模块按需加载：查询只在用户打开该页时发起，不进 BACKGROUND_MODULES。
   stats: async () => {
     (await import('./stats')).setupStats();

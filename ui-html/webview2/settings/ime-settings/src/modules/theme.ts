@@ -20,17 +20,19 @@ export type ThemeConfig = {
   theme_voice?: string;
 };
 
-const THEME_MODE_LABELS: Record<ThemeMode, string> = {
-  dark: '深色',
-  light: '浅色',
-  system: '跟随系统'
-};
+import { t } from '../locales/i18n';
 
-const SURFACE_THEME_LABELS: Record<SurfaceTheme, string> = {
-  follow: '跟随全局',
-  dark: '深色',
-  light: '浅色'
-};
+function themeModeLabel(mode: ThemeMode): string {
+  if (mode === 'light') return t('appearance.themeLight');
+  if (mode === 'system') return t('appearance.themeSystem');
+  return t('appearance.themeDark');
+}
+
+function surfaceThemeLabel(surface: SurfaceTheme): string {
+  if (surface === 'dark') return t('appearance.themeDark');
+  if (surface === 'light') return t('appearance.themeLight');
+  return t('appearance.themeFollowGlobal');
+}
 
 let mediaQuery: MediaQueryList | null = null;
 let lastThemeConfig: ThemeConfig | null = null;
@@ -118,15 +120,15 @@ export function applyThemeConfig(config: ThemeConfig | undefined): void {
     });
   }
 
-  applyDropdownLabel('themeBtn', THEME_MODE_LABELS[mode]);
-  applyDropdownLabel('settingsThemeBtn', SURFACE_THEME_LABELS[settingsTheme]);
-  applyDropdownLabel('candThemeBtn', SURFACE_THEME_LABELS[candTheme]);
-  applyDropdownLabel('ftbThemeBtn', SURFACE_THEME_LABELS[normalizeSurfaceTheme(config?.theme_ftb)]);
-  applyDropdownLabel('menuThemeBtn', SURFACE_THEME_LABELS[normalizeSurfaceTheme(config?.theme_menu)]);
-  applyDropdownLabel('emojiThemeBtn', SURFACE_THEME_LABELS[normalizeSurfaceTheme(config?.theme_emoji)]);
-  applyDropdownLabel('screenKeyboardThemeBtn', SURFACE_THEME_LABELS[normalizeSurfaceTheme(config?.theme_screen_keyboard)]);
-  applyDropdownLabel('handwritingThemeBtn', SURFACE_THEME_LABELS[normalizeSurfaceTheme(config?.theme_handwriting)]);
-  applyDropdownLabel('voiceThemeBtn', SURFACE_THEME_LABELS[normalizeSurfaceTheme(config?.theme_voice)]);
+  applyDropdownLabel('themeBtn', themeModeLabel(mode), mode);
+  applyDropdownLabel('settingsThemeBtn', surfaceThemeLabel(settingsTheme), settingsTheme);
+  applyDropdownLabel('candThemeBtn', surfaceThemeLabel(candTheme), candTheme);
+  applyDropdownLabel('ftbThemeBtn', surfaceThemeLabel(normalizeSurfaceTheme(config?.theme_ftb)), normalizeSurfaceTheme(config?.theme_ftb));
+  applyDropdownLabel('menuThemeBtn', surfaceThemeLabel(normalizeSurfaceTheme(config?.theme_menu)), normalizeSurfaceTheme(config?.theme_menu));
+  applyDropdownLabel('emojiThemeBtn', surfaceThemeLabel(normalizeSurfaceTheme(config?.theme_emoji)), normalizeSurfaceTheme(config?.theme_emoji));
+  applyDropdownLabel('screenKeyboardThemeBtn', surfaceThemeLabel(normalizeSurfaceTheme(config?.theme_screen_keyboard)), normalizeSurfaceTheme(config?.theme_screen_keyboard));
+  applyDropdownLabel('handwritingThemeBtn', surfaceThemeLabel(normalizeSurfaceTheme(config?.theme_handwriting)), normalizeSurfaceTheme(config?.theme_handwriting));
+  applyDropdownLabel('voiceThemeBtn', surfaceThemeLabel(normalizeSurfaceTheme(config?.theme_voice)), normalizeSurfaceTheme(config?.theme_voice));
 
   ensureSystemThemeListener(() => {
     const modeNow = normalizeThemeMode(config?.theme_mode);
@@ -169,10 +171,14 @@ export function applyFtbPreviewTheme(theme: ResolvedTheme): void {
   });
 }
 
-function applyDropdownLabel(btnId: string, label: string): void {
-  const span = document.querySelector<HTMLElement>(`#${btnId} span`);
+function applyDropdownLabel(btnId: string, label: string, value?: string): void {
+  const btn = document.getElementById(btnId);
+  const span = btn?.querySelector<HTMLElement>('span');
   if (span) {
     span.textContent = label;
+  }
+  if (value !== undefined && btn) {
+    btn.dataset.selected = value;
   }
 }
 
@@ -183,10 +189,8 @@ function updateSkinThemeCard(
 ): void {
   const description = document.getElementById('skinThemeStatus');
   if (description) {
-    const modeLabel =
-      mode === 'system' ? '跟随系统' : mode === 'light' ? '浅色' : '深色';
     description.textContent =
-      `全局 ${modeLabel} · 设置 ${settingsResolved === 'light' ? '浅色' : '深色'} · 候选 ${candResolved === 'light' ? '浅色' : '深色'}`;
+      `${t('appearance.themeMode')} ${themeModeLabel(mode)} · ${t('appearance.settingsTheme')} ${settingsResolved === 'light' ? t('appearance.themeLight') : t('appearance.themeDark')} · ${t('appearance.candTheme')} ${candResolved === 'light' ? t('appearance.themeLight') : t('appearance.themeDark')}`;
   }
 
   // Fluent preview follows the same resolved theme as the real candidate surface.
@@ -242,16 +246,16 @@ export function setSurfaceTheme(
 }
 
 function readModeFromUi(): ThemeMode {
-  const label = document.querySelector('#themeBtn span')?.textContent?.trim();
-  if (label === '浅色') return 'light';
-  if (label === '跟随系统') return 'system';
+  const btn = document.getElementById('themeBtn');
+  const selected = btn?.dataset.selected;
+  if (selected === 'light' || selected === 'dark' || selected === 'system') return selected;
   return 'dark';
 }
 
 function readSurfaceFromUi(menuId: string, btnId: string): SurfaceTheme {
-  const label = document.querySelector(`#${btnId} span`)?.textContent?.trim();
-  if (label === '浅色') return 'light';
-  if (label === '深色') return 'dark';
-  const selected = document.querySelector<HTMLElement>(`#${menuId} .dropdown-item.active`);
-  return normalizeSurfaceTheme(selected?.dataset.value);
+  const btn = document.getElementById(btnId);
+  const selected = btn?.dataset.selected;
+  if (selected === 'light' || selected === 'dark' || selected === 'follow') return selected;
+  const selItem = document.querySelector<HTMLElement>(`#${menuId} .dropdown-item.active`);
+  return normalizeSurfaceTheme(selItem?.dataset.value);
 }

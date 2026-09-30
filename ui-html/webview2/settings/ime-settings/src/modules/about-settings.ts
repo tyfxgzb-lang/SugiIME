@@ -3,11 +3,12 @@ import { updateConfig } from './config-sync';
 import { setupToggleButton } from './shared';
 import type { UpdateManifest, ValidatedUpdate } from './update-manifest';
 import { compareVersions, describeInstallerTrust, parseVersion, validateManifest } from './update-manifest';
+import { t } from '../locales/i18n';
 
 const UPDATE_MANIFEST_URL = 'https://msime.app/update.json';
-const RELEASES_PAGE_URL = 'https://github.com/metasequoiaime/MSIME-Windows/releases';
-const LICENSE_URL = 'https://github.com/metasequoiaime/MSIME-Windows/blob/main/LICENSE';
-const PRIVACY_URL = 'https://github.com/metasequoiaime/MSIME-Windows/blob/main/PRIVACY.md';
+const RELEASES_PAGE_URL = 'https://github.com/tyfxgzb-lang/SugiIME/releases';
+const LICENSE_URL = 'https://github.com/tyfxgzb-lang/SugiIME/blob/main/LICENSE';
+const PRIVACY_URL = 'https://github.com/tyfxgzb-lang/SugiIME/blob/main/PRIVACY.md';
 const REQUEST_TIMEOUT_MS = 10000;
 
 function postExternalUrl(url: string): void {
@@ -36,7 +37,7 @@ function renderInstallerTrust(container: HTMLElement, update: ValidatedUpdate): 
   if (trust.verify) {
     const label = document.createElement('p');
     label.className = 'about-update-verify-label';
-    label.textContent = '下载后请核对 SHA256：';
+    label.textContent = t('about.verifyShaLabel');
 
     const command = document.createElement('code');
     command.className = 'about-update-verify-command';
@@ -128,12 +129,12 @@ export function setupAboutSettings(): void {
   checkButton.addEventListener('click', async () => {
     const currentVersion = parseVersion(versionLabel.textContent ?? '');
     if (!currentVersion) {
-      setStatus('无法识别当前版本', 'error');
+      setStatus(t('about.versionUnrecognized'), 'error');
       return;
     }
 
     checkButton.disabled = true;
-    checkButton.textContent = '正在检查…';
+    checkButton.textContent = t('about.checking');
     setStatus('');
 
     const controller = new AbortController();
@@ -159,18 +160,18 @@ export function setupAboutSettings(): void {
         releaseUrl = update.releaseUrl;
         dialogVersion.textContent = `v${latest.display}`;
         renderInstallerTrust(dialogTrust, update);
-        setStatus(`发现新版本 v${latest.display}`, 'success');
+        setStatus(`${t('about.newVersionFound')} v${latest.display}`, 'success');
         setDialogOpen(dialog, true);
       } else {
-        setStatus('已是最新版本', 'success');
+        setStatus(t('about.alreadyLatest'), 'success');
       }
     } catch (error) {
       console.warn('[about] update check failed:', error);
-      setStatus('检查失败，请稍后重试', 'error');
+      setStatus(t('about.checkFailed'), 'error');
     } finally {
       window.clearTimeout(timeout);
       checkButton.disabled = false;
-      checkButton.textContent = '检查更新';
+      checkButton.textContent = t('about.checkUpdate');
     }
   });
 }

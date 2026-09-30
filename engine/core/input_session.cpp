@@ -472,6 +472,11 @@ KeyResult InputSession::set_japanese_kana_form(JapaneseKanaForm form)
     return {true, std::nullopt, std::nullopt};
 }
 
+void InputSession::set_default_japanese_kana_form(JapaneseKanaForm form)
+{
+    engine_.set_default_japanese_kana_form(form);
+}
+
 SchemeType InputSession::scheme() const
 {
     return engine_.current_scheme_type();

@@ -48,7 +48,7 @@ void ActivateExistingInstance()
 
 int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int nCmdShow)
 {
-    CommonUtils::SingleInstanceGuard single_instance(L"Local\\MetasequoiaImeEmojiPanel.SingleInstance");
+    CommonUtils::SingleInstanceGuard single_instance(L"Local\\SugiIMEEmojiPanel.SingleInstance");
     if (!single_instance.is_valid())
     {
         return -1;

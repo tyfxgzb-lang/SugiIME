@@ -6,6 +6,7 @@ import { onHostMessage } from '../utils/host-messages';
 import type { SettingsMessage } from '../../../../shared/messages';
 type DictionaryRequest = Extract<SettingsMessage, { type: 'dictionaryRequest' }>['data'];
 import { serializeHostMessage } from '../../../../shared/messages';
+import { t } from '../locales/i18n';
 type DictionaryType = 'quanpin' | 'wubi' | 'english' | 'japanese';
 type DictionaryRow = { code?: string; word: string; weight?: number; display?: string };
 
@@ -48,7 +49,7 @@ function renderRows(rows: DictionaryRow[]): void {
   const body = document.getElementById('dictRows');
   if (!body) return;
   if (!rows.length) {
-    body.innerHTML = '<tr><td colspan="5" class="dict-empty">没有找到词条</td></tr>';
+    body.innerHTML = `<tr><td colspan="5" class="dict-empty">${t('dict.noEntries')}</td></tr>`;
     syncTableHeaderWidth();
     return;
   }
@@ -71,11 +72,11 @@ function renderRows(rows: DictionaryRow[]): void {
       tr.appendChild(td);
     });
     const actions = document.createElement('td');
-    const edit = document.createElement('button'); edit.className = 'dict-row-action'; edit.textContent = '编辑';
+    const edit = document.createElement('button'); edit.className = 'dict-row-action'; edit.textContent = t('common.edit');
     edit.addEventListener('click', () => openDialog(row));
-    const remove = document.createElement('button'); remove.className = 'dict-row-action danger'; remove.textContent = '删除';
+    const remove = document.createElement('button'); remove.className = 'dict-row-action danger'; remove.textContent = t('common.delete');
     remove.addEventListener('click', async () => {
-      if (!await confirmDialog(`确定删除“${row.word}”吗？`)) return;
+      if (!await confirmDialog(`${t('dict.deleteConfirm')}“${row.word}”？`)) return;
       if (dictionary === 'english') post('delete', { oldWord: row.word, oldDisplay: row.display ?? row.word, word: row.word, display: row.display ?? row.word });
       else post('delete', { oldCode: row.code, oldWord: row.word, code: row.code, word: row.word, weight: row.weight });
     });
@@ -113,32 +114,32 @@ function updateMode(): void {
   setShown('dictTableHeaderWrap', !japanese);
   const tableWrap = document.querySelector<HTMLElement>('.dict-table-wrap');
   if (tableWrap) tableWrap.style.display = japanese ? 'none' : '';
-  search.placeholder = english ? '输入英文前缀，例如 meta' : quanpin
-    ? '输入完整全拼，例如 nihao' : '输入五笔编码前缀';
+  search.placeholder = english ? t('dict.searchPlaceholderEnglish') : quanpin
+    ? t('dict.searchPlaceholderQuanpin') : t('dict.searchPlaceholderWubi');
   document.getElementById('dictHint')!.textContent = japanese
-    ? '批量导入日语词，支持：罗马音,词；罗马音,假名,汉字；纯文本“罗马音 词”；MOZC/系统 .dic（假名<Tab>汉字）；Anki 导出。导入的词排在假名之后、内置词之前。'
+    ? t('dict.hintJapanese')
     : english
-      ? '按英文前缀查询；批量导入格式为：单词<Tab>显示内容<Tab>权重（兼容无权重的两列文件）'
+      ? t('dict.hintEnglish')
       : quanpin
-        ? '全拼新增会校验拼音合法性、汉字数量和重复词条；批量导入格式为：词语<Tab>全拼[<Tab>权重]（兼容 Rime userdb.txt / dict.yaml，全拼可用空格或 \' 分音节）'
-        : '管理 86 五笔编码、词条及权重；批量导入格式为：词语<Tab>五笔编码[<Tab>权重]（兼容 Rime dict.yaml）';
+        ? t('dict.hintQuanpin')
+        : t('dict.hintWubi');
   const importButton = document.getElementById('dictImportButton') as HTMLButtonElement | null;
   if (importButton) importButton.style.display = '';
   document.getElementById('dictTableHeader')!.innerHTML = english
-    ? '<th class="dict-index-column">No.</th><th>单词</th><th>显示内容</th><th>权重</th><th>操作</th>'
-    : '<th class="dict-index-column">No.</th><th>编码</th><th>词条</th><th>权重</th><th>操作</th>';
+    ? `<th class="dict-index-column">No.</th><th>${t('dict.colWord')}</th><th>${t('dict.colDisplay')}</th><th>${t('common.weight')}</th><th>${t('common.operation')}</th>`
+    : `<th class="dict-index-column">No.</th><th>${t('dict.colCode')}</th><th>${t('common.word')}</th><th>${t('common.weight')}</th><th>${t('common.operation')}</th>`;
   document.getElementById('dictRows')!.innerHTML = japanese
-    ? '<tr><td colspan="5" class="dict-empty">点击“批量导入”选择日语词库文件</td></tr>'
-    : '<tr><td colspan="5" class="dict-empty">输入查询条件后查看词条</td></tr>';
+    ? `<tr><td colspan="5" class="dict-empty">${t('dict.emptyJapanese')}</td></tr>`
+    : `<tr><td colspan="5" class="dict-empty">${t('dict.emptyOther')}</td></tr>`;
   syncTableHeaderWidth();
 }
 
 function openDialog(row: DictionaryRow | null = null): void {
   editing = row;
   const english = dictionary === 'english';
-  document.getElementById('dictDialogTitle')!.textContent = row ? '编辑词条' : '新增词条';
-  document.getElementById('dictCodeField')!.firstChild!.textContent = english ? '单词' : dictionary === 'quanpin' ? '全拼' : '五笔编码';
-  document.getElementById('dictWordField')!.firstChild!.textContent = english ? '显示内容' : '词条';
+  document.getElementById('dictDialogTitle')!.textContent = row ? t('dict.modalEditTitle') : t('dict.modalAddTitle');
+  document.getElementById('dictCodeField')!.firstChild!.textContent = english ? t('dict.colWord') : dictionary === 'quanpin' ? t('dict.colQuanpin') : t('dict.colWubi');
+  document.getElementById('dictWordField')!.firstChild!.textContent = english ? t('dict.colDisplay') : t('common.word');
   (document.getElementById('dictCode') as HTMLInputElement).value = row
     ? (english ? row.word : row.code ?? '')
     : '';

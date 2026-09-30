@@ -10,7 +10,7 @@
 
 namespace
 {
-constexpr wchar_t kAppName[] = L"metasequoiaime";
+constexpr wchar_t kAppName[] = L"sugiime";
 
 bool PathHasEmptyComponent(const std::wstring &path)
 {
@@ -73,7 +73,7 @@ std::wstring QueryEnvironmentW(const wchar_t *name)
 std::wstring QueryInstalledDataDir()
 {
     HKEY key = nullptr;
-    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"Software\\Metasequoia\\MetasequoiaIME", 0,
+    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"Software\\SugiIME\\SugiIME", 0,
                       KEY_QUERY_VALUE | KEY_WOW64_64KEY, &key) != ERROR_SUCCESS)
     {
         return {};

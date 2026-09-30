@@ -1,6 +1,7 @@
 import { serializeHostMessage } from '../../../../shared/messages';
 // 下拉菜单功能
 import { setSurfaceTheme, setThemeMode } from './theme';
+import { t } from '../locales/i18n';
 
 /** Deferred item building for menus that are too costly to keep rendered (system fonts). */
 export type DropdownPreparer = {
@@ -37,7 +38,7 @@ async function openDropdownMenu(menu: HTMLElement, menuId: string): Promise<void
   const spinner = document.createElement('div');
   spinner.className = 'dropdown-loading';
   spinner.setAttribute('role', 'status');
-  spinner.setAttribute('aria-label', '正在加载');
+  spinner.setAttribute('aria-label', t('common.loading'));
   menu.appendChild(spinner);
   menu.classList.add('is-loading', 'open');
 
@@ -406,5 +407,5 @@ export function applyCandidateArrange(value: string | undefined): void {
 
   if (wnd_h) wnd_h.style.display = value === 'horizontal' ? 'flex' : 'none';
   if (wnd_v) wnd_v.style.display = value === 'vertical' ? 'flex' : 'none';
-  if (label) label.textContent = value === 'horizontal' ? '横向' : '纵向';
+  if (label) label.textContent = value === 'horizontal' ? t('appearance.arrangeHorizontal') : t('appearance.arrangeVertical');
 }

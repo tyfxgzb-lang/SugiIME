@@ -1,10 +1,12 @@
 #pragma once
 
 #include "config/ime_config.h"
+#include <functional>
 #include <string>
 #include <vector>
 
-// SugiIME removes the Chinese AI assistant. Stub kept for source compatibility.
+// SugiIME AI assistant: calls a Chat Completions endpoint to generate
+// contextual Japanese candidates.
 class AiAssistant
 {
   public:
@@ -16,15 +18,10 @@ class AiAssistant
         AiAssistantConfig config;
     };
 
-    template <typename Callback> static void Start(Callback)
-    {
-    }
+    using ApplyCallback =
+        std::function<void(const std::string &candidate, const std::string &identity, uint64_t generation)>;
 
-    static void Stop()
-    {
-    }
-
-    static void OnInputChanged(Request)
-    {
-    }
+    static void Start(ApplyCallback apply_callback);
+    static void Stop();
+    static void OnInputChanged(Request request);
 };

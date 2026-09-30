@@ -2,6 +2,7 @@
 
 #include "engine/core/scheme_type.h"
 #include <toml++/toml.h>
+#include <cstdint>
 #include <filesystem>
 #include <map>
 #include <string>
@@ -190,6 +191,20 @@ bool GetConfiguredJapanesePunctuation();
 bool SetConfiguredJapanesePunctuation(bool enabled);
 bool GetConfiguredJapaneseKatakanaFkey();
 bool SetConfiguredJapaneseKatakanaFkey(bool enabled);
+// Japanese fuzzy voicing (が/か confusion correction): master switch plus one
+// flat [input] boolean per kana pair ("japanese_fuzzy_ka_ga", ...), bound
+// per key by the settings page. The master switch gates
+// GetConfiguredJapaneseFuzzyMask only: sessions see a zero mask while it is
+// off, but the stored pair choices stay intact so flipping it back on
+// restores them.
+bool GetConfiguredJapaneseFuzzyEnabled();
+bool SetConfiguredJapaneseFuzzyEnabled(bool enabled);
+// key is the config key without section, e.g. "japanese_fuzzy_ka_ga";
+// unknown keys return false.
+bool GetConfiguredJapaneseFuzzyRule(const std::string &key);
+bool SetConfiguredJapaneseFuzzyRule(const std::string &key, bool enabled);
+// kJapaneseFuzzy* bits folded from the master switch and per-pair rules.
+std::uint32_t GetConfiguredJapaneseFuzzyMask();
 const std::string &GetConfiguredCharacterSet();
 bool SetConfiguredCharacterSet(const std::string &character_set);
 bool GetConfiguredCharacterSetShortcutEnabled();
@@ -207,6 +222,15 @@ bool GetConfiguredSwitchLanguageCtrlEnabled();
 bool SetConfiguredSwitchLanguageCtrlEnabled(bool enabled);
 bool GetConfiguredSwitchLanguageCtrlAltSpaceEnabled();
 bool SetConfiguredSwitchLanguageCtrlAltSpaceEnabled(bool enabled);
+// 维护快捷键（全局 hook，默认全开）：删除候选 / 清缓存 / 重启 / 退出。
+bool GetConfiguredMaintainCandidateDeleteEnabled();
+bool SetConfiguredMaintainCandidateDeleteEnabled(bool enabled);
+bool GetConfiguredMaintainClearCacheEnabled();
+bool SetConfiguredMaintainClearCacheEnabled(bool enabled);
+bool GetConfiguredMaintainRestartEnabled();
+bool SetConfiguredMaintainRestartEnabled(bool enabled);
+bool GetConfiguredMaintainExitEnabled();
+bool SetConfiguredMaintainExitEnabled(bool enabled);
 const std::string &GetConfiguredShuangpinSchema();
 bool SetConfiguredShuangpinSchema(const std::string &schema);
 const std::string &GetConfiguredWubiSchema();

@@ -13,6 +13,7 @@
 #include <fmt/xchar.h>
 #include <spdlog/spdlog.h>
 #include "cloud/cloud_ime.h"
+#include "ai/ai_assistant.h"
 #include "english/english_ime.h"
 #include "emoji/emoji_ime.h"
 #include "kaomoji/kaomoji_ime.h"
@@ -78,7 +79,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_ HINSTANCE /*hPrevInstance*/,
                      _In_ int /*nCmdShow*/)
 {
     const bool pipe_probe = IsPipeProbe(lpCmdLine);
-    CommonUtils::SingleInstanceGuard single_instance(L"Local\\MetasequoiaImeServer_SingleInstance");
+    CommonUtils::SingleInstanceGuard single_instance(L"Local\\SugiIMEServer_SingleInstance");
     if (!single_instance.is_valid())
     {
         (void)0;
@@ -181,6 +182,9 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_ HINSTANCE /*hPrevInstance*/,
                       [](std::vector<WordItem> candidates, const std::string &input, uint64_t generation) {
                           FanyNamedPipe::EnqueueKaomojiCandidates(std::move(candidates), input, generation);
                       });
+    AiAssistant::Start([](const std::string &candidate, const std::string &identity, uint64_t generation) {
+        FanyNamedPipe::EnqueueAiCandidate(candidate, identity, generation);
+    });
 
     int ret = CreateCandidateWindow(hInstance);
 

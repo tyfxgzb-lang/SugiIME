@@ -4,6 +4,7 @@ import { updateConfig } from './config-sync';
 import { syncAppearancePreviews } from './skin';
 import { applyToolbarIconGlyphFallbacks } from './toolbar-icon-glyphs';
 import ftbHTML from '../../../../ftb/default.html?raw';
+import { t } from '../locales/i18n';
 
 type FloatingToolbarItem = 'fullwidth' | 'punctuation' | 'character_set' | 'emoji' | 'screen_keyboard' | 'settings';
 type FloatingToolbarItemsConfig = Partial<Record<FloatingToolbarItem, boolean>>;
@@ -117,11 +118,11 @@ function updateCaretPreviewPosition(position: string): void {
   if (!host) return;
   host.dataset.position = position;
   const direction = ({
-    'top-left': '左上方', top: '正上方', 'top-right': '右上方',
-    'bottom-left': '左下方', bottom: '正下方', 'bottom-right': '右下方'
+    'top-left': t('toolbar.posTopLeft'), top: t('toolbar.posTop'), 'top-right': t('toolbar.posTopRight'),
+    'bottom-left': t('toolbar.posBottomLeft'), bottom: t('toolbar.posBottom'), 'bottom-right': t('toolbar.posBottomRight')
   } as Record<string, string>)[position];
   host.closest('.caret-state-preview')?.setAttribute('aria-label',
-    `光标状态提示预览：每个文字光标${direction || '左上方'}分别显示中、中文标点和中文模式、全角、简体`);
+    `${t('toolbar.caretPreviewLabel')}${direction || t('toolbar.posTopLeft')}${t('toolbar.caretPreviewDesc')}`);
 }
 
 export function applyFloatingToolbarAppearanceConfig(scale?: number, fontSize?: number): void {

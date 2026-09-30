@@ -1,51 +1,30 @@
 <div class="content" id="input-settings">
-  <div class="content-header"><span>输入</span></div>
-
-  <!-- 输入模式 -->
-  <div class="section">
-    <div class="section-header">
-      <div>
-        <div class="section-title">输入模式</div>
-        <div class="input-setting-description">切换中文或日文输入，并保留各模式上次选择的方案</div>
-      </div>
-    </div>
-    <div class="input-option-content input-mode-options">
-      <label class="radio-option">
-        <input type="radio" name="input-mode" value="chinese" checked>
-        <span>中文</span>
-      </label>
-      <div class="input-option-divider"></div>
-      <label class="radio-option">
-        <input type="radio" name="input-mode" value="japanese">
-        <span>日文</span>
-      </label>
-    </div>
-  </div>
+  <div class="content-header"><span data-i18n="input.title">输入</span></div>
 
   <!-- 日语方案 -->
-  <div class="section japanese-scheme-settings" hidden>
+  <div class="section japanese-scheme-settings">
     <div class="section-header">
-      <div class="section-title">日语方案</div>
+      <div class="section-title" data-i18n="input.scheme">日语方案</div>
     </div>
     <div class="input-option-content">
       <label class="radio-option">
         <input type="radio" name="japanese-input-method" value="romaji" checked>
-        <span>罗马音</span>
+        <span data-i18n="input.schemeRomaji">罗马音</span>
       </label>
       <label class="radio-option">
         <input type="radio" name="japanese-input-method" value="kana">
-        <span>JIS 假名键盘</span>
+        <span data-i18n="input.schemeKana">JIS 假名键盘</span>
       </label>
     </div>
-    <div class="input-setting-description japanese-scheme-description">罗马音：键入罗马音转换假名；JIS 假名键盘：按 JIS 106 配列每个按键直接对应一个假名（与 ATOK / MS-IME 的假名输入一致）</div>
+    <div class="input-setting-description japanese-scheme-description" data-i18n="input.schemeDesc">罗马音：键入罗马音转换假名；JIS 假名键盘：按 JIS 106 配列每个按键直接对应一个假名（与 ATOK / MS-IME 的假名输入一致）</div>
   </div>
 
   <!-- 日文输入选项 -->
-  <div class="section japanese-scheme-settings" hidden>
+  <div class="section japanese-scheme-settings">
     <div class="section-header">
       <div>
-        <div class="section-title">日文标点</div>
-        <div class="input-setting-description">日语模式下输出 、。「」『』 等日文标点；关闭则使用半角标点</div>
+        <div class="section-title" data-i18n="input.japanesePunctuation">日文标点</div>
+        <div class="input-setting-description" data-i18n="input.japanesePunctuationDesc">日语模式下输出 、。「」『』 等日文标点；关闭则使用半角标点</div>
       </div>
       <div class="ftb-toggle-btn active" id="japanesePunctuationToggleBtn" role="switch" aria-checked="true" tabindex="0">
         <div class="ftb-toggle-knob"></div>
@@ -53,8 +32,8 @@
     </div>
     <div class="section-header">
       <div>
-        <div class="section-title">F6–F10 假名形态转换</div>
-        <div class="input-setting-description">日语输入时，F6 平假名 / F7 全角片假名 / F8 半角片假名 / F9 全角罗马音 / F10 半角罗马音</div>
+        <div class="section-title" data-i18n="input.katakanaFkey">F6–F10 假名形态转换</div>
+        <div class="input-setting-description" data-i18n="input.katakanaFkeyDesc">日语输入时，F6 平假名 / F7 全角片假名 / F8 半角片假名 / F9 全角罗马音 / F10 半角罗马音</div>
       </div>
       <div class="ftb-toggle-btn active" id="japaneseKatakanaFkeyToggleBtn" role="switch" aria-checked="true" tabindex="0">
         <div class="ftb-toggle-knob"></div>
@@ -62,45 +41,70 @@
     </div>
   </div>
 
+  <!-- 浊音模糊音（纠错候选） -->
+  <div class="section japanese-scheme-settings">
+    <div class="section-header">
+      <div>
+        <div class="section-title" data-i18n="input.fuzzy">浊音模糊音</div>
+        <div class="input-setting-description" data-i18n="input.fuzzyDesc">が/か 等浊音・半浊音混淆时，把纠正后的读音作为纠错候选提供</div>
+      </div>
+      <div class="ftb-toggle-btn active" id="japaneseFuzzyToggleBtn" role="switch" aria-checked="true" tabindex="0">
+        <div class="ftb-toggle-knob"></div>
+      </div>
+    </div>
+    <div class="content-page-option" id="fuzzyDetails">
+      <label class="check-option"><input type="checkbox" name="fuzzy-rule" id="fuzzyKaGaCheckbox" value="japanese_fuzzy_ka_ga" checked><span data-i18n="input.fuzzyKaGa">か行 ↔ が行</span></label>
+      <div class="input-option-divider"></div>
+      <label class="check-option"><input type="checkbox" name="fuzzy-rule" id="fuzzySaZaCheckbox" value="japanese_fuzzy_sa_za" checked><span data-i18n="input.fuzzySaZa">さ行 ↔ ざ行</span></label>
+      <div class="input-option-divider"></div>
+      <label class="check-option"><input type="checkbox" name="fuzzy-rule" id="fuzzyTaDaCheckbox" value="japanese_fuzzy_ta_da" checked><span data-i18n="input.fuzzyTaDa">た行 ↔ だ行</span></label>
+      <div class="input-option-divider"></div>
+      <label class="check-option"><input type="checkbox" name="fuzzy-rule" id="fuzzyHaBaCheckbox" value="japanese_fuzzy_ha_ba" checked><span data-i18n="input.fuzzyHaBa">は行 ↔ ば行</span></label>
+      <div class="input-option-divider"></div>
+      <label class="check-option"><input type="checkbox" name="fuzzy-rule" id="fuzzyHaPaCheckbox" value="japanese_fuzzy_ha_pa" checked><span data-i18n="input.fuzzyHaPa">は行 ↔ ぱ行</span></label>
+    </div>
+    <div class="toggle-section-disabled-hint is-hidden" id="fuzzyDisabledHint" data-i18n="input.fuzzyDisabledHint">总开关已关闭，以下行对暂不生效；勾选状态保留，重新开启后恢复</div>
+  </div>
+
   <div class="section section-page-option">
     <div class="section-header">
-      <div class="section-title">翻页方式</div>
+      <div class="section-title" data-i18n="input.pageMethod">翻页方式</div>
     </div>
     <div class="content-page-option">
-      <label class="check-option"><input type="checkbox" name="page-method" id="pagingMinusEqualCheckbox" value="minus"><span>- / =</span></label>
+      <label class="check-option"><input type="checkbox" name="page-method" id="pagingMinusEqualCheckbox" value="minus"><span data-i18n="input.pageMinusEqual">- / =</span></label>
       <div class="input-option-divider"></div>
-      <label class="check-option"><input type="checkbox" name="page-method" id="pagingCommaPeriodCheckbox" value="comma"><span>, / .</span></label>
+      <label class="check-option"><input type="checkbox" name="page-method" id="pagingCommaPeriodCheckbox" value="comma"><span data-i18n="input.pageCommaPeriod">, / .</span></label>
       <div class="input-option-divider"></div>
-      <label class="check-option"><input type="checkbox" name="page-method" id="pagingBracketsCheckbox" value="brackets"><span>[ / ]</span></label>
+      <label class="check-option"><input type="checkbox" name="page-method" id="pagingBracketsCheckbox" value="brackets"><span data-i18n="input.pageBrackets">[ / ]</span></label>
       <div class="input-option-divider"></div>
-      <label class="check-option"><input type="checkbox" name="page-method" id="pagingTabCheckbox" value="tab"><span>Shift+Tab / Tab</span></label>
+      <label class="check-option"><input type="checkbox" name="page-method" id="pagingTabCheckbox" value="tab"><span data-i18n="input.pageTab">Shift+Tab / Tab</span></label>
       <div class="input-option-divider"></div>
-      <label class="check-option"><input type="checkbox" name="page-method" id="pagingPageUpDownCheckbox" value="page"><span>PageUp / PageDown</span></label>
+      <label class="check-option"><input type="checkbox" name="page-method" id="pagingPageUpDownCheckbox" value="page"><span data-i18n="input.pagePageUpDown">PageUp / PageDown</span></label>
       <div class="input-option-divider"></div>
-      <label class="check-option"><input type="checkbox" name="page-method" id="candidateArrowNavigationCheckbox" value="arrow"><span>上 / 下（移动候选项）</span></label>
+      <label class="check-option"><input type="checkbox" name="page-method" id="candidateArrowNavigationCheckbox" value="arrow"><span data-i18n="input.pageArrow">上 / 下（移动候选项）</span></label>
       <div class="input-option-divider"></div>
-      <label class="check-option"><input type="checkbox" name="page-method" id="pagingMouseWheelCheckbox" value="wheel"><span>鼠标滚轮</span></label>
-      <div class="input-setting-description">滚轮翻页依赖系统设置「当我悬停在非活动窗口上方时滚动它们」，该项关闭时滚轮不会到达候选窗口</div>
+      <label class="check-option"><input type="checkbox" name="page-method" id="pagingMouseWheelCheckbox" value="wheel"><span data-i18n="input.pageWheel">鼠标滚轮</span></label>
+      <div class="input-setting-description" data-i18n="input.pageWheelHint">滚轮翻页依赖系统设置「当我悬停在非活动窗口上方时滚动它们」，该项关闭时滚轮不会到达候选窗口</div>
     </div>
   </div>
 
   <div class="section punctuation-lock-section">
-    <div class="section-title">固定标点</div>
-    <div class="input-setting-description">切换中英文时的标点形态，三者互斥</div>
+    <div class="section-title" data-i18n="input.punctuationLock">固定标点</div>
+    <div class="input-setting-description" data-i18n="input.punctuationLockDesc">切换日英时的标点形态，三者互斥</div>
     <div class="content-page-option punctuation-lock-options" role="radiogroup" aria-label="固定标点">
-      <label class="radio-option"><input type="radio" name="punctuation-lock" value="follow" checked><span>跟随中英文状态</span></label>
+      <label class="radio-option"><input type="radio" name="punctuation-lock" value="follow" checked><span data-i18n="input.punctFollow">跟随日英状态</span></label>
       <div class="input-option-divider"></div>
-      <label class="radio-option"><input type="radio" name="punctuation-lock" value="chinese"><span>始终使用中文标点</span></label>
+      <label class="radio-option"><input type="radio" name="punctuation-lock" value="chinese"><span data-i18n="input.punctJapanese">始终使用日文标点</span></label>
       <div class="input-option-divider"></div>
-      <label class="radio-option"><input type="radio" name="punctuation-lock" value="english"><span>始终使用英文标点</span></label>
+      <label class="radio-option"><input type="radio" name="punctuation-lock" value="english"><span data-i18n="input.punctEnglish">始终使用英文标点</span></label>
     </div>
   </div>
 
   <div class="section">
     <div class="section-header">
       <div>
-        <div class="section-title">成对标点自动补全</div>
-        <div class="input-setting-description">输入左侧符号时自动补全右侧符号，并将光标置于中间</div>
+        <div class="section-title" data-i18n="input.pairedPunctuation">成对标点自动补全</div>
+        <div class="input-setting-description" data-i18n="input.pairedPunctuationDesc">输入左侧符号时自动补全右侧符号，并将光标置于中间</div>
       </div>
       <div class="ftb-toggle-btn active" id="pairedPunctuationToggleBtn" role="switch" aria-checked="true" tabindex="0">
         <div class="ftb-toggle-knob"></div>
@@ -111,8 +115,8 @@
   <div class="section">
     <div class="section-header">
       <div>
-        <div class="section-title">emoji 混输</div>
-        <div class="input-setting-description">中文输入时在候选项中加入匹配的 emoji（位于英文候选之后；云候选与 AI 联想会使其相应顺移）</div>
+        <div class="section-title" data-i18n="input.emojiMixed">emoji 混输</div>
+        <div class="input-setting-description" data-i18n="input.emojiMixedDesc">日语输入时在候选项中加入匹配的 emoji（位于英文候选之后；云候选会使其相应顺移）</div>
       </div>
       <div class="ftb-toggle-btn active" id="emojiMixedInputToggleBtn" role="switch" aria-checked="true" tabindex="0">
         <div class="ftb-toggle-knob"></div>
@@ -123,8 +127,8 @@
   <div class="section">
     <div class="section-header">
       <div>
-        <div class="section-title">颜文字混输</div>
-        <div class="input-setting-description">中文输入时在候选项中加入匹配的颜文字（排在 emoji 之后；云候选与 AI 联想会使其相应顺移）</div>
+        <div class="section-title" data-i18n="input.kaomojiMixed">颜文字混输</div>
+        <div class="input-setting-description" data-i18n="input.kaomojiMixedDesc">日语输入时在候选项中加入匹配的颜文字（排在 emoji 之后；云候选会使其相应顺移）</div>
       </div>
       <div class="ftb-toggle-btn active" id="kaomojiMixedInputToggleBtn" role="switch" aria-checked="true" tabindex="0">
         <div class="ftb-toggle-knob"></div>
@@ -132,35 +136,35 @@
     </div>
   </div>
 
-  <!-- 默认中英文 -->
+  <!-- 默认日英 -->
   <div class="section">
     <div class="section-header">
-      <div class="section-title">默认中英文</div>
+      <div class="section-title" data-i18n="input.defaultImeMode">默认日英</div>
       <div class="dropdown">
         <button class="dropdown-toggle" id="defaultImeModeBtn">
-          <span>中文</span>
+          <span data-i18n="input.modeJapanese">日文</span>
           <img src="./assets/arrow.svg" alt="▼">
         </button>
         <div class="dropdown-menu" id="defaultImeModeMenu">
-          <div class="dropdown-item" data-value="chinese">中文</div>
-          <div class="dropdown-item" data-value="english">英文</div>
+          <div class="dropdown-item" data-value="japanese" data-i18n="input.modeJapanese">日文</div>
+          <div class="dropdown-item" data-value="english" data-i18n="input.modeEnglish">英文</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 中英文状态范围 -->
+  <!-- 日英状态范围 -->
   <div class="section">
     <div class="section-header">
-      <div class="section-title">中英文状态</div>
+      <div class="section-title" data-i18n="input.imeModeScope">日英状态</div>
       <div class="dropdown">
         <button class="dropdown-toggle" id="imeModeScopeBtn">
-          <span>按应用记忆</span>
+          <span data-i18n="input.scopeApp">按应用记忆</span>
           <img src="./assets/arrow.svg" alt="▼">
         </button>
         <div class="dropdown-menu" id="imeModeScopeMenu">
-          <div class="dropdown-item" data-value="app">按应用记忆</div>
-          <div class="dropdown-item" data-value="global">全局统一</div>
+          <div class="dropdown-item" data-value="app" data-i18n="input.scopeApp">按应用记忆</div>
+          <div class="dropdown-item" data-value="global" data-i18n="input.scopeGlobal">全局统一</div>
         </div>
       </div>
     </div>
@@ -168,7 +172,7 @@
 
   <div class="section">
     <div class="section-header">
-      <div class="section-title">云候选</div>
+      <div class="section-title" data-i18n="input.cloudCandidates">云候选</div>
       <div class="ftb-toggle-btn active" id="cloudCandidatesToggleBtn" role="switch" aria-checked="true" tabindex="0">
         <div class="ftb-toggle-knob"></div>
       </div>

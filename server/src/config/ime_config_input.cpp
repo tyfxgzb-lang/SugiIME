@@ -8,6 +8,7 @@
 #include "defines/defines.h"
 #include "engine/common/helpcode_utils.h"
 #include "engine/core/data_path.h"
+#include "engine/core/query_request.h"
 
 using namespace ime_config_detail;
 
@@ -56,7 +57,7 @@ const std::string &GetConfiguredCharacterSet()
 
 bool SetConfiguredCharacterSet(const std::string &character_set)
 {
-    if (character_set != "simplified" && character_set != "traditional")
+    if (character_set != "hiragana" && character_set != "katakana")
     {
         return false;
     }
@@ -91,7 +92,7 @@ const std::string &GetConfiguredDefaultImeMode()
 
 bool SetConfiguredDefaultImeMode(const std::string &mode)
 {
-    if (mode != "chinese" && mode != "english")
+    if (mode != "japanese" && mode != "english")
     {
         return false;
     }
@@ -169,6 +170,66 @@ bool SetConfiguredSwitchLanguageCtrlAltSpaceEnabled(bool enabled)
         return false;
     }
     g_switch_language_ctrl_alt_space_enabled = enabled;
+    return true;
+}
+
+bool GetConfiguredMaintainCandidateDeleteEnabled()
+{
+    return g_maintain_candidate_delete_enabled;
+}
+
+bool SetConfiguredMaintainCandidateDeleteEnabled(bool enabled)
+{
+    if (!WriteConfiguredValue("keybindings", "maintain_candidate_delete", enabled ? "true" : "false"))
+    {
+        return false;
+    }
+    g_maintain_candidate_delete_enabled = enabled;
+    return true;
+}
+
+bool GetConfiguredMaintainClearCacheEnabled()
+{
+    return g_maintain_clear_cache_enabled;
+}
+
+bool SetConfiguredMaintainClearCacheEnabled(bool enabled)
+{
+    if (!WriteConfiguredValue("keybindings", "maintain_clear_cache", enabled ? "true" : "false"))
+    {
+        return false;
+    }
+    g_maintain_clear_cache_enabled = enabled;
+    return true;
+}
+
+bool GetConfiguredMaintainRestartEnabled()
+{
+    return g_maintain_restart_enabled;
+}
+
+bool SetConfiguredMaintainRestartEnabled(bool enabled)
+{
+    if (!WriteConfiguredValue("keybindings", "maintain_restart", enabled ? "true" : "false"))
+    {
+        return false;
+    }
+    g_maintain_restart_enabled = enabled;
+    return true;
+}
+
+bool GetConfiguredMaintainExitEnabled()
+{
+    return g_maintain_exit_enabled;
+}
+
+bool SetConfiguredMaintainExitEnabled(bool enabled)
+{
+    if (!WriteConfiguredValue("keybindings", "maintain_exit", enabled ? "true" : "false"))
+    {
+        return false;
+    }
+    g_maintain_exit_enabled = enabled;
     return true;
 }
 
@@ -466,6 +527,78 @@ bool SetConfiguredJapaneseKatakanaFkey(bool enabled)
     }
     g_japanese_katakana_fkey = enabled;
     return true;
+}
+
+bool GetConfiguredJapaneseFuzzyEnabled()
+{
+    return g_japanese_fuzzy;
+}
+
+bool SetConfiguredJapaneseFuzzyEnabled(bool enabled)
+{
+    if (!WriteConfiguredValue("input", "japanese_fuzzy", enabled ? "true" : "false"))
+    {
+        return false;
+    }
+    g_japanese_fuzzy = enabled;
+    return true;
+}
+
+// key is the config key without section, e.g. "japanese_fuzzy_ka_ga"; unknown
+// keys return false. Master switch off clears the mask but the stored rule
+// choices stay intact, so re-enabling restores them.
+bool GetConfiguredJapaneseFuzzyRule(const std::string &key)
+{
+    if (key == "japanese_fuzzy_ka_ga")
+        return g_japanese_fuzzy_ka_ga;
+    if (key == "japanese_fuzzy_sa_za")
+        return g_japanese_fuzzy_sa_za;
+    if (key == "japanese_fuzzy_ta_da")
+        return g_japanese_fuzzy_ta_da;
+    if (key == "japanese_fuzzy_ha_ba")
+        return g_japanese_fuzzy_ha_ba;
+    if (key == "japanese_fuzzy_ha_pa")
+        return g_japanese_fuzzy_ha_pa;
+    return false;
+}
+
+bool SetConfiguredJapaneseFuzzyRule(const std::string &key, bool enabled)
+{
+    bool *slot = nullptr;
+    if (key == "japanese_fuzzy_ka_ga")
+        slot = &g_japanese_fuzzy_ka_ga;
+    else if (key == "japanese_fuzzy_sa_za")
+        slot = &g_japanese_fuzzy_sa_za;
+    else if (key == "japanese_fuzzy_ta_da")
+        slot = &g_japanese_fuzzy_ta_da;
+    else if (key == "japanese_fuzzy_ha_ba")
+        slot = &g_japanese_fuzzy_ha_ba;
+    else if (key == "japanese_fuzzy_ha_pa")
+        slot = &g_japanese_fuzzy_ha_pa;
+    if (!slot)
+        return false;
+    if (!WriteConfiguredValue("input", key, enabled ? "true" : "false"))
+        return false;
+    *slot = enabled;
+    return true;
+}
+
+std::uint32_t GetConfiguredJapaneseFuzzyMask()
+{
+    if (!g_japanese_fuzzy)
+        return 0;
+    std::uint32_t mask = 0;
+    if (g_japanese_fuzzy_ka_ga)
+        mask |= kJapaneseFuzzyKaGa;
+    if (g_japanese_fuzzy_sa_za)
+        mask |= kJapaneseFuzzySaZa;
+    if (g_japanese_fuzzy_ta_da)
+        mask |= kJapaneseFuzzyTaDa;
+    if (g_japanese_fuzzy_ha_ba)
+        mask |= kJapaneseFuzzyHaBa;
+    if (g_japanese_fuzzy_ha_pa)
+        mask |= kJapaneseFuzzyHaPa;
+    return mask;
 }
 
 const FrequencyAdjustmentConfig &GetConfiguredFrequencyAdjustment()

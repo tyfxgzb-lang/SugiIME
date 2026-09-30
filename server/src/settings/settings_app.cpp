@@ -51,9 +51,9 @@ namespace json = boost::json;
 
 namespace
 {
-constexpr wchar_t kWindowClass[] = L"MetasequoiaImeSettingsWindow";
+constexpr wchar_t kWindowClass[] = L"SugiIMESettingsWindow";
 constexpr wchar_t kWindowTitle[] = L"Metasequoia IME Settings";
-constexpr wchar_t kSingleInstanceMutex[] = L"Local\\MetasequoiaImeSettings.SingleInstance";
+constexpr wchar_t kSingleInstanceMutex[] = L"Local\\SugiIMESettings.SingleInstance";
 constexpr UINT kActivateExistingWindow = WM_APP + 1;
 constexpr UINT kOpenAboutSection = WM_APP + 2;
 constexpr UINT kScanSkinCatalog = WM_APP + 3;
@@ -364,11 +364,16 @@ std::wstring BuildConfigMessage(bool refresh_skin_catalog)
         {"type", "configSnapshot"},
         {"data",
          {{"input",
-           {{"mode", GetConfiguredInputMode()},
-            {"schema", GetConfiguredInputSchemeName()},
+           {{"schema", GetConfiguredInputSchemeName()},
             {"japanese_schema", GetConfiguredJapaneseSchema()},
             {"japanese_punctuation", GetConfiguredJapanesePunctuation()},
             {"japanese_katakana_fkey", GetConfiguredJapaneseKatakanaFkey()},
+            {"japanese_fuzzy", GetConfiguredJapaneseFuzzyEnabled()},
+            {"japanese_fuzzy_ka_ga", GetConfiguredJapaneseFuzzyRule("japanese_fuzzy_ka_ga")},
+            {"japanese_fuzzy_sa_za", GetConfiguredJapaneseFuzzyRule("japanese_fuzzy_sa_za")},
+            {"japanese_fuzzy_ta_da", GetConfiguredJapaneseFuzzyRule("japanese_fuzzy_ta_da")},
+            {"japanese_fuzzy_ha_ba", GetConfiguredJapaneseFuzzyRule("japanese_fuzzy_ha_ba")},
+            {"japanese_fuzzy_ha_pa", GetConfiguredJapaneseFuzzyRule("japanese_fuzzy_ha_pa")},
             {"character_set", GetConfiguredCharacterSet()},
             {"default_ime_mode", GetConfiguredDefaultImeMode()},
             {"ime_mode_scope", GetConfiguredImeModeScope()},
@@ -425,7 +430,11 @@ std::wstring BuildConfigMessage(bool refresh_skin_catalog)
            {{"switch_language_shift", GetConfiguredSwitchLanguageShiftEnabled()},
             {"switch_language_ctrl", GetConfiguredSwitchLanguageCtrlEnabled()},
             {"switch_language_ctrl_alt_space", GetConfiguredSwitchLanguageCtrlAltSpaceEnabled()},
-            {"toggle_character_set_ctrl_shift_f", GetConfiguredCharacterSetShortcutEnabled()}}},
+            {"toggle_character_set_ctrl_shift_f", GetConfiguredCharacterSetShortcutEnabled()},
+            {"maintain_candidate_delete", GetConfiguredMaintainCandidateDeleteEnabled()},
+            {"maintain_clear_cache", GetConfiguredMaintainClearCacheEnabled()},
+            {"maintain_restart", GetConfiguredMaintainRestartEnabled()},
+            {"maintain_exit", GetConfiguredMaintainExitEnabled()}}},
           {"frequency_adjustment",
            {{"mode", frequency.mode},
             {"trigger_count", frequency.trigger_count},
@@ -436,9 +445,7 @@ std::wstring BuildConfigMessage(bool refresh_skin_catalog)
             {"date_time_mode", GetConfiguredDateTimeModeEnabled()},
             {"emoji_mode", GetConfiguredEmojiModeEnabled()},
             {"kaomoji_mode", GetConfiguredKaomojiModeEnabled()},
-            {"jianpin_mode", GetConfiguredJianpinModeEnabled()},
             {"y_mode", GetConfiguredYModeEnabled()},
-            {"r_mode", GetConfiguredRModeEnabled()},
             {"clipboard_history", GetConfiguredClipboardHistoryEnabled()}}},
           {"appearance",
            {{"ui_backend", GetConfiguredUiBackend()},
@@ -622,8 +629,6 @@ void PostMaximizeButtonEvent(const char *event_name)
 bool ApplyConfigUpdate(const json::object &data)
 {
     const std::string path = json::value_to<std::string>(data.at("path"));
-    if (path == "input.mode")
-        return SetConfiguredInputMode(json::value_to<std::string>(data.at("value")));
     if (path == "input.schema")
         return SetConfiguredInputScheme(json::value_to<std::string>(data.at("value")));
     if (path == "input.japanese_schema")
@@ -632,6 +637,13 @@ bool ApplyConfigUpdate(const json::object &data)
         return SetConfiguredJapanesePunctuation(json::value_to<bool>(data.at("value")));
     if (path == "input.japanese_katakana_fkey")
         return SetConfiguredJapaneseKatakanaFkey(json::value_to<bool>(data.at("value")));
+    if (path == "input.japanese_fuzzy")
+        return SetConfiguredJapaneseFuzzyEnabled(json::value_to<bool>(data.at("value")));
+    if (path == "input.japanese_fuzzy_ka_ga" || path == "input.japanese_fuzzy_sa_za" ||
+        path == "input.japanese_fuzzy_ta_da" || path == "input.japanese_fuzzy_ha_ba" ||
+        path == "input.japanese_fuzzy_ha_pa")
+        return SetConfiguredJapaneseFuzzyRule(path.substr(std::string("input.").size()),
+                                              json::value_to<bool>(data.at("value")));
     if (path == "input.character_set")
         return SetConfiguredCharacterSet(json::value_to<std::string>(data.at("value")));
     if (path == "input.default_ime_mode")
@@ -786,12 +798,8 @@ bool ApplyConfigUpdate(const json::object &data)
         return SetConfiguredEmojiModeEnabled(json::value_to<bool>(data.at("value")));
     if (path == "utility.kaomoji_mode")
         return SetConfiguredKaomojiModeEnabled(json::value_to<bool>(data.at("value")));
-    if (path == "utility.jianpin_mode")
-        return SetConfiguredJianpinModeEnabled(json::value_to<bool>(data.at("value")));
     if (path == "utility.y_mode")
         return SetConfiguredYModeEnabled(json::value_to<bool>(data.at("value")));
-    if (path == "utility.r_mode")
-        return SetConfiguredRModeEnabled(json::value_to<bool>(data.at("value")));
     if (path == "utility.clipboard_history")
         return SetConfiguredClipboardHistoryEnabled(json::value_to<bool>(data.at("value")));
     if (path == "general.paging_minus_equal")
@@ -816,6 +824,14 @@ bool ApplyConfigUpdate(const json::object &data)
         return SetConfiguredSwitchLanguageCtrlAltSpaceEnabled(json::value_to<bool>(data.at("value")));
     if (path == "keybindings.toggle_character_set_ctrl_shift_f")
         return SetConfiguredCharacterSetShortcutEnabled(json::value_to<bool>(data.at("value")));
+    if (path == "keybindings.maintain_candidate_delete")
+        return SetConfiguredMaintainCandidateDeleteEnabled(json::value_to<bool>(data.at("value")));
+    if (path == "keybindings.maintain_clear_cache")
+        return SetConfiguredMaintainClearCacheEnabled(json::value_to<bool>(data.at("value")));
+    if (path == "keybindings.maintain_restart")
+        return SetConfiguredMaintainRestartEnabled(json::value_to<bool>(data.at("value")));
+    if (path == "keybindings.maintain_exit")
+        return SetConfiguredMaintainExitEnabled(json::value_to<bool>(data.at("value")));
     if (path.rfind("frequency_adjustment.", 0) == 0)
     {
         const std::string key = path.substr(21);

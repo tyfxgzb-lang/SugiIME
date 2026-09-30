@@ -1,4 +1,4 @@
-#include "settings_launcher.h"
+﻿#include "settings_launcher.h"
 
 #include <Windows.h>
 #include <filesystem>
@@ -7,7 +7,7 @@
 
 namespace
 {
-constexpr wchar_t kSettingsWindowClass[] = L"MetasequoiaImeSettingsWindow";
+constexpr wchar_t kSettingsWindowClass[] = L"SugiIMESettingsWindow";
 constexpr wchar_t kEmojiPanelWindowClass[] = L"msimeui.EmojiPanel";
 constexpr wchar_t kKeyboardPanelWindowClass[] = L"msimeui.KeyboardDemo";
 constexpr wchar_t kHandwritingPanelWindowClass[] = L"msimeui.HandwritingDemo";

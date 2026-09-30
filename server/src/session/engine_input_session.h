@@ -13,6 +13,7 @@ class EngineInputSession : public IInputSession
     SchemeType current_scheme_type() const override;
     void switch_scheme(SchemeType scheme_type) override;
     bool set_japanese_kana_form(JapaneseKanaForm form) override;
+    void set_default_japanese_kana_form(JapaneseKanaForm form) override;
 
     void reset_state() override;
     void reset_cache() override;

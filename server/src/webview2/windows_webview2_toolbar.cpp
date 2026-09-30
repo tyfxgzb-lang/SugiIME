@@ -148,15 +148,15 @@ void RenderFloatingToolbarState(ICoreWebView2 *webview)
         script.append(L"document.getElementById('puncEn').style.display = 'flex';");
     }
 
-    if (GetConfiguredCharacterSet() == "traditional")
+    if (GetConfiguredCharacterSet() == "katakana")
     {
-        script.append(L"document.getElementById('character-set-simplified').style.display = 'none';");
-        script.append(L"document.getElementById('character-set-traditional').style.display = 'flex';");
+        script.append(L"document.getElementById('character-set-hiragana').style.display = 'none';");
+        script.append(L"document.getElementById('character-set-katakana').style.display = 'flex';");
     }
     else
     {
-        script.append(L"document.getElementById('character-set-simplified').style.display = 'flex';");
-        script.append(L"document.getElementById('character-set-traditional').style.display = 'none';");
+        script.append(L"document.getElementById('character-set-hiragana').style.display = 'flex';");
+        script.append(L"document.getElementById('character-set-katakana').style.display = 'none';");
     }
 
     const FloatingToolbarItemsConfig &items = GetConfiguredFloatingToolbarItems();
@@ -451,7 +451,7 @@ HRESULT OnControllerCreatedFtbWnd(      //
                     else if (type == "changeCharacterSet")
                     {
                         const std::string next =
-                            GetConfiguredCharacterSet() == "traditional" ? "simplified" : "traditional";
+                            GetConfiguredCharacterSet() == "katakana" ? "hiragana" : "katakana";
                         if (SetConfiguredCharacterSet(next))
                         {
                             PostSettingsConfig();

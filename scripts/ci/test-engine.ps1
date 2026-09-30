@@ -1,4 +1,4 @@
-param(
+﻿param(
     [Parameter(Mandatory = $true)][string]$BuildDir,
     [Parameter(Mandatory = $true)][string]$StagingRoot
 )
@@ -12,10 +12,10 @@ $ErrorActionPreference = 'Stop'
 $automationRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 python (Join-Path $automationRoot 'scripts/product_lock.py') fetch-dictionaries --staging-root $StagingRoot
 if ($LASTEXITCODE -ne 0) { throw 'Could not provision locked dictionaries' }
-$verified = (Resolve-Path (Join-Path $StagingRoot 'MetasequoiaImeDict/out')).Path
+$verified = (Resolve-Path (Join-Path $StagingRoot 'sugiimeDict/out')).Path
 # Isolate LOCALAPPDATA as well, so no installed dictionary or user journal is ever touched.
 $env:LOCALAPPDATA = Join-Path (Resolve-Path $StagingRoot).Path 'user-local'
-$data = Join-Path $env:LOCALAPPDATA 'metasequoiaime'
+$data = Join-Path $env:LOCALAPPDATA 'sugiime'
 New-Item -ItemType Directory -Force -Path $data | Out-Null
 Copy-Item (Join-Path $verified '*') -Destination $data -Force
 Copy-Item (Join-Path $automationRoot 'server/assets/tables/*') -Destination $data -Force -ErrorAction SilentlyContinue

@@ -7,6 +7,7 @@ type DictionaryRequest = Extract<SettingsMessage, { type: 'dictionaryRequest' }>
 import { serializeHostMessage } from '../../../../shared/messages';
 import { setupToggleButton } from './shared';
 import { updateConfig } from './config-sync';
+import { t } from '../locales/i18n';
 
 type QuickPhraseRow = { code: string; word: string; weight: number };
 
@@ -60,9 +61,9 @@ function renderRows(rows: QuickPhraseRow[]): void {
       tr.appendChild(td);
     });
     const actions = document.createElement('td');
-    const edit = document.createElement('button'); edit.className = 'dict-row-action'; edit.textContent = '编辑'; edit.addEventListener('click', () => openDialog(row));
-    const remove = document.createElement('button'); remove.className = 'dict-row-action danger'; remove.textContent = '删除';
-    remove.addEventListener('click', async () => { if (await confirmDialog(`确定删除“${row.word}”吗？`)) post('delete', { oldCode: row.code, oldWord: row.word, code: row.code, word: row.word, weight: row.weight }); });
+    const edit = document.createElement('button'); edit.className = 'dict-row-action'; edit.textContent = t('common.edit'); edit.addEventListener('click', () => openDialog(row));
+    const remove = document.createElement('button'); remove.className = 'dict-row-action danger'; remove.textContent = t('common.delete');
+    remove.addEventListener('click', async () => { if (await confirmDialog(`${t('dict.deleteConfirm')}“${row.word}”？`)) post('delete', { oldCode: row.code, oldWord: row.word, code: row.code, word: row.word, weight: row.weight }); });
     actions.append(edit, remove); tr.appendChild(actions); return tr;
   }));
   syncHeader();
@@ -70,7 +71,7 @@ function renderRows(rows: QuickPhraseRow[]): void {
 
 function openDialog(row: QuickPhraseRow | null = null): void {
   editing = row;
-  document.getElementById('quickPhraseDialogTitle')!.textContent = row ? '编辑快捷短语' : '新增快捷短语';
+  document.getElementById('quickPhraseDialogTitle')!.textContent = row ? t('tools.modalEditTitle') : t('tools.modalAddTitle');
   (document.getElementById('quickPhraseCode') as HTMLInputElement).value = row?.code ?? '';
   (document.getElementById('quickPhraseValue') as HTMLInputElement).value = row?.word ?? '';
   (document.getElementById('quickPhraseWeight') as HTMLInputElement).value = row ? String(row.weight) : '10';
@@ -124,14 +125,8 @@ export function setupToolsSettings(): void {
   setupToggleButton('kaomojiModeToggleBtn', (active) => {
     updateConfig('utility.kaomoji_mode', active);
   });
-  setupToggleButton('jianpinModeToggleBtn', (active) => {
-    updateConfig('utility.jianpin_mode', active);
-  });
   setupToggleButton('yModeToggleBtn', (active) => {
     updateConfig('utility.y_mode', active);
-  });
-  setupToggleButton('rModeToggleBtn', (active) => {
-    updateConfig('utility.r_mode', active);
   });
   document.getElementById('quickPhraseSearchButton')?.addEventListener('click', () => query());
   document.getElementById('quickPhraseSearch')?.addEventListener('keydown', event => { if ((event as KeyboardEvent).key === 'Enter') query(); });

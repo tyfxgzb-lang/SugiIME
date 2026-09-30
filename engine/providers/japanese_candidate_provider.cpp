@@ -222,8 +222,10 @@ std::vector<WordItem> JapaneseCandidateProvider::query(const QueryRequest &reque
     // Fuzzy voicing (濁音・半濁音の曖昧入力): users who confuse ga/ka, za/sa,
     // da/ta, ba/ha, pa/ha etc. get the corrected reading offered as a candidate.
     // For each mora we try adding / stripping dakuten (and handakuten on the
-    // は row) and surface any lemmas the swapped reading resolves to.
-    if (sentence_decoder_ && sentence_decoder_->ready() && hiragana_complete)
+    // は row) and surface any lemmas the swapped reading resolves to. Each swap
+    // is gated on its row pair in request.japanese_fuzzy_mask; a zero mask
+    // disables fuzzy candidates entirely.
+    if (request.japanese_fuzzy_mask != 0 && sentence_decoder_ && sentence_decoder_->ready() && hiragana_complete)
     {
         const std::string &reading = conversion.hiragana;
         std::vector<std::uint32_t> cps;
@@ -262,32 +264,50 @@ std::vector<WordItem> JapaneseCandidateProvider::query(const QueryRequest &reque
 
         const int kMaxFuzzyVariants = 12;
         int variants_tried = 0;
+        // Each swap carries the configuration bit of its row pair; a disabled
+        // pair never generates a variant reading.
+        struct FuzzySwap
+        {
+            std::uint32_t cp;
+            std::uint32_t bit;
+        };
         for (std::size_t i = 0; i < cps.size() && variants_tried < kMaxFuzzyVariants; ++i)
         {
             const std::uint32_t cp = cps[i];
-            std::vector<std::uint32_t> swaps;
+            std::vector<FuzzySwap> swaps;
             if (kDakutenCapable.count(cp))
             {
-                swaps.push_back(cp + 1); // add dakuten
+                const std::uint32_t bit = cp <= 0x3053   ? kJapaneseFuzzyKaGa
+                                          : cp <= 0x305D ? kJapaneseFuzzySaZa
+                                          : cp <= 0x3068 ? kJapaneseFuzzyTaDa
+                                                         : kJapaneseFuzzyHaBa;
+                swaps.push_back({cp + 1, bit}); // add dakuten
                 if (kHandakutenCapable.count(cp))
-                    swaps.push_back(cp + 2); // add handakuten
+                    swaps.push_back({cp + 2, kJapaneseFuzzyHaPa}); // add handakuten
             }
             else if (is_dakuten(cp))
             {
-                swaps.push_back(cp - 1); // strip dakuten
+                const std::uint32_t bit = cp <= 0x3054   ? kJapaneseFuzzyKaGa
+                                          : cp <= 0x305E ? kJapaneseFuzzySaZa
+                                          : cp <= 0x3069 ? kJapaneseFuzzyTaDa
+                                          : is_handakuten(cp) ? kJapaneseFuzzyHaPa
+                                                              : kJapaneseFuzzyHaBa;
+                swaps.push_back({cp - 1, bit}); // strip dakuten (ぱ行 → ば行 also lands here)
             }
             else if (is_handakuten(cp))
             {
-                swaps.push_back(cp - 2); // strip handakuten → clear
-                swaps.push_back(cp - 1); // strip handakuten → dakuten
+                swaps.push_back({cp - 2, kJapaneseFuzzyHaPa}); // strip handakuten → clear
+                swaps.push_back({cp - 1, kJapaneseFuzzyHaPa}); // strip handakuten → dakuten
             }
-            for (std::uint32_t swapped : swaps)
+            for (const FuzzySwap &swap : swaps)
             {
+                if ((request.japanese_fuzzy_mask & swap.bit) == 0)
+                    continue;
                 if (variants_tried >= kMaxFuzzyVariants)
                     break;
                 ++variants_tried;
                 std::vector<std::uint32_t> variant_cps = cps;
-                variant_cps[i] = swapped;
+                variant_cps[i] = swap.cp;
                 std::string variant_reading;
                 for (std::uint32_t v : variant_cps)
                     utf8::append(v, std::back_inserter(variant_reading));

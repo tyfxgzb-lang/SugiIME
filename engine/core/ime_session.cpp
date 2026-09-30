@@ -18,14 +18,14 @@ void ImeSession::switch_scheme(SchemeType scheme_type)
 {
     scheme_ = create_scheme(scheme_type);
     state_ = CompositionState{};
-    japanese_kana_form_ = JapaneseKanaForm::Auto;
+    japanese_kana_form_ = default_japanese_kana_form_;
 }
 
 void ImeSession::reset()
 {
     scheme_->reset();
     state_ = CompositionState{};
-    japanese_kana_form_ = JapaneseKanaForm::Auto;
+    japanese_kana_form_ = default_japanese_kana_form_;
 }
 
 SchemeType ImeSession::candidate_scheme() const
@@ -134,6 +134,7 @@ bool ImeSession::expand_initial_candidates()
 void ImeSession::apply_request_options(QueryRequest &request) const
 {
     request.japanese_kana_form = japanese_kana_form_;
+    request.japanese_fuzzy_mask = japanese_fuzzy_mask_;
 }
 
 void ImeSession::refresh_candidates()

@@ -46,13 +46,25 @@ std::string g_input_mode = "japanese";
 std::string g_japanese_schema = "romaji";
 bool g_japanese_punctuation = true;
 bool g_japanese_katakana_fkey = true;
-std::string g_character_set = "simplified";
-std::string g_default_ime_mode = "chinese";
+// 日语浊音/半浊音模糊音（纠错候选）：总开关 + 逐行开关，默认全开以保持既有行为。
+bool g_japanese_fuzzy = true;
+bool g_japanese_fuzzy_ka_ga = true;
+bool g_japanese_fuzzy_sa_za = true;
+bool g_japanese_fuzzy_ta_da = true;
+bool g_japanese_fuzzy_ha_ba = true;
+bool g_japanese_fuzzy_ha_pa = true;
+std::string g_character_set = "hiragana";
+std::string g_default_ime_mode = "japanese";
 std::string g_ime_mode_scope = "app";
 bool g_switch_language_shift_enabled = true;
 bool g_switch_language_ctrl_enabled = false;
 bool g_switch_language_ctrl_alt_space_enabled = true;
 bool g_character_set_shortcut_enabled = true;
+// 维护快捷键（全局 hook）：默认全开以保持既有行为，可在快捷键设置页逐项关闭。
+bool g_maintain_candidate_delete_enabled = true;
+bool g_maintain_clear_cache_enabled = true;
+bool g_maintain_restart_enabled = true;
+bool g_maintain_exit_enabled = true;
 int g_candidate_page_size = 8;
 std::string g_candidate_font = "Noto Sans SC";
 std::string g_candidate_english_font = "Segoe UI";
@@ -112,16 +124,16 @@ bool g_assoc_sentence_neural_keyboard = true;
 bool g_assoc_sentence_show_next_on_duplicate = false;
 // 候选窗整句候选后的来源标签（〔Trigram〕〔神经K〕等），默认显示。
 bool g_assoc_sentence_source_badge = true;
-bool g_emoji_mixed_input_enabled = false;
-bool g_kaomoji_mixed_input_enabled = false;
+bool g_emoji_mixed_input_enabled = true;
+bool g_kaomoji_mixed_input_enabled = true;
 bool g_unicode_mode_enabled = true;
 bool g_quick_phrase_enabled = true;
 bool g_date_time_mode_enabled = true;
 bool g_emoji_mode_enabled = true;
 bool g_kaomoji_mode_enabled = true;
-bool g_jianpin_mode_enabled = true;
+bool g_jianpin_mode_enabled = false;
 bool g_y_mode_enabled = true;
-bool g_r_mode_enabled = true;
+bool g_r_mode_enabled = false;
 bool g_clipboard_history_enabled = false;
 bool g_paging_minus_equal_enabled = true;
 bool g_paging_comma_period_enabled = false;
@@ -362,8 +374,8 @@ bool LoadImeConfig()
         g_session_backend = tbl["input"]["session_backend"].value_or(std::string("legacy"));
         g_input_scheme = ParseScheme(tbl["input"]["schema"].value_or(std::string("shuangpin")));
         {
-            const std::string mode = tbl["input"]["mode"].value_or(std::string("chinese"));
-            g_input_mode = mode == "japanese" ? "japanese" : "chinese";
+            // SugiIME 只有日语模式：忽略 input.mode，恒为 japanese。
+            g_input_mode = "japanese";
         }
         {
             const std::string schema = tbl["input"]["japanese_schema"].value_or(std::string("romaji"));
@@ -371,11 +383,17 @@ bool LoadImeConfig()
         }
         g_japanese_punctuation = tbl["input"]["japanese_punctuation"].value_or(true);
         g_japanese_katakana_fkey = tbl["input"]["japanese_katakana_fkey"].value_or(true);
-        const std::string character_set = tbl["input"]["character_set"].value_or(std::string("simplified"));
-        g_character_set = character_set == "traditional" ? "traditional" : "simplified";
+        g_japanese_fuzzy = tbl["input"]["japanese_fuzzy"].value_or(true);
+        g_japanese_fuzzy_ka_ga = tbl["input"]["japanese_fuzzy_ka_ga"].value_or(true);
+        g_japanese_fuzzy_sa_za = tbl["input"]["japanese_fuzzy_sa_za"].value_or(true);
+        g_japanese_fuzzy_ta_da = tbl["input"]["japanese_fuzzy_ta_da"].value_or(true);
+        g_japanese_fuzzy_ha_ba = tbl["input"]["japanese_fuzzy_ha_ba"].value_or(true);
+        g_japanese_fuzzy_ha_pa = tbl["input"]["japanese_fuzzy_ha_pa"].value_or(true);
+        const std::string character_set = tbl["input"]["character_set"].value_or(std::string("hiragana"));
+        g_character_set = character_set == "katakana" ? "katakana" : "hiragana";
         {
-            const std::string mode = tbl["input"]["default_ime_mode"].value_or(std::string("chinese"));
-            g_default_ime_mode = mode == "english" ? "english" : "chinese";
+            const std::string mode = tbl["input"]["default_ime_mode"].value_or(std::string("japanese"));
+            g_default_ime_mode = mode == "english" ? "english" : "japanese";
         }
         {
             const std::string scope = tbl["input"]["ime_mode_scope"].value_or(std::string("app"));
@@ -466,16 +484,16 @@ bool LoadImeConfig()
         g_assoc_sentence_neural_keyboard = tbl["association"]["sentence_neural_keyboard"].value_or(true);
         g_assoc_sentence_show_next_on_duplicate = tbl["association"]["sentence_show_next_on_duplicate"].value_or(false);
         g_assoc_sentence_source_badge = tbl["association"]["sentence_source_badge"].value_or(true);
-        g_emoji_mixed_input_enabled = tbl["general"]["emoji_mixed_input"].value_or(false);
-        g_kaomoji_mixed_input_enabled = tbl["general"]["kaomoji_mixed_input"].value_or(false);
+        g_emoji_mixed_input_enabled = tbl["general"]["emoji_mixed_input"].value_or(true);
+        g_kaomoji_mixed_input_enabled = tbl["general"]["kaomoji_mixed_input"].value_or(true);
         g_unicode_mode_enabled = tbl["utility"]["unicode_mode"].value_or(true);
         g_quick_phrase_enabled = tbl["utility"]["quick_phrase"].value_or(true);
         g_date_time_mode_enabled = tbl["utility"]["date_time_mode"].value_or(true);
         g_emoji_mode_enabled = tbl["utility"]["emoji_mode"].value_or(true);
         g_kaomoji_mode_enabled = tbl["utility"]["kaomoji_mode"].value_or(true);
-        g_jianpin_mode_enabled = tbl["utility"]["jianpin_mode"].value_or(true);
+        g_jianpin_mode_enabled = tbl["utility"]["jianpin_mode"].value_or(false);
         g_y_mode_enabled = tbl["utility"]["y_mode"].value_or(true);
-        g_r_mode_enabled = tbl["utility"]["r_mode"].value_or(true);
+        g_r_mode_enabled = tbl["utility"]["r_mode"].value_or(false);
         {
             const bool previous_clipboard_history = g_clipboard_history_enabled;
             static bool clipboard_history_loaded = false;
@@ -542,6 +560,10 @@ bool LoadImeConfig()
             g_switch_language_ctrl_alt_space_enabled =
                 tbl["keybindings"]["switch_language_ctrl_alt_space"].value_or(legacy_ctrl_alt_space);
             g_character_set_shortcut_enabled = tbl["keybindings"]["toggle_character_set_ctrl_shift_f"].value_or(true);
+            g_maintain_candidate_delete_enabled = tbl["keybindings"]["maintain_candidate_delete"].value_or(true);
+            g_maintain_clear_cache_enabled = tbl["keybindings"]["maintain_clear_cache"].value_or(true);
+            g_maintain_restart_enabled = tbl["keybindings"]["maintain_restart"].value_or(true);
+            g_maintain_exit_enabled = tbl["keybindings"]["maintain_exit"].value_or(true);
         }
         {
             const std::string mode = tbl["frequency_adjustment"]["mode"].value_or(std::string("promote"));
@@ -792,7 +814,7 @@ void MigrateLegacyVoiceInputConfig()
     if (!voice.asr_token.empty())
         return;
     const std::filesystem::path legacy_path =
-        std::filesystem::path(CommonUtils::get_local_appdata_path_w()) / L"MetasequoiaVoiceInput" / L"config.toml";
+        std::filesystem::path(CommonUtils::get_local_appdata_path_w()) / L"SugiIMEVoiceInput" / L"config.toml";
     if (!std::filesystem::exists(legacy_path))
         return;
     try

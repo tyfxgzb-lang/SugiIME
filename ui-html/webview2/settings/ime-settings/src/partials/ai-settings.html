@@ -1,0 +1,97 @@
+<div class="content" id="ai-settings-content">
+  <div class="content-header"><span data-i18n="ai.title">AI 辅助</span></div>
+
+  <div class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title" data-i18n="ai.enabled">启用 AI 辅助候选</div>
+        <div class="input-setting-description" data-i18n="ai.enabledDesc">开启后，AI 模型会根据输入和上下文提供联想候选。启用后内置云候选自动关闭。</div>
+      </div>
+      <div class="ftb-toggle-btn" id="aiEnabledToggleBtn" role="switch" aria-checked="false" tabindex="0">
+        <div class="ftb-toggle-knob"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title" data-i18n="ai.provider">API 提供商</div>
+        <div class="input-setting-description" data-i18n="ai.providerDesc">选择 AI 服务提供商，均使用 Chat Completions 接口。</div>
+      </div>
+      <div class="dropdown">
+        <button class="dropdown-toggle" id="aiProviderBtn">
+          <span>DeepSeek</span>
+          <div class="arrow"><img src="./assets/arrow.svg" alt="arrow"></div>
+        </button>
+        <div class="dropdown-menu compact-scroll-menu" id="aiProviderMenu">
+          <div class="dropdown-item" data-value="deepseek">DeepSeek</div>
+          <div class="dropdown-item" data-value="openai">OpenAI</div>
+          <div class="dropdown-item" data-value="siliconflow">SiliconFlow</div>
+          <div class="dropdown-item" data-value="groq">Groq</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title" data-i18n="ai.endpoint">API 端点</div>
+        <div class="input-setting-description" data-i18n="ai.endpointDesc">自定义 API 请求地址。</div>
+      </div>
+    </div>
+    <input id="aiEndpointInput" class="dict-input" spellcheck="false" placeholder="https://api.deepseek.com/chat/completions">
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title" data-i18n="ai.model">模型</div>
+        <div class="input-setting-description" data-i18n="ai.modelDesc">指定使用的模型名称。</div>
+      </div>
+    </div>
+    <input id="aiModelInput" class="dict-input" spellcheck="false" placeholder="deepseek-v4-flash">
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title" data-i18n="ai.token">API 密钥</div>
+        <div class="input-setting-description" data-i18n="ai.tokenDesc">输入 API 访问密钥，仅保存在本地配置中。</div>
+      </div>
+    </div>
+    <input id="aiTokenInput" class="dict-input" type="password" spellcheck="false" placeholder="sk-...">
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title" data-i18n="ai.candidateLimit">候选数量</div>
+        <div class="input-setting-description" data-i18n="ai.candidateLimitDesc">AI 返回的最大候选数量。</div>
+      </div>
+      <div class="dropdown">
+        <button class="dropdown-toggle" id="aiCandidateLimitBtn">
+          <span>3</span>
+          <div class="arrow"><img src="./assets/arrow.svg" alt="arrow"></div>
+        </button>
+        <div class="dropdown-menu compact-scroll-menu" id="aiCandidateLimitMenu">
+          <div class="dropdown-item" data-value="1">1</div>
+          <div class="dropdown-item" data-value="3">3</div>
+          <div class="dropdown-item" data-value="5">5</div>
+          <div class="dropdown-item" data-value="10">10</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title" data-i18n="ai.prompt">提示词</div>
+        <div class="input-setting-description" data-i18n="ai.promptDesc">自定义 AI 联想提示词，留空使用默认提示。</div>
+      </div>
+    </div>
+    <textarea id="aiPromptInput" class="dict-input" rows="6" spellcheck="false" placeholder=""></textarea>
+  </div>
+</div>

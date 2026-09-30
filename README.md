@@ -1,4 +1,4 @@
-# 水杉输入法
+﻿# 水杉输入法
 
 [官网](https://msime.app) · [用户文档](https://msime.app/docs/) · [隐私说明](PRIVACY.md) · [English README](README.en.md)
 
@@ -77,7 +77,7 @@ Windows 端的全部一方源码都在本仓，一次 clone 就能拿到完整�
 仍在仓外的部分：
 
 - 词库：按固定 tag 和摘要在构建时从 `dict-*` release 取用。建库流水线不在本仓，已归档的 [MSIME-Dict](https://github.com/metasequoiaime/MSIME-Dict) 只读保留，其已发布的 release 仍可用。
-- 语音输入的独立工具 [MetasequoiaVoiceInput](https://github.com/metasequoiaime/MetasequoiaVoiceInput) 已归档，其已发布的 release 仍可下载；录音、WAV 编码与识别/润色协议现在在 `engine/voice/`。
+- 语音输入的独立工具 [SugiIMEVoiceInput](https://github.com/metasequoiaime/SugiIMEVoiceInput) 已归档，其已发布的 release 仍可下载；录音、WAV 编码与识别/润色协议现在在 `engine/voice/`。
 
 ## 功能简介
 
@@ -287,7 +287,7 @@ ASR 提供商可选豆包（流式）、OpenAI、SiliconFlow、Groq。豆包支�
 
 上屏方式可选 TSF、SendInput 或 `Ctrl + V`。豆包流式识别还可开启 inline 预编辑：已识别文字直接显示在输入框中，松开录音键后上屏（仅 TSF 上屏时生效）。录音期间可选择暂时静音其他应用的播放声音。
 
-独立工具 [MetasequoiaVoiceInput](https://github.com/metasequoiaime/MetasequoiaVoiceInput) 已归档，其已发布的 release 仍可下载；源码现在在 [`engine/voice/`](engine/voice/)。
+独立工具 [SugiIMEVoiceInput](https://github.com/metasequoiaime/SugiIMEVoiceInput) 已归档，其已发布的 release 仍可下载；源码现在在 [`engine/voice/`](engine/voice/)。
 
 ### 手写、屏幕键盘、悬浮工具栏与皮肤
 

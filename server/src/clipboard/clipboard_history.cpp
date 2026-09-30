@@ -14,9 +14,9 @@
 
 namespace
 {
-constexpr wchar_t kConfigMutexName[] = L"Local\\MetasequoiaIme.ConfigFile";
-constexpr wchar_t kStoreMutexName[] = L"Local\\MetasequoiaIme.ClipboardHistory";
-constexpr wchar_t kMonitorClassName[] = L"MetasequoiaIme.ClipboardListener";
+constexpr wchar_t kConfigMutexName[] = L"Local\\SugiIME.ConfigFile";
+constexpr wchar_t kStoreMutexName[] = L"Local\\SugiIME.ClipboardHistory";
+constexpr wchar_t kMonitorClassName[] = L"SugiIME.ClipboardListener";
 constexpr UINT_PTR kCaptureTimerId = 1;
 constexpr UINT kCaptureDebounceMs = 80;
 

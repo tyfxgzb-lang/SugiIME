@@ -9,6 +9,10 @@ EngineInputSession::EngineInputSession(SchemeType scheme)
 void EngineInputSession::ApplyConfiguration()
 {
     session_.set_japanese_punctuation_enabled(GetConfiguredJapanesePunctuation());
+    session_.set_japanese_fuzzy_mask(GetConfiguredJapaneseFuzzyMask());
+    const JapaneseKanaForm default_form =
+        GetConfiguredCharacterSet() == "katakana" ? JapaneseKanaForm::Katakana : JapaneseKanaForm::Auto;
+    session_.set_default_japanese_kana_form(default_form);
 }
 
 void EngineInputSession::handle_key(UINT vk, UINT modifiers_down, WCHAR wch)
@@ -37,6 +41,11 @@ void EngineInputSession::switch_scheme(SchemeType scheme_type)
 bool EngineInputSession::set_japanese_kana_form(JapaneseKanaForm form)
 {
     return session_.set_japanese_kana_form(form).handled;
+}
+
+void EngineInputSession::set_default_japanese_kana_form(JapaneseKanaForm form)
+{
+    session_.set_default_japanese_kana_form(form);
 }
 
 void EngineInputSession::reset_state()

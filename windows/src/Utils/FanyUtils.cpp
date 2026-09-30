@@ -85,7 +85,7 @@ std::wstring EnvironmentValue(const wchar_t *name)
 std::wstring InstalledDataDir()
 {
     HKEY key = nullptr;
-    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"Software\\Metasequoia\\MetasequoiaIME", 0,
+    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"Software\\SugiIME\\SugiIME", 0,
                       KEY_QUERY_VALUE | KEY_WOW64_64KEY, &key) != ERROR_SUCCESS)
     {
         return {};
@@ -136,7 +136,7 @@ std::filesystem::path SharedDataDirectory()
     {
         return {};
     }
-    return std::filesystem::path(localAppData) / L"metasequoiaime";
+    return std::filesystem::path(localAppData) / L"sugiime";
 }
 
 std::filesystem::path SharedConfigPath()

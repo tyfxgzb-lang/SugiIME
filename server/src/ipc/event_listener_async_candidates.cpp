@@ -156,11 +156,9 @@ void ApplyAiCandidate(const std::string &candidate, const std::string &identity,
         return;
     const bool enabled = GetConfiguredAiAssistant().enabled;
     const bool has_session = static_cast<bool>(g_inputSession);
-    const bool non_pinyin = true;
-    const bool complete = has_session && g_inputSession->is_all_complete_pure_pinyin();
     const bool helpcode_active = has_session && g_inputSession->has_active_helpcode();
     const std::string current_identity = has_session ? g_inputSession->get_pinyin_segmentation() : std::string{};
-    if (!enabled || candidate.empty() || !has_session || non_pinyin || !complete || helpcode_active ||
+    if (!enabled || candidate.empty() || !has_session || helpcode_active ||
         GlobalIme::composition.creating_word.active || current_identity != identity || g_translation_candidates_active)
     {
         (void)0;

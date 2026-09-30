@@ -368,6 +368,9 @@ bool SetConfiguredAiAssistantBool(const std::string &key, bool value)
     if (key != "enabled" || !WriteConfiguredValue("ai_assistant", key, value ? "true" : "false"))
         return false;
     g_ai_assistant.enabled = value;
+    // AI 辅助与内置云候选互斥：AI 启用时自动关闭云候选。
+    if (value)
+        SetConfiguredCloudCandidatesEnabled(false);
     return true;
 }
 

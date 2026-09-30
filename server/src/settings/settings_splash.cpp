@@ -1,4 +1,4 @@
-#include "settings/settings_splash.h"
+﻿#include "settings/settings_splash.h"
 
 #include <d2d1.h>
 #include <d2d1helper.h>
@@ -18,7 +18,7 @@ using Microsoft::WRL::ComPtr;
 
 namespace
 {
-constexpr wchar_t kSplashClass[] = L"MetasequoiaImeSettingsSplash";
+constexpr wchar_t kSplashClass[] = L"SugiIMESettingsSplash";
 constexpr UINT_PTR kAnimTimer = 1;
 constexpr UINT kAnimIntervalMs = 16;
 constexpr float kSpinnerRadiusDip = 18.0f;
@@ -66,7 +66,7 @@ void ReleaseAll()
 
 void ApplyNativeChrome(HWND hwnd)
 {
-    // Match MetasequoiaImeSettingsWindow: system rounded corners + theme.
+    // Match SugiIMESettingsWindow: system rounded corners + theme.
     DWM_WINDOW_CORNER_PREFERENCE corner = DWMWCP_ROUND;
     DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &corner, sizeof(corner));
 

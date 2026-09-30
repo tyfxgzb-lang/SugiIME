@@ -1,4 +1,4 @@
-# Tests
+﻿# Tests
 
 This project now includes a lightweight regression test target wired into the main CMake build.
 
@@ -25,9 +25,9 @@ vcpkg and Boost with `python server/scripts/prepare_env.py`:
 python scripts/product_lock.py fetch-dictionaries --staging-root .
 if ($LASTEXITCODE -ne 0) { throw 'Dictionary verification failed' }
 $env:LOCALAPPDATA = Join-Path $PWD 'build/test-data/user-local'
-$env:METASEQUOIA_IME_DATA_DIR = Join-Path $env:LOCALAPPDATA 'metasequoiaime'
+$env:METASEQUOIA_IME_DATA_DIR = Join-Path $env:LOCALAPPDATA 'sugiime'
 New-Item -ItemType Directory -Force $env:METASEQUOIA_IME_DATA_DIR | Out-Null
-Copy-Item MetasequoiaImeDict/out/* $env:METASEQUOIA_IME_DATA_DIR -Force
+Copy-Item sugiimeDict/out/* $env:METASEQUOIA_IME_DATA_DIR -Force
 Copy-Item engine/helpcode/helpcodes $env:METASEQUOIA_IME_DATA_DIR -Recurse -Force
 Copy-Item server/assets/tables/* $env:METASEQUOIA_IME_DATA_DIR -Force
 Copy-Item server/assets/config/config.toml $env:METASEQUOIA_IME_DATA_DIR -Force
@@ -53,7 +53,7 @@ Once test data is prepared, the convenience scripts work from any directory:
 ```
 
 Omitting `-Configuration` selects Debug in `server/build`; Release uses
-`server/build-release`. Both compile `MetasequoiaImeServerTests` and
+`server/build-release`. Both compile `sugiimeServerTests` and
 `test_webview_contract` in the parent build tree. Configuration, compilation,
 test failures and an empty CTest registry return failure rather than launching a
 stale executable or reporting success.

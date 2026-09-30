@@ -1,34 +1,34 @@
 <div class="content document-page">
-  <div class="content-header"><span>关于</span></div>
+  <div class="content-header"><span data-i18n="about.title">关于</span></div>
 
   <div class="section document-hero about-hero">
-    <div class="about-mark"><img src="./assets/msime.svg" alt="水杉 IME"></div>
-    <div><div class="document-eyebrow">Metasequoia IME</div><div class="document-hero-title">水杉 IME</div>
-    <p>为现代 Windows 桌面体验打造的开放中文输入法。</p></div>
+    <div class="about-mark"><img src="./assets/msime.svg" alt="SugiIME"></div>
+    <div><div class="document-eyebrow">SugiIME</div><div class="document-hero-title" data-i18n="about.brand">水杉 IME</div>
+    <p data-i18n="about.tagline">为现代 Windows 桌面体验打造的开放日语输入法。</p></div>
   </div>
 
   <div class="section about-links">
     <div class="about-link-row about-version-row">
       <div>
-        <div class="about-link-title">当前版本</div>
-        <div class="about-version">v0.0.6</div>
+        <div class="about-link-title" data-i18n="about.currentVersion">当前版本</div>
+        <div class="about-version">v0.1.0</div>
         <div id="about-update-status" class="about-update-status" role="status" aria-live="polite"></div>
       </div>
-      <button id="about-check-update" type="button" class="about-update-button">检查更新</button>
+      <button id="about-check-update" type="button" class="about-update-button" data-i18n="about.checkUpdate">检查更新</button>
     </div>
     <button id="about-license-link" type="button" class="about-link-row about-document-link">
-      <span class="about-link-title">开源许可协议</span><span class="about-link-arrow" aria-hidden="true">↗</span>
+      <span class="about-link-title" data-i18n="about.license">开源许可协议</span><span class="about-link-arrow" aria-hidden="true">↗</span>
     </button>
     <button id="about-privacy-link" type="button" class="about-link-row about-document-link">
-      <span class="about-link-title">隐私政策</span><span class="about-link-arrow" aria-hidden="true">↗</span>
+      <span class="about-link-title" data-i18n="about.privacy">隐私政策</span><span class="about-link-arrow" aria-hidden="true">↗</span>
     </button>
   </div>
 
   <div class="section candidate-window-diagnostic-section">
     <div class="section-header">
       <div>
-        <div class="section-title">Server 端日志</div>
-        <div class="quick-phrase-description">排查 Server 通信和输入延迟时开启。记录慢请求阶段、候选窗、悬浮工具栏、菜单、焦点会话和通信状态，不记录按键、输入内容或候选文本。日志默认保存到桌面的“水杉IME诊断日志.log”，复现后可直接发送该文件。</div>
+        <div class="section-title" data-i18n="about.serverLog">Server 端日志</div>
+        <div class="quick-phrase-description" data-i18n="about.serverLogDesc">排查 Server 通信和输入延迟时开启。记录慢请求阶段、候选窗、悬浮工具栏、菜单、焦点会话和通信状态，不记录按键、输入内容或候选文本。日志默认保存到桌面的「SugiIME诊断日志.log」，复现后可直接发送该文件。</div>
       </div>
       <div class="ftb-toggle-btn" id="serverDiagnosticLogToggleBtn" role="switch" aria-checked="false" tabindex="0">
         <div class="ftb-toggle-knob"></div>
@@ -39,8 +39,8 @@
   <div class="section candidate-window-diagnostic-section">
     <div class="section-header">
       <div>
-        <div class="section-title">TSF 端日志</div>
-        <div class="quick-phrase-description">排查应用内预编辑和输入延迟时开启。TSF 日志会在内存中限量缓冲，并通过独立管道批量汇总到桌面的“水杉IME诊断日志.log”；不记录按键、输入内容或候选文本。</div>
+        <div class="section-title" data-i18n="about.tsfLog">TSF 端日志</div>
+        <div class="quick-phrase-description" data-i18n="about.tsfLogDesc">排查应用内预编辑和输入延迟时开启。TSF 日志会在内存中限量缓冲，并通过独立管道批量汇总到桌面的「SugiIME诊断日志.log」；不记录按键、输入内容或候选文本。</div>
       </div>
       <div class="ftb-toggle-btn" id="tsfDiagnosticLogToggleBtn" role="switch" aria-checked="false" tabindex="0">
         <div class="ftb-toggle-knob"></div>
@@ -50,13 +50,13 @@
 
   <dialog id="about-update-dialog" class="about-update-dialog" aria-labelledby="about-update-dialog-title">
     <div class="about-update-dialog-body">
-      <div id="about-update-dialog-title" class="about-update-dialog-title">发现新版本</div>
-      <p>水杉 IME <strong id="about-update-dialog-version"></strong> 已发布，是否前往 GitHub Releases 下载？</p>
+      <div id="about-update-dialog-title" class="about-update-dialog-title" data-i18n="about.updateFound">发现新版本</div>
+      <p data-i18n="about.updatePrompt">SugiIME 已发布新版本，是否前往 GitHub Releases 下载？</p>
       <div id="about-update-dialog-trust" class="about-update-trust"></div>
     </div>
     <div class="about-update-dialog-actions">
-      <button id="about-update-cancel" type="button" class="about-dialog-button">稍后</button>
-      <button id="about-update-download" type="button" class="about-dialog-button about-dialog-primary">前往下载</button>
+      <button id="about-update-cancel" type="button" class="about-dialog-button" data-i18n="about.updateLater">稍后</button>
+      <button id="about-update-download" type="button" class="about-dialog-button about-dialog-primary" data-i18n="about.updateDownload">前往下载</button>
     </div>
   </dialog>
 </div>

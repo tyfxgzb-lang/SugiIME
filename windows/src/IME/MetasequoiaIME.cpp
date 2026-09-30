@@ -30,9 +30,9 @@ namespace
 {
 constexpr UINT IPC_FAILURES_BEFORE_SERVER_LAUNCH = 6;
 constexpr UINT SERVER_LAUNCH_RECONNECT_DELAY_MS = 500;
-constexpr wchar_t SERVER_MUTEX_NAME[] = L"Local\\MetasequoiaImeServer_SingleInstance";
-constexpr wchar_t SERVER_LAUNCH_MUTEX_NAME[] = L"Local\\MetasequoiaImeServer.Launch";
-constexpr wchar_t INSTALL_REGISTRY_KEY[] = L"Software\\Metasequoia\\MetasequoiaIME";
+constexpr wchar_t SERVER_MUTEX_NAME[] = L"Local\\SugiIMEServer_SingleInstance";
+constexpr wchar_t SERVER_LAUNCH_MUTEX_NAME[] = L"Local\\SugiIMEServer.Launch";
+constexpr wchar_t INSTALL_REGISTRY_KEY[] = L"Software\\SugiIME\\SugiIME";
 constexpr wchar_t SERVER_PATH_REGISTRY_VALUE[] = L"ServerPath";
 std::atomic<UINT> nextWindowMessageToken{0};
 std::atomic<bool> serverLaunchInFlight{false};

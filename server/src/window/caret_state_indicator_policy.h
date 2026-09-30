@@ -185,7 +185,7 @@ inline wchar_t CaretStateGlyph(CaretStateKind kind, bool enabled)
     case CaretStateKind::Width:
         return enabled ? L'全' : L'半';
     case CaretStateKind::CharacterSet:
-        return enabled ? L'繁' : L'简';
+        return enabled ? L'ア' : L'あ';
     }
     return L'\0';
 }

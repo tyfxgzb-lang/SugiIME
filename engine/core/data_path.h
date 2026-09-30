@@ -36,7 +36,7 @@ inline std::optional<std::wstring> wide_environment_variable(const wchar_t *name
 inline std::optional<std::wstring> read_installed_data_directory()
 {
     HKEY key = nullptr;
-    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"Software\\Metasequoia\\MetasequoiaIME", 0,
+    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"Software\\SugiIME\\SugiIME", 0,
                       KEY_QUERY_VALUE | KEY_WOW64_64KEY, &key) != ERROR_SUCCESS)
     {
         return std::nullopt;
@@ -127,14 +127,14 @@ inline std::filesystem::path data_directory()
         const std::filesystem::path root(*local_app_data);
         if (root.is_absolute())
         {
-            return root / L"metasequoiaime";
+            return root / L"sugiime";
         }
     }
 
     PWSTR known_path = nullptr;
     if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, nullptr, &known_path)) && known_path)
     {
-        const std::filesystem::path result = std::filesystem::path(known_path) / L"metasequoiaime";
+        const std::filesystem::path result = std::filesystem::path(known_path) / L"sugiime";
         CoTaskMemFree(known_path);
         return result;
     }
@@ -144,7 +144,7 @@ inline std::filesystem::path data_directory()
         const std::filesystem::path root(home);
         if (root.is_absolute())
         {
-            return root / "Library" / "Application Support" / "metasequoiaime";
+            return root / "Library" / "Application Support" / "sugiime";
         }
     }
 #else
@@ -153,7 +153,7 @@ inline std::filesystem::path data_directory()
         const std::filesystem::path root(xdg_data_home);
         if (root.is_absolute())
         {
-            return root / "metasequoiaime";
+            return root / "sugiime";
         }
     }
     if (const char *home = std::getenv("HOME"))
@@ -161,7 +161,7 @@ inline std::filesystem::path data_directory()
         const std::filesystem::path root(home);
         if (root.is_absolute())
         {
-            return root / ".local" / "share" / "metasequoiaime";
+            return root / ".local" / "share" / "sugiime";
         }
     }
 #endif

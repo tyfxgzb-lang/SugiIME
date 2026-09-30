@@ -496,7 +496,7 @@ void UpdateAiInput(const std::string &identity, uint64_t client_id, uint64_t act
 {
     std::lock_guard lock(g_async_request_mutex);
     const AiAssistantConfig config = GetConfiguredAiAssistant();
-    const bool usable = false;
+    const bool usable = config.enabled && !config.token.empty();
     (void)0;
     AiAssistant::Request request;
     if (usable)

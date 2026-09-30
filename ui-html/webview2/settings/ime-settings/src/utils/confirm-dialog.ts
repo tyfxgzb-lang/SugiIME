@@ -1,9 +1,11 @@
+import { t } from '../locales/i18n';
+
 type ConfirmOptions = { title?: string; confirmText?: string; cancelText?: string };
 
 // 自绘确认框，替代 window.confirm()：系统对话框不随设置页主题，在 WebView2 里还是宿主
 // 模态窗口，弹出期间页面自己的键盘和焦点处理全被挂起。样式复用词条编辑弹窗的 .dict-modal。
 export function confirmDialog(message: string, options: ConfirmOptions = {}): Promise<boolean> {
-  const { title = '确认删除', confirmText = '删除', cancelText = '取消' } = options;
+  const { title = t('common.confirmDelete'), confirmText = t('common.delete'), cancelText = t('common.cancel') } = options;
   return new Promise((resolve) => {
     const previousFocus = document.activeElement as HTMLElement | null;
     const modal = document.createElement('div');

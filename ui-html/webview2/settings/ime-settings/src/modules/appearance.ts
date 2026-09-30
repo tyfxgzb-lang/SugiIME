@@ -9,6 +9,7 @@ import {
 } from './shared';
 import { loadHTML } from '../utils/common-utils';
 import { applyThemeConfig, setCandidateSurfaceThemeListener, type ResolvedTheme, type ThemeConfig } from './theme';
+import { getLanguage, setLanguage, t, type Language } from '../locales/i18n';
 
 function postConfigUpdate(path: string, value: string | number | boolean): void {
   window.chrome?.webview?.postMessage(
@@ -127,10 +128,10 @@ function renderFallbackFonts(): void {
     label.type = 'text';
     label.className = 'font-search-input';
     label.value = font;
-    label.placeholder = '搜索字体';
+    label.placeholder = t('appearance.searchFont');
     label.autocomplete = 'off';
     label.spellcheck = false;
-    label.setAttribute('aria-label', `搜索第 ${index + 1} 个补充字体`);
+    label.setAttribute('aria-label', `${t('appearance.searchFontPrefix')}${index + 1}${t('appearance.searchFontSuffix')}`);
     label.setAttribute('aria-controls', `fallbackFontMenu${index}`);
     label.setAttribute('aria-autocomplete', 'list');
     button.appendChild(label);
@@ -374,7 +375,7 @@ function filterFontMenu(menu: FontMenu, query: string): void {
   if (visibleCount === 0) {
     const empty = document.createElement('div');
     empty.className = 'font-dropdown-empty';
-    empty.textContent = '没有匹配的字体';
+    empty.textContent = t('appearance.noMatchingFont');
     menuElement.appendChild(empty);
   }
   menuElement.scrollTop = 0;
@@ -524,16 +525,45 @@ export function applyAppearanceConfig(
 function setupRestartServerButton(): void {
   const button = document.getElementById('restartServerBtn') as HTMLButtonElement | null;
   if (!button) return;
-  const label = button.textContent ?? '重启';
+  const label = button.textContent ?? t('appearance.restartServer');
   button.addEventListener('click', () => {
     if (button.disabled) return;
     button.disabled = true;
-    button.textContent = '重启中…';
+    button.textContent = t('appearance.restarting');
     window.chrome?.webview?.postMessage(serializeHostMessage({ type: 'restartServer' }));
     setTimeout(() => {
       button.disabled = false;
       button.textContent = label;
     }, 3000);
+  });
+}
+
+function setupUiLanguageDropdown(): void {
+  const btn = document.getElementById('uiLanguageBtn');
+  const menu = document.getElementById('uiLanguageMenu');
+  if (!btn || !menu) return;
+
+  const applyLabel = (lang: Language) => {
+    const span = btn.querySelector('span');
+    if (span) {
+      const key = `appearance.lang${lang === 'zh' ? 'Zh' : lang === 'ja' ? 'Ja' : 'En'}`;
+      span.textContent = t(key);
+    }
+    menu.querySelectorAll('.dropdown-item').forEach((item) => {
+      item.classList.toggle('active', item.getAttribute('data-value') === lang);
+    });
+  };
+
+  applyLabel(getLanguage());
+
+  menu.querySelectorAll('.dropdown-item').forEach((item) => {
+    item.addEventListener('click', () => {
+      const value = item.getAttribute('data-value');
+      if (value === 'zh' || value === 'ja' || value === 'en') {
+        setLanguage(value);
+        applyLabel(value);
+      }
+    });
   });
 }
 
@@ -579,6 +609,7 @@ export async function setupAppearance() {
   setupDropdownMenu('uiBackendBtn', 'uiBackendMenu', '', true, 'appearance.ui_backend');
   setupRestartServerButton();
   setupDropdownMenu('settingsLingerBtn', 'settingsLingerMenu', '', true, 'appearance.settings_window_linger');
+  setupUiLanguageDropdown();
 
   // 候选项排列方式
   setupDropdownMenu('arrangeBtn', 'arrangeMenu', 'changeCandidateArrange');

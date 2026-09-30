@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 
 <head>
@@ -222,8 +222,8 @@
       </div>
 
       <div class="icon" id="character-set" data-toolbar-item="character_set">
-        <span id="character-set-simplified" class="icon-glyph" data-fallback="简">&#xE88D;</span>
-        <span id="character-set-traditional" style="display: none" class="icon-glyph" data-fallback="繁">&#xE88C;</span>
+        <span id="character-set-hiragana" class="icon-glyph" data-fallback="あ">あ</span>
+        <span id="character-set-katakana" style="display: none" class="icon-glyph" data-fallback="ア">ア</span>
       </div>
       <div class="icon" id="emoji-panel" data-toolbar-item="emoji">
         <span class="icon-glyph" data-fallback="表">&#xE76E;</span>
@@ -338,7 +338,7 @@
   });
 
   //
-  // 简繁输入切换
+  // ひらがな / カタカナ切替
   //
   document.getElementById('character-set').addEventListener('click', () => {
     window.chrome.webview.postMessage(serializeHostMessage({ type: 'changeCharacterSet' }));

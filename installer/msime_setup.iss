@@ -1,4 +1,4 @@
-; Metasequoia IME — Inno Setup script
+﻿; Metasequoia IME — Inno Setup script
 ; 源文件根目录：本脚本所在目录
 ;
 ; 编译方法：
@@ -21,17 +21,17 @@
 #define MyAppName      "SugiIME 水杉日语输入法"
 #define MyAppVersion   "0.1.0"
 #define MyAppPublisher "SugiIME"
-#define MyAppExeName   "MetasequoiaImeServer.exe"
-#define MySettingsExeName "MetasequoiaImeSettings.exe"
+#define MyAppExeName   "sugiimeServer.exe"
+#define MySettingsExeName "sugiimeSettings.exe"
 ; 与 settings_app.cpp / settings_launcher.cpp 的 kQuitSettings 保持一致：WM_APP + 5。
-#define MySettingsWindowClass "MetasequoiaImeSettingsWindow"
+#define MySettingsWindowClass "SugiIMESettingsWindow"
 #define MySettingsQuitMessage 32773
-#define MyEmojiPanelExeName "MetasequoiaImeEmojiPanel.exe"
-#define MyKeyboardPanelExeName "MetasequoiaImeKeyboardPanel.exe"
-#define MyHandwritingPanelExeName "MetasequoiaImeHandwritingPanel.exe"
-#define MyWatchdogName "MetasequoiaImeWatchdog.exe"
-#define MyWatchdogTaskName "Metasequoia IME Watchdog"
-#define MyReplayName   "MetasequoiaImeDictionaryReplay.exe"
+#define MyEmojiPanelExeName "sugiimeEmojiPanel.exe"
+#define MyKeyboardPanelExeName "sugiimeKeyboardPanel.exe"
+#define MyHandwritingPanelExeName "sugiimeHandwritingPanel.exe"
+#define MyWatchdogName "sugiimeWatchdog.exe"
+#define MyWatchdogTaskName "SugiIME Watchdog"
+#define MyReplayName   "sugiimeDictionaryReplay.exe"
 #define MyVersionDirBase "msime_v" + MyAppVersion
 #define MySourceRoot   "."
 #ifdef LightPackage
@@ -41,19 +41,19 @@
 #endif
 
 [Setup]
-AppId={{660e51cf-af80-493a-8914-7302709ec1a8}
+AppId={{7bcdc09d-170e-4227-8c31-f9cc45c1a921}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-DefaultDirName={autopf}\metasequoiaime
+DefaultDirName={autopf}\sugiime
 DefaultGroupName={#MyAppName}
 DisableDirPage=yes
 ; DisableDirPage=yes 时就绪页默认不显示目标目录，显式打开以便用户确认装到哪。
 AlwaysShowDirOnReadyPage=yes
 DisableProgramGroupPage=yes
 OutputDir=Output
-OutputBaseFilename=MetasequoiaIME_Setup_v{#MyAppVersion}{#MyOutputSuffix}
-SetupIconFile={#MySourceRoot}\MetasequoiaIME.ico
+OutputBaseFilename=sugiime_Setup_v{#MyAppVersion}{#MyOutputSuffix}
+SetupIconFile={#MySourceRoot}\sugiime.ico
 Compression=lzma2
 SolidCompression=yes
 ; 安装和卸载界面自动跟随 Windows 的浅色/深色模式。
@@ -63,7 +63,7 @@ UsedUserAreasWarning=no
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayName={#MyAppName}
-UninstallDisplayIcon={commonpf64}\metasequoiaime\MetasequoiaIME.ico
+UninstallDisplayIcon={commonpf64}\sugiime\sugiime.ico
 VersionInfoVersion={#MyAppVersion}
 
 [Languages]
@@ -71,57 +71,57 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.i
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Dirs]
-Name: "{commonpf32}\metasequoiaime\{code:GetVersionDir}"
-Name: "{commonpf64}\metasequoiaime\{code:GetVersionDir}"
-Name: "{commonpf64}\metasequoiaime\server"
+Name: "{commonpf32}\sugiime\{code:GetVersionDir}"
+Name: "{commonpf64}\sugiime\{code:GetVersionDir}"
+Name: "{commonpf64}\sugiime\server"
 ; 用户数据（词库、配置、皮肤、前端资源）。默认在 LocalAppData，安装时可以改到别的盘，
 ; 选择写进 HKLM 的 DataDir，Server / TSF DLL / 引擎三方都从那里读。
 Name: "{code:GetDataDir}"; Permissions: users-modify
 ; 用户自己的辅助码方案放这里，Server 扫描后列进设置页，升级时保留。
 Name: "{code:GetDataDir}\helpcodes\custom"
 ; WebView2 子进程是中完整性，写不进内置 Administrator 的高完整性 LocalAppData。
-Name: "{commonappdata}\metasequoiaime"
-Name: "{commonappdata}\metasequoiaime\webview2"; Permissions: users-modify
-Name: "{commonappdata}\metasequoiaime\webview2-settings"; Permissions: users-modify
+Name: "{commonappdata}\sugiime"
+Name: "{commonappdata}\sugiime\webview2"; Permissions: users-modify
+Name: "{commonappdata}\sugiime\webview2-settings"; Permissions: users-modify
 
 [Files]
 ; 独立安装应用图标，供 Windows“已安装的应用”列表稳定显示。
-Source: "{#MySourceRoot}\MetasequoiaIME.ico"; \
-    DestDir: "{commonpf64}\metasequoiaime"; Flags: ignoreversion
+Source: "{#MySourceRoot}\sugiime.ico"; \
+    DestDir: "{commonpf64}\sugiime"; Flags: ignoreversion
 
 ; 第三方声明随包安装。词库主体含 rime-ice（GPL-3.0）内容，其许可要求保留署名，
 ; 因此这份文件必须落到用户磁盘上，而不能只存在于源码仓库里。
 Source: "{#MySourceRoot}\THIRD_PARTY_NOTICES.txt"; \
-    DestDir: "{commonpf64}\metasequoiaime"; Flags: ignoreversion
+    DestDir: "{commonpf64}\sugiime"; Flags: ignoreversion
 
 ; GPLv3 第 4、6 条要求分发时向接收者提供许可证副本，而 THIRD_PARTY_NOTICES.txt 只是指向
 ; "the LICENSE file"、本身不含 GPL 正文。macOS 与 Linux 的 CMake 安装规则早已随包装入许可证，
 ; Windows 是唯一大规模分发却漏掉这一步的平台。
 Source: "{#MySourceRoot}\LICENSE.txt"; \
-    DestDir: "{commonpf64}\metasequoiaime"; Flags: ignoreversion
+    DestDir: "{commonpf64}\sugiime"; Flags: ignoreversion
 
 ; TSF DLL 使用版本独立目录，避免升级时覆盖仍被进程加载的 DLL。
 ; PDB 与对应 DLL 放在同一目录，调试器可按二进制的内嵌路径自动找到符号。
 ; 只有 Prepare-PackageFiles.ps1 -IncludeSymbols 才会把 PDB 放进 tsf_dll\；默认本地打包不含符号，
 ; 所以这两条必须带 skipifsourcedoesntexist，否则通配符匹配不到文件时 ISCC 会直接报错。
 Source: "{#MySourceRoot}\tsf_dll\32\*.dll"; \
-    DestDir: "{commonpf32}\metasequoiaime\{code:GetVersionDir}"; \
+    DestDir: "{commonpf32}\sugiime\{code:GetVersionDir}"; \
     Flags: ignoreversion regserver 32bit
 
 Source: "{#MySourceRoot}\tsf_dll\64\*.dll"; \
-    DestDir: "{commonpf64}\metasequoiaime\{code:GetVersionDir}"; \
+    DestDir: "{commonpf64}\sugiime\{code:GetVersionDir}"; \
     Flags: ignoreversion regserver
 
 Source: "{#MySourceRoot}\tsf_dll\32\*.pdb"; \
-    DestDir: "{commonpf32}\metasequoiaime\{code:GetVersionDir}"; \
+    DestDir: "{commonpf32}\sugiime\{code:GetVersionDir}"; \
     Flags: ignoreversion skipifsourcedoesntexist
 
 Source: "{#MySourceRoot}\tsf_dll\64\*.pdb"; \
-    DestDir: "{commonpf64}\metasequoiaime\{code:GetVersionDir}"; \
+    DestDir: "{commonpf64}\sugiime\{code:GetVersionDir}"; \
     Flags: ignoreversion skipifsourcedoesntexist
 
 Source: "{#MySourceRoot}\server_exe\*"; \
-    DestDir: "{commonpf64}\metasequoiaime\server"; \
+    DestDir: "{commonpf64}\sugiime\server"; \
     Flags: ignoreversion recursesubdirs createallsubdirs
 
 #ifdef LightPackage
@@ -147,23 +147,23 @@ Source: "{#MySourceRoot}\app_data\config.default.toml"; \
 
 [Icons]
 Name: "{group}\{#MyAppName}"; \
-    Filename: "{commonpf64}\metasequoiaime\server\{#MySettingsExeName}"; \
-    WorkingDir: "{commonpf64}\metasequoiaime\server"
+    Filename: "{commonpf64}\sugiime\server\{#MySettingsExeName}"; \
+    WorkingDir: "{commonpf64}\sugiime\server"
 Name: "{group}\卸载 {#MyAppName}"; Filename: "{uninstallexe}"
 
 [Registry]
-Root: HKLM; Subkey: "Software\Metasequoia\MetasequoiaIME"; \
+Root: HKLM; Subkey: "Software\\SugiIME\\SugiIME"; \
     ValueType: string; ValueName: "VersionDir"; ValueData: "{code:GetVersionDir}"; \
     Flags: uninsdeletevalue
-Root: HKLM; Subkey: "Software\Metasequoia\MetasequoiaIME"; \
+Root: HKLM; Subkey: "Software\\SugiIME\\SugiIME"; \
     ValueType: string; ValueName: "ServerPath"; \
-    ValueData: "{commonpf64}\metasequoiaime\server\{#MyAppExeName}"; \
+    ValueData: "{commonpf64}\sugiime\server\{#MyAppExeName}"; \
     Flags: uninsdeletevalue
 ; 用户数据目录的唯一权威来源。Server、TSF DLL 和引擎都按
-; METASEQUOIA_IME_DATA_DIR → 这个键 → %LOCALAPPDATA%\metasequoiaime 的顺序解析；
+; METASEQUOIA_IME_DATA_DIR → 这个键 → %LOCALAPPDATA%\sugiime 的顺序解析；
 ; 32 位 TSF DLL 用 KEY_WOW64_64KEY 读，所以这里必须写在 64 位视图里
 ; （ArchitecturesInstallIn64BitMode 已经保证了这一点）。
-Root: HKLM; Subkey: "Software\Metasequoia\MetasequoiaIME"; \
+Root: HKLM; Subkey: "Software\\SugiIME\\SugiIME"; \
     ValueType: string; ValueName: "DataDir"; ValueData: "{code:GetDataDir}"; \
     Flags: uninsdeletevalue
 
@@ -171,7 +171,7 @@ Root: HKLM; Subkey: "Software\Metasequoia\MetasequoiaIME"; \
 const
   { 放在数据目录里，标记「这个目录是安装器建的」。覆盖安装和卸载只有看到它才敢
     整目录清理——用户可能把数据目录指到一个本来就有自己文件的文件夹。}
-  DataDirMarkerName = '.metasequoiaime-data';
+  DataDirMarkerName = '.sugiime-data';
 
   { WebView2 Evergreen Runtime 在 EdgeUpdate 里的固定客户端 ID。}
   WebView2ClientKey =
@@ -337,14 +337,14 @@ begin
     if
       RegQueryStringValue(
         HKLM,
-        'Software\Metasequoia\MetasequoiaIME',
+        'Software\\SugiIME\\SugiIME',
         'DataDir',
         Recorded
       ) and (Trim(Recorded) <> '')
     then
       PreviousDataDir := RemoveBackslashUnlessRoot(Trim(Recorded))
     else
-      PreviousDataDir := ExpandConstant('{localappdata}\metasequoiaime');
+      PreviousDataDir := ExpandConstant('{localappdata}\sugiime');
   end;
   Result := PreviousDataDir;
 end;
@@ -380,7 +380,7 @@ begin
     (FileExists(DataDirMarkerPath(Directory)) or
      (CompareText(
         Directory,
-        ExpandConstant('{localappdata}\metasequoiaime')) = 0));
+        ExpandConstant('{localappdata}\sugiime')) = 0));
 end;
 
 procedure WriteDataDirMarker(const Directory: String);
@@ -442,7 +442,7 @@ begin
 
   if (Length(Directory) < 4) or (Directory[2] <> ':') or (Directory[3] <> '\') then
   begin
-    Result := '请填写本机磁盘上的完整路径，例如 D:\MetasequoiaIME。';
+    Result := '请填写本机磁盘上的完整路径，例如 D:\sugiime。';
     exit;
   end;
   if not DirExists(Copy(Directory, 1, 3)) then
@@ -459,8 +459,8 @@ begin
   { 覆盖安装会清理数据目录里的旧资源，卸载会整个删掉它。
     因此它既不能落在程序目录里，也不能反过来包住系统或用户的关键目录。}
   if
-    IsPathInside(Directory, ExpandConstant('{commonpf64}\metasequoiaime')) or
-    IsPathInside(Directory, ExpandConstant('{commonpf32}\metasequoiaime'))
+    IsPathInside(Directory, ExpandConstant('{commonpf64}\sugiime')) or
+    IsPathInside(Directory, ExpandConstant('{commonpf32}\sugiime'))
   then
   begin
     Result := '数据目录不能放在输入法的程序目录里面。';
@@ -527,7 +527,7 @@ begin
     '输入法数据存放在哪里',
     '请选择输入法数据（词库、配置、皮肤）的存放位置。',
     True,
-    'metasequoiaime'
+    'sugiime'
   );
   DataDirPage.Add('');
   DataDirPage.Values[0] := ResolvePreviousDataDir;
@@ -598,7 +598,7 @@ begin
     完成页点击 Finish 后，以原用户身份执行 ShellExecute（等同双击）。}
   ShellExecAsOriginalUser(
     '',
-    ExpandConstant('{commonpf64}\metasequoiaime\server\{#MyAppExeName}'),
+    ExpandConstant('{commonpf64}\sugiime\server\{#MyAppExeName}'),
     '',
     '',
     SW_SHOWNORMAL,
@@ -607,7 +607,7 @@ begin
   );
   ShellExecAsOriginalUser(
     '',
-    ExpandConstant('{commonpf64}\metasequoiaime\server\{#MyWatchdogName}'),
+    ExpandConstant('{commonpf64}\sugiime\server\{#MyWatchdogName}'),
     '',
     '',
     SW_SHOWNORMAL,
@@ -678,9 +678,9 @@ begin
     Suffix := 0;
     while
       DirExists(ExpandConstant(
-        '{commonpf32}\metasequoiaime\' + Candidate)) or
+        '{commonpf32}\sugiime\' + Candidate)) or
       DirExists(ExpandConstant(
-        '{commonpf64}\metasequoiaime\' + Candidate))
+        '{commonpf64}\sugiime\' + Candidate))
     do
     begin
       Suffix := Suffix + 1;
@@ -723,7 +723,7 @@ end;
 
 function IsUserSkinDirectory(const FileName: String): Boolean;
 begin
-  { 外部皮肤在 %LOCALAPPDATA%\metasequoiaime\skins，升级安装不得清掉。}
+  { 外部皮肤在 %LOCALAPPDATA%\sugiime\skins，升级安装不得清掉。}
   Result := CompareText(FileName, 'skins') = 0;
 end;
 
@@ -743,7 +743,7 @@ function InitializeUninstall(): Boolean;
 begin
   RegQueryStringValue(
     HKLM,
-    'Software\Metasequoia\MetasequoiaIME',
+    'Software\\SugiIME\\SugiIME',
     'VersionDir',
     VersionDirName
   );
@@ -856,7 +856,7 @@ var
 begin
   { Edge 子进程需要 Users 可写、中完整性的目录。安装器本身是高完整性，
     只 CreateDir 会带上高完整性标签，所以还要降完整性。 }
-  RootPath := ExpandConstant('{commonappdata}\metasequoiaime');
+  RootPath := ExpandConstant('{commonappdata}\sugiime');
   ForceDirectories(RootPath + '\webview2');
   ForceDirectories(RootPath + '\webview2-settings');
   Exec(
@@ -885,7 +885,7 @@ var
 begin
   ResultCode := -1;
   WatchdogPath := ExpandConstant(
-    '{commonpf64}\metasequoiaime\server\{#MyWatchdogName}');
+    '{commonpf64}\sugiime\server\{#MyWatchdogName}');
   { /F replaces the same fixed-name task during an upgrade. /IT keeps the
     task in the interactive user's session; LIMITED avoids an elevated token. }
   Params :=
@@ -1052,7 +1052,7 @@ begin
   end;
 
   ReplayPath := ExpandConstant(
-    '{commonpf64}\metasequoiaime\server\{#MyReplayName}');
+    '{commonpf64}\sugiime\server\{#MyReplayName}');
   Log('Starting user dictionary replay.');
   if not Exec(
     ReplayPath,
@@ -1212,14 +1212,14 @@ begin
     由 Server 冷启动路径保证 FTB/候选窗仍能稳定揭罩。}
   CleanAppDataExceptUserFiles;
 #endif
-  TryDeleteTree(ExpandConstant('{commonappdata}\metasequoiaime\webview2'));
-  TryDeleteTree(ExpandConstant('{commonappdata}\metasequoiaime\webview2-settings'));
+  TryDeleteTree(ExpandConstant('{commonappdata}\sugiime\webview2'));
+  TryDeleteTree(ExpandConstant('{commonappdata}\sugiime\webview2-settings'));
   TryDeleteTree(ExpandConstant(
-    '{commonpf64}\metasequoiaime\server'));
+    '{commonpf64}\sugiime\server'));
   TryDeleteOldVersionDirs(ExpandConstant(
-    '{commonpf32}\metasequoiaime'));
+    '{commonpf32}\sugiime'));
   TryDeleteOldVersionDirs(ExpandConstant(
-    '{commonpf64}\metasequoiaime'));
+    '{commonpf64}\sugiime'));
   { 随后的 [Files] 与 ssPostInstall 会写入新 Server 和登录任务。}
   Result := '';
 end;
@@ -1242,7 +1242,7 @@ begin
     RegDeleteValue(
       HKLM,
       'Software\Microsoft\Windows\CurrentVersion\Run',
-      'MetasequoiaImeWatchdog'
+      'sugiimeWatchdog'
     );
   end;
 end;
@@ -1255,27 +1255,27 @@ begin
     RegDeleteValue(
       HKLM,
       'Software\Microsoft\Windows\CurrentVersion\Run',
-      'MetasequoiaImeWatchdog'
+      'sugiimeWatchdog'
     );
     StopImeProcesses;
   end
   else if CurUninstallStep = usPostUninstall then
   begin
     TryDeleteTree(ExpandConstant(
-      '{commonpf64}\metasequoiaime\server'));
+      '{commonpf64}\sugiime\server'));
     if VersionDirName <> '' then
     begin
       TryDeleteTree(ExpandConstant(
-        '{commonpf32}\metasequoiaime\' + VersionDirName));
+        '{commonpf32}\sugiime\' + VersionDirName));
       TryDeleteTree(ExpandConstant(
-        '{commonpf64}\metasequoiaime\' + VersionDirName));
+        '{commonpf64}\sugiime\' + VersionDirName));
     end;
-    TryDeleteTree(ExpandConstant('{commonpf32}\metasequoiaime'));
-    TryDeleteTree(ExpandConstant('{commonpf64}\metasequoiaime'));
+    TryDeleteTree(ExpandConstant('{commonpf32}\sugiime'));
+    TryDeleteTree(ExpandConstant('{commonpf64}\sugiime'));
     { 数据目录可能被用户指到了别的盘，甚至指到一个本来就有文件的文件夹：
       只有确认是安装器建的（带标记文件，或历史默认位置）才整个删除。}
     if OwnsDataDir(ResolvePreviousDataDir) then
       TryDeleteTree(ResolvePreviousDataDir);
-    TryDeleteTree(ExpandConstant('{commonappdata}\metasequoiaime'));
+    TryDeleteTree(ExpandConstant('{commonappdata}\sugiime'));
   end;
 end;

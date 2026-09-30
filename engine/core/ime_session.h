@@ -22,9 +22,26 @@ class ImeSession
         japanese_kana_form_ = form;
         refresh_candidates();
     }
+    // Japanese-only: default kana form applied to every new composition
+    // (reset / scheme switch). Auto keeps the provider's word-class heuristic.
+    void set_default_japanese_kana_form(JapaneseKanaForm form)
+    {
+        default_japanese_kana_form_ = form;
+    }
+    JapaneseKanaForm default_japanese_kana_form() const
+    {
+        return default_japanese_kana_form_;
+    }
     JapaneseKanaForm japanese_kana_form() const
     {
         return japanese_kana_form_;
+    }
+    // Japanese-only: enabled fuzzy-voicing pairs (kJapaneseFuzzy* bits). Applied
+    // to every request in apply_request_options; no refresh needed here because
+    // configuration is applied before the next key/recompute anyway.
+    void set_japanese_fuzzy_mask(std::uint32_t mask)
+    {
+        japanese_fuzzy_mask_ = mask;
     }
     void replace_japanese_raw_input(const std::string &raw_input, const std::string &raw_input_with_cases);
     // Writes back to whichever scheme is composing.
@@ -59,4 +76,6 @@ class ImeSession
     std::unique_ptr<IInputScheme> scheme_;
     CompositionState state_;
     JapaneseKanaForm japanese_kana_form_ = JapaneseKanaForm::Auto;
+    JapaneseKanaForm default_japanese_kana_form_ = JapaneseKanaForm::Auto;
+    std::uint32_t japanese_fuzzy_mask_ = kJapaneseFuzzyAll;
 };

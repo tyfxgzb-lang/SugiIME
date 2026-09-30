@@ -1,4 +1,4 @@
-# Metasequoia IME UI HTML
+﻿# Metasequoia IME UI HTML
 
 水杉输入法 Windows 端的界面资源。Server 加载这里的页面来渲染候选窗、悬浮工具栏、托盘菜单和设置窗口。
 
@@ -36,7 +36,7 @@ pnpm 版本由 `package.json` 的 `packageManager` 字段固定，`corepack enab
 把本仓链接到 Server 的数据目录，改页面就不用重新打包：
 
 ```powershell
-$target = Join-Path $env:LOCALAPPDATA 'metasequoiaime\html'
+$target = Join-Path $env:LOCALAPPDATA 'sugiime\html'
 if (Test-Path -LiteralPath $target) {
     Remove-Item -LiteralPath $target -Recurse -Force
 }

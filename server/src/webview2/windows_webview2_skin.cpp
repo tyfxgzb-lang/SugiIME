@@ -1,4 +1,4 @@
-// 皮肤与外观：读取页面 HTML、外部候选皮肤的 CSS 注入与内嵌资源、PrepareHtmlForWnds，
+﻿// 皮肤与外观：读取页面 HTML、外部候选皮肤的 CSS 注入与内嵌资源、PrepareHtmlForWnds，
 // 以及候选窗、悬浮工具栏的布局 / 主题 / 字体等外观应用。
 #include "webview2/windows_webview2_internal.h"
 #include "webview2/inline_protocol.h"
@@ -405,7 +405,7 @@ void InjectCandidateDocumentSkin(std::wstring &html, const std::wstring &builtIn
 
 int PrepareHtmlForWnds()
 {
-    // 用户数据目录，默认 %LOCALAPPDATA%\metasequoiaime，安装时可以改到别的盘。
+    // 用户数据目录，默认 %LOCALAPPDATA%\sugiime，安装时可以改到别的盘。
     std::wstring assetPath = CommonUtils::get_ime_data_path_w();
 
     //

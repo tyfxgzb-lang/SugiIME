@@ -24,6 +24,9 @@ param(
     # to read it is no longer answered by where the tip is.
     [string]$NoticesDirectory = '.',
     [switch]$Light,
+    # SugiIME 日语专用包：只打包 msime.db / english.db / others.db / dict_japanese.dat 与出厂配置。
+    # 拼音模型、辅助码、词格语言模型和神经整句模型已随中文引擎裁掉，不参与打包。
+    [switch]$Sugi,
     # PDBs are ~140 MB against ~20 MB of actual binaries, and Inno Setup compresses them with solid
     # LZMA2, so staging them is what makes a local packaging run take minutes. Symbols are therefore
     # opt-in: the release job and test-symbols.ps1 pass this, everyday local runs do not. The
@@ -116,9 +119,11 @@ Assert-PathExists -LiteralPath (Join-Path $webviewRoot 'settings\ime-settings\di
 
 if (-not $Light) {
     Assert-PathExists -LiteralPath $factoryConfig -Description '出厂配置 default_config\config.default.toml'
-    Assert-PathExists -LiteralPath $pinyinTable -Description '完整拼音音节表 pinyin.txt'
-    Assert-PathExists -LiteralPath $pinyinModel -Description 'Google 解码器系统词典 dict_pinyin.dat'
-    Assert-PathExists -LiteralPath $helpcodeSource -Description '辅助码目录'
+    if (-not $Sugi) {
+        Assert-PathExists -LiteralPath $pinyinTable -Description '完整拼音音节表 pinyin.txt'
+        Assert-PathExists -LiteralPath $pinyinModel -Description 'Google 解码器系统词典 dict_pinyin.dat'
+        Assert-PathExists -LiteralPath $helpcodeSource -Description '辅助码目录'
+    }
     Assert-PathExists -LiteralPath $dictionaryDb -Description '词库数据库 msime.db'
     Assert-PathExists -LiteralPath $japaneseModel -Description '日语整句模型 dict_japanese.dat'
     Assert-PathExists -LiteralPath $japaneseModelLicense -Description 'Mozc 日语词典授权声明'
@@ -155,15 +160,17 @@ if ($Light) {
 }
 else {
     Reset-Directory -LiteralPath $targetAppData
-    if (-not (Get-Content -LiteralPath $pinyinTable | Where-Object { $_.Trim() -eq 'xing' })) {
-        throw "完整拼音音节表缺少 xing：$pinyinTable"
+    if (-not $Sugi) {
+        if (-not (Get-Content -LiteralPath $pinyinTable | Where-Object { $_.Trim() -eq 'xing' })) {
+            throw "完整拼音音节表缺少 xing：$pinyinTable"
+        }
+        Copy-Item -LiteralPath $pinyinTable -Destination (Join-Path $targetAppData 'pinyin.txt') -Force
+        # Google 解码器的整句候选（CandidateSource::Fallback）没有这份词典就完全出不来，而且和
+        # sc.lm 一样是静默失败：im_open_decoder 返回 false，解码器直接不出候选，不报任何错。
+        # 与它配对的 user_dict.dat 是 role=user 的可写文件，profiles 为空，故意不进包 ——
+        # 引擎首次使用时由 UserDict::reset 在用户数据目录下自行建出来。
+        Copy-Item -LiteralPath $pinyinModel -Destination (Join-Path $targetAppData 'dict_pinyin.dat') -Force
     }
-    Copy-Item -LiteralPath $pinyinTable -Destination (Join-Path $targetAppData 'pinyin.txt') -Force
-    # Google 解码器的整句候选（CandidateSource::Fallback）没有这份词典就完全出不来，而且和
-    # sc.lm 一样是静默失败：im_open_decoder 返回 false，解码器直接不出候选，不报任何错。
-    # 与它配对的 user_dict.dat 是 role=user 的可写文件，profiles 为空，故意不进包 ——
-    # 引擎首次使用时由 UserDict::reset 在用户数据目录下自行建出来。
-    Copy-Item -LiteralPath $pinyinModel -Destination (Join-Path $targetAppData 'dict_pinyin.dat') -Force
     Copy-Item -LiteralPath $dictionaryDb -Destination (Join-Path $targetAppData 'msime.db') -Force
     if (Test-Path -LiteralPath $dictionaryManifest) {
         Copy-Item -LiteralPath $dictionaryManifest -Destination (Join-Path $targetAppData 'dictionary-manifest.json') -Force
@@ -172,26 +179,35 @@ else {
     Copy-Item -LiteralPath $japaneseModelLicense -Destination (Join-Path $targetAppData 'MOZC_DICTIONARY_LICENSE.txt') -Force
     Copy-Item -LiteralPath $englishDb -Destination (Join-Path $targetAppData 'english.db') -Force
     Copy-Item -LiteralPath $othersDb -Destination (Join-Path $targetAppData 'others.db') -Force
-    # sc.lm 落在资源目录根下，与 msime.db 同级：engine/contracts/assets 的清单就是这么
-    # 声明这个资源的路径的，引擎按该清单里的文件名去找。
-    Copy-Item -LiteralPath $languageModel -Destination (Join-Path $targetAppData 'sc.lm') -Force
-    # 模型数据是 LGPL-2.1-or-later 的第三方作品，声明必须跟着二进制到用户磁盘上，
-    # 理由同下面 rime-ice 那段。
-    Copy-Item -LiteralPath $languageModelNotice -Destination (Join-Path $targetAppData 'libime-lm-NOTICE.md') -Force
-    # 神经整句模型与 sc.lm 一样落在资源目录根下，文件名由 engine/contracts/assets 清单声明。
-    # 缺文件时引擎静默不出神经整句候选（shared_sentence_model 返回 nullptr），不影响其它候选。
-    Copy-Item -LiteralPath $neuralModelDesktop -Destination (Join-Path $targetAppData 'sentence-model-desktop.safetensors') -Force
-    Copy-Item -LiteralPath $neuralModelKeyboard -Destination (Join-Path $targetAppData 'sentence-model.safetensors') -Force
-    # 权重是 Apache-2.0 的第三方作品，授权声明必须随二进制到用户磁盘上。
-    Copy-Item -LiteralPath $neuralModelNotice -Destination (Join-Path $targetAppData 'chinese-ime-lm-NOTICE.md') -Force
+    if (-not $Sugi) {
+        # sc.lm 落在资源目录根下，与 msime.db 同级：engine/contracts/assets 的清单就是这么
+        # 声明这个资源的路径的，引擎按该清单里的文件名去找。
+        Copy-Item -LiteralPath $languageModel -Destination (Join-Path $targetAppData 'sc.lm') -Force
+        # 模型数据是 LGPL-2.1-or-later 的第三方作品，声明必须跟着二进制到用户磁盘上，
+        # 理由同下面 rime-ice 那段。
+        Copy-Item -LiteralPath $languageModelNotice -Destination (Join-Path $targetAppData 'libime-lm-NOTICE.md') -Force
+        # 神经整句模型与 sc.lm 一样落在资源目录根下，文件名由 engine/contracts/assets 清单声明。
+        # 缺文件时引擎静默不出神经整句候选（shared_sentence_model 返回 nullptr），不影响其它候选。
+        Copy-Item -LiteralPath $neuralModelDesktop -Destination (Join-Path $targetAppData 'sentence-model-desktop.safetensors') -Force
+        Copy-Item -LiteralPath $neuralModelKeyboard -Destination (Join-Path $targetAppData 'sentence-model.safetensors') -Force
+        # 权重是 Apache-2.0 的第三方作品，授权声明必须随二进制到用户磁盘上。
+        Copy-Item -LiteralPath $neuralModelNotice -Destination (Join-Path $targetAppData 'chinese-ime-lm-NOTICE.md') -Force
+    }
 
     $defaultConfigPath = Join-Path $targetAppData 'config.default.toml'
     # 出厂配置来自本仓库的 default_config，不依赖本机是否已安装输入法。
     # 安装脚本用 onlyifdoesntexist 生成用户 config.toml，升级不会覆盖已有方案/主题。
     Copy-Item -LiteralPath $factoryConfig -Destination $defaultConfigPath -Force
     $defaultConfig = Get-Content -LiteralPath $defaultConfigPath -Raw
-    if ($defaultConfig -notmatch '(?m)^schema\s*=\s*"quanpin"\s*$') {
-        throw '出厂配置的 input.schema 必须是 quanpin。'
+    if (-not $Sugi) {
+        if ($defaultConfig -notmatch '(?m)^schema\s*=\s*"quanpin"\s*$') {
+            throw '出厂配置的 input.schema 必须是 quanpin。'
+        }
+    }
+    else {
+        if ($defaultConfig -notmatch '(?m)^mode\s*=\s*"japanese"\s*$') {
+            throw 'SugiIME 出厂配置的 input.mode 必须是 japanese。'
+        }
     }
     if ($defaultConfig -notmatch '(?m)^theme_mode\s*=\s*"system"\s*$') {
         throw '出厂配置的 appearance.theme_mode 必须是 system。'
@@ -202,9 +218,11 @@ else {
     if ($defaultConfig -notmatch '(?m)^settings_window_linger\s*=\s*"off"\s*$') {
         throw '出厂配置的 appearance.settings_window_linger 必须是 off（关闭后立即退出）。'
     }
-    foreach ($sentenceSwitch in @('sentence_wordlattice', 'sentence_google', 'sentence_neural_keyboard')) {
-        if ($defaultConfig -notmatch "(?m)^$sentenceSwitch\s*=\s*true\s*$") {
-            throw "出厂配置的 association.$sentenceSwitch 必须默认开启。"
+    if (-not $Sugi) {
+        foreach ($sentenceSwitch in @('sentence_wordlattice', 'sentence_google', 'sentence_neural_keyboard')) {
+            if ($defaultConfig -notmatch "(?m)^$sentenceSwitch\s*=\s*true\s*$") {
+                throw "出厂配置的 association.$sentenceSwitch 必须默认开启。"
+            }
         }
     }
     $defaultConfig = $defaultConfig.TrimEnd("`r", "`n") + "`r`n"
@@ -216,9 +234,11 @@ else {
         }
     }
 
-    $targetHelpcodes = Join-Path $targetAppData 'helpcodes'
-    Reset-Directory -LiteralPath $targetHelpcodes
-    Copy-DirectoryContents -Source $helpcodeSource -Destination $targetHelpcodes
+    if (-not $Sugi) {
+        $targetHelpcodes = Join-Path $targetAppData 'helpcodes'
+        Reset-Directory -LiteralPath $targetHelpcodes
+        Copy-DirectoryContents -Source $helpcodeSource -Destination $targetHelpcodes
+    }
 }
 
 $targetHtml = Join-Path $targetAppData 'html'
@@ -262,7 +282,7 @@ if ($IncludeSymbols) {
     Copy-Item -LiteralPath $tsf32Pdb -Destination $targetTsf32 -Force
     Copy-Item -LiteralPath $tsf64Pdb -Destination $targetTsf64 -Force
 }
-Copy-Item -LiteralPath $appIcon -Destination (Join-Path $PSScriptRoot 'MetasequoiaIME.ico') -Force
+Copy-Item -LiteralPath $appIcon -Destination (Join-Path $PSScriptRoot 'sugiime.ico') -Force
 # rime-ice is GPL-3.0 and requires attribution, and its content forms the bulk of msime.db, so the
 # notice has to reach the user's disk rather than only exist in the source repository.
 Copy-Item -LiteralPath $thirdPartyNotices -Destination (Join-Path $PSScriptRoot 'THIRD_PARTY_NOTICES.txt') -Force

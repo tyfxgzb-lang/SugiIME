@@ -1,11 +1,12 @@
 name: Package SugiIME
 
 # 手动触发的打包工作流。在 GitHub 托管的 windows-2025 公共 runner 上编译
-# TSF(x64+Win32)、Server 和设置页，用 Prepare-PackageFiles.ps1 -Light 收集轻量
-# 安装文件，用 Compile-Installer.ps1 编译未签名的安装包，上传为 artifact 供下载。
+# TSF(x64+Win32)、Server 和设置页，用 product_lock.py 按 product-lock.json 钉住的
+# SHA256 拉取基本词库（msime.db / english.db / others.db / dict_japanese.dat），
+# 用 Prepare-PackageFiles.ps1 -Sugi 收集日语专用安装文件，用 Compile-Installer.ps1
+# 编译未签名的安装包，上传为 artifact 供下载。
 #
-# 轻量包不含词库、辅助码、拼音表和出厂配置，安装后只含 TSF/Server/HTML。
-# 日语词库 (msime.db / dict_japanese.dat 等) 需通过其他方式获取后放入用户数据目录。
+# 词库随包装入：安装后基本词库直接落在用户数据目录，开箱即可输入日语。
 #
 # 使用自签名测试证书签名全部 payload 二进制和安装包，使 Server 的 uiAccess=true 生效。
 # 测试机需先导入 SugiIME-Test.cer 到 Trusted Root Certification Authorities 和
@@ -95,15 +96,24 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm build
 
+      # ===== Dictionaries =====
+      - name: Download locked dictionaries
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >
+          python scripts/product_lock.py fetch-dictionaries
+          --staging-root (Resolve-Path '.').Path
+
       # ===== Package =====
       - name: Install Inno Setup
         shell: pwsh
         run: choco install innosetup -y --no-progress
-      - name: Collect the installer payload (light)
+      - name: Collect the installer payload (Sugi)
         shell: pwsh
         working-directory: installer
         run: >
-          pwsh -File ./Prepare-PackageFiles.ps1 -Light -TargetVersion "0.1.0"
+          pwsh -File ./Prepare-PackageFiles.ps1 -Sugi -TargetVersion "0.1.0"
           -RepoRoot (Resolve-Path '..').Path
           -TsfDirectory windows -ServerDirectory server -UiHtmlDirectory ui-html -NoticesDirectory .
 
@@ -144,7 +154,7 @@ jobs:
       - name: Compile the installer
         shell: pwsh
         working-directory: installer
-        run: pwsh -File ./Compile-Installer.ps1 -Light
+        run: pwsh -File ./Compile-Installer.ps1
       - name: Sign the installer
         shell: pwsh
         working-directory: installer
@@ -160,7 +170,7 @@ jobs:
       - name: Upload the installer, certificate and scripts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: SugiIME-installer-light
+          name: SugiIME-installer
           path: |
             installer/Output/*.exe
             installer/SugiIME-Test.cer

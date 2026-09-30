@@ -6,6 +6,7 @@ import { serializeHostMessage } from '../../../../shared/messages';
 import { loadHTML } from '../utils/common-utils';
 import { applyToolbarIconGlyphFallbacks } from './toolbar-icon-glyphs';
 import ftbHTML from '../../../../ftb/default.html?raw';
+import { t } from '../locales/i18n';
 
 export type SkinPreviewTheme = 'dark' | 'light';
 export type CandidateSkin = string;
@@ -270,13 +271,14 @@ function applyBuiltinCardTheme(skin: BuiltinSkin, theme: SkinPreviewTheme): void
     });
   const title = card.querySelector<HTMLElement>('.section-title');
   if (title) {
-    const name = skin === 'wechat' ? '微信绿主题' : skin === 'graphite' ? '石墨 Graphite'
-      : skin === 'willow_green' ? '杨柳青 Willow green'
-      : skin === 'autumn_osmanthus' ? '秋桂 Autumn osmanthus' : 'Fluent 主题';
+    const name = skin === 'wechat' ? t('skin.wechatName') : skin === 'graphite' ? t('skin.graphiteName')
+      : skin === 'willow_green' ? t('skin.willowGreenName')
+      : skin === 'autumn_osmanthus' ? t('skin.autumnOsmanthusName') : t('skin.fluentName');
     title.textContent = `${name}(${theme === 'light' ? 'Light' : 'Dark'})`;
   }
   card.querySelectorAll<HTMLButtonElement>('[data-skin-preview-switch]').forEach((button) => {
-    button.textContent = theme === 'light' ? '预览深色' : '预览浅色';
+    button.textContent = theme === 'light' ? t('skin.previewDark') : t('skin.previewLight');
+    button.title = t('skin.previewToggle');
   });
 }
 
@@ -290,7 +292,8 @@ function applyExternalCardTheme(skin: ExternalSkin): void {
       element.classList.toggle('theme-dark', theme === 'dark');
     });
   card.querySelectorAll<HTMLButtonElement>('[data-skin-preview-switch]').forEach((button) => {
-    button.textContent = theme === 'light' ? '预览深色' : '预览浅色';
+    button.textContent = theme === 'light' ? t('skin.previewDark') : t('skin.previewLight');
+    button.title = t('skin.previewToggle');
   });
 }
 
@@ -381,7 +384,7 @@ function renderExternalSkins(): void {
   const diagnostics = document.getElementById('externalSkinDiagnostics');
   if (!list || !empty || !directory || !diagnostics) return;
 
-  directory.textContent = skinDirectory || '%LOCALAPPDATA%\\metasequoiaime\\skins';
+  directory.textContent = skinDirectory || '%LOCALAPPDATA%\\sugiime\\skins';
   list.replaceChildren(...externalSkins.map((skin) => {
     const card = document.createElement('div');
     const previewClass = builtinPreviewClass(skin.base);
@@ -418,8 +421,8 @@ function renderExternalSkins(): void {
     switcher.type = 'button';
     switcher.className = 'skin-preview-switch';
     switcher.dataset.skinPreviewSwitch = '';
-    switcher.title = '切换明暗预览';
-    switcher.textContent = '预览浅色';
+    switcher.title = t('skin.previewToggle');
+    switcher.textContent = t('skin.previewLight');
     switcher.addEventListener('click', () => {
       previewOverrides[skin.id] = resolvedPreviewTheme(skin.id) === 'light' ? 'dark' : 'light';
       applyExternalCardTheme(skin);
@@ -471,7 +474,7 @@ function renderExternalSkins(): void {
   if (scanIssues.length) {
     const details = document.createElement('details');
     const label = document.createElement('summary');
-    label.textContent = `已忽略 ${scanIssues.length} 个无效皮肤目录`;
+    label.textContent = `${t('skin.ignoredInvalidDirsPrefix')}${scanIssues.length}${t('skin.ignoredInvalidDirsSuffix')}`;
     const entries = document.createElement('ul');
     scanIssues.forEach((issue) => {
       const item = document.createElement('li');

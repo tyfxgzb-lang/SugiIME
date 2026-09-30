@@ -1,5 +1,6 @@
 import { serializeHostMessage } from '../../../../shared/messages';
 import { onHostMessage } from '../utils/host-messages';
+import { t } from '../locales/i18n';
 
 export type CredentialTestService =
   | 'translation.tencent'
@@ -23,7 +24,7 @@ export function setupCredentialTest(
   if (!button || !status) return;
 
   let pendingRequestId = '';
-  const idleLabel = button.textContent?.trim() || '测试配置';
+  const idleLabel = button.textContent?.trim() || t('credential.testConfig');
   onHostMessage('apiCredentialTestResult', payload => {
     if (payload.requestId !== pendingRequestId) return;
     pendingRequestId = '';
@@ -37,8 +38,8 @@ export function setupCredentialTest(
     if (!window.chrome?.webview || pendingRequestId) return;
     pendingRequestId = `${Date.now()}-${++nextRequestId}`;
     button.disabled = true;
-    button.textContent = '测试中…';
-    status.textContent = '正在连接服务，请稍候…';
+    button.textContent = t('credential.testing');
+    status.textContent = t('credential.connecting');
     status.dataset.kind = 'pending';
     window.chrome.webview.postMessage(serializeHostMessage({
       type: 'apiCredentialTest',

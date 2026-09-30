@@ -1,4 +1,4 @@
-#include "cloud_ime.h"
+﻿#include "cloud_ime.h"
 #include <Windows.h>
 #include <nlohmann/json.hpp>
 #include <atomic>
@@ -52,7 +52,7 @@ std::string UrlEncode(const std::string &input)
 
 bool HttpGet(const std::wstring &host, const std::wstring &path, std::string &response_out)
 {
-    HINTERNET hSession = WinHttpOpen(L"MetasequoiaImeServer/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+    HINTERNET hSession = WinHttpOpen(L"SugiIMEServer/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
                                      WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
     if (!hSession)
         return false;

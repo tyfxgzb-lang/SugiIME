@@ -3,9 +3,9 @@ import { applyDropdownValue, applyToggleState, setFuzzyRuleOptionsDisabled, setS
 import { updateConfig } from './config-sync';
 import { updateCandidatePreviewHelpcode } from './appearance';
 import { setupCredentialTest } from './credential-test';
+import { t } from '../locales/i18n';
 
 type InputScheme = 'quanpin' | 'shuangpin' | 'wubi';
-type InputMode = 'chinese' | 'japanese';
 
 type TranslationProvider = 'tencent' | 'niutrans' | 'custom';
 
@@ -21,9 +21,7 @@ function updateInputConfig(path: string, value: string): void {
 }
 
 export function applyInputConfig(
-  inputMode: string | undefined,
   schema: string | undefined,
-  characterSet: string | undefined,
   shuangpinSchema: string | undefined,
   wubiSchema: string | undefined,
   defaultImeMode?: string | undefined,
@@ -34,12 +32,11 @@ export function applyInputConfig(
 ): void {
   applyingInputConfig = true;
   try {
-    const mode: InputMode = inputMode === 'japanese' ? 'japanese' : 'chinese';
-  const modeRadio = document.querySelector<HTMLInputElement>(`input[name="input-mode"][value="${mode}"]`);
-  if (modeRadio) modeRadio.checked = true;
-  syncInputModeView(mode);
-
-  if (schema === 'quanpin' || schema === 'shuangpin' || schema === 'wubi') {
+    if (defaultImeMode === 'chinese') {
+      // 旧配置里的 chinese 即现在的 japanese（本机模式）。
+      defaultImeMode = 'japanese';
+    }
+    if (schema === 'quanpin' || schema === 'shuangpin' || schema === 'wubi') {
     const radio = document.querySelector<HTMLInputElement>(`input[name="input-method"][value="${schema}"]`);
     if (radio) {
       radio.checked = true;
@@ -47,7 +44,6 @@ export function applyInputConfig(
     updateCandidatePreviewHelpcode({ input_schema: schema });
   }
 
-  applyDropdownValue('characterSetBtn', 'characterSetMenu', characterSet);
   applyDropdownValue('shuangpinSchemeBtn', 'shuangpinSchemeMenu', shuangpinSchema);
   applyDropdownValue('wubiSchemeBtn', 'wubiSchemeMenu', wubiSchema);
   applyDropdownValue('defaultImeModeBtn', 'defaultImeModeMenu', defaultImeMode);
@@ -65,16 +61,6 @@ export function applyInputConfig(
   } finally {
     applyingInputConfig = false;
   }
-}
-
-function syncInputModeView(mode: InputMode): void {
-  const japanese = mode === 'japanese';
-  document.querySelectorAll<HTMLElement>('.chinese-scheme-settings').forEach((element) => {
-    element.hidden = japanese;
-  });
-  document.querySelectorAll<HTMLElement>('.japanese-scheme-settings').forEach((element) => {
-    element.hidden = !japanese;
-  });
 }
 
 export function applyFrequencyConfig(config: any): void {
@@ -129,20 +115,20 @@ function syncCandidateTranslationWarning(): void {
   if (provider === 'custom') {
     const endpoint = (document.getElementById('customTranslationEndpoint') as HTMLInputElement | null)?.value.trim();
     const valid = /^https?:\/\/\S+$/i.test(endpoint ?? '');
-    warning.textContent = '请填写以 http:// 或 https:// 开头的完整接口地址';
+    warning.textContent = t('input.translationCustomEndpointWarning');
     warning.classList.toggle('is-hidden', valid);
     return;
   }
   if (provider === 'niutrans') {
     const appId = (document.getElementById('niutransAppId') as HTMLInputElement | null)?.value.trim();
     const apiKey = (document.getElementById('niutransApiKey') as HTMLInputElement | null)?.value.trim();
-    warning.textContent = '请填写 APP ID 和 API Key 后使用小牛翻译';
+    warning.textContent = t('input.translationNiutransWarning');
     warning.classList.toggle('is-hidden', Boolean(appId && apiKey));
     return;
   }
   const secretId = (document.getElementById('tencentTmtSecretId') as HTMLInputElement | null)?.value.trim();
   const secretKey = (document.getElementById('tencentTmtSecretKey') as HTMLInputElement | null)?.value.trim();
-  warning.textContent = '请填写 SecretId 和 SecretKey 后使用云端翻译';
+  warning.textContent = t('input.translationTencentWarning');
   warning.classList.toggle('is-hidden', Boolean(secretId && secretKey));
 }
 
@@ -201,23 +187,13 @@ function setupSecretVisibility(inputId: string, buttonId: string, name: string):
     const show = input.type === 'password';
     input.type = show ? 'text' : 'password';
     button.setAttribute('aria-pressed', String(show));
-    const label = `${show ? '隐藏' : '显示'} ${name}`;
+    const label = `${show ? t('common.hide') : t('common.show')} ${name}`;
     button.setAttribute('aria-label', label);
     button.title = label;
   });
 }
 
 export function setupInput(): void {
-  document.querySelectorAll<HTMLInputElement>('input[name="input-mode"]').forEach((radio) => {
-    radio.addEventListener('change', () => {
-      if (applyingInputConfig) return;
-      if (!radio.checked || (radio.value !== 'chinese' && radio.value !== 'japanese')) return;
-      const mode = radio.value as InputMode;
-      syncInputModeView(mode);
-      updateInputConfig('input.mode', mode);
-    });
-  });
-
   document.querySelectorAll<HTMLInputElement>('input[name="japanese-input-method"]').forEach((radio) => {
     radio.addEventListener('change', () => {
       if (radio.checked && (radio.value === 'romaji' || radio.value === 'kana') && !applyingInputConfig) {
@@ -233,7 +209,6 @@ export function setupInput(): void {
     updateConfig('input.japanese_katakana_fkey', active);
   });
 
-  setupDropdownMenu('characterSetBtn', 'characterSetMenu', 'changeCharacterSet', true, 'input.character_set');
   setupDropdownMenu('defaultImeModeBtn', 'defaultImeModeMenu', '', true, 'input.default_ime_mode');
   setupDropdownMenu('imeModeScopeBtn', 'imeModeScopeMenu', '', true, 'input.ime_mode_scope');
   document.querySelectorAll<HTMLInputElement>('input[name="input-method"]').forEach((radio) => {
@@ -409,28 +384,21 @@ function setupPageOptions(): void {
   });
 }
 
-// 模糊音分区：折叠头 + 总开关 + 11 规则复选。折叠交互仿 appearance.ts 的主题模式：
-// aria-expanded 驱动 chevron 与容器显隐，默认收起且不跨会话持久化。
+// 浊音模糊音分区：总开关 + 5 行对复选。行对禁用态复用 shared.ts 的
+// setFuzzyRuleOptionsDisabled（DOM 名单：input[name="fuzzy-rule"] + fuzzyDetails/fuzzyDisabledHint）。
 function setupFuzzySection(): void {
-  setupToggleButton('fuzzyPinyinToggleBtn', (active) => {
-    updateConfig('input.fuzzy_pinyin', active);
+  setupToggleButton('japaneseFuzzyToggleBtn', (active) => {
+    updateConfig('input.japanese_fuzzy', active);
     setFuzzyRuleOptionsDisabled(!active);
-  });
-  const fuzzyExpand = document.getElementById('fuzzyExpand');
-  const fuzzyDetails = document.getElementById('fuzzyDetails');
-  fuzzyExpand?.addEventListener('click', () => {
-    const expanded = fuzzyExpand.getAttribute('aria-expanded') !== 'true';
-    fuzzyExpand.setAttribute('aria-expanded', String(expanded));
-    fuzzyDetails?.classList.toggle('open', expanded);
   });
   setupFuzzyRuleOptions();
 }
 
-// 模糊音 11 键同名同前缀：checkbox value 直接是 [input] 段的配置键。
+// 模糊音行对：checkbox value 直接是 [input] 段的配置键。
 function setupFuzzyRuleOptions(): void {
   document.querySelectorAll<HTMLInputElement>('input[name="fuzzy-rule"]').forEach((checkbox) => {
     checkbox.addEventListener('change', () => {
-      if (checkbox.value.startsWith('fuzzy_')) updateConfig(`input.${checkbox.value}`, checkbox.checked);
+      if (checkbox.value.startsWith('japanese_fuzzy_')) updateConfig(`input.${checkbox.value}`, checkbox.checked);
     });
   });
 }

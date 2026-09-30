@@ -37,7 +37,7 @@ class ConfigFileLock
   public:
     ConfigFileLock()
     {
-        handle_ = CreateMutexW(nullptr, FALSE, L"Local\\MetasequoiaIme.ConfigFile");
+        handle_ = CreateMutexW(nullptr, FALSE, L"Local\\SugiIME.ConfigFile");
         if (handle_)
         {
             const DWORD result = WaitForSingleObject(handle_, 5000);
@@ -85,6 +85,12 @@ extern std::string g_input_mode;
 extern std::string g_japanese_schema;
 extern bool g_japanese_punctuation;
 extern bool g_japanese_katakana_fkey;
+extern bool g_japanese_fuzzy;
+extern bool g_japanese_fuzzy_ka_ga;
+extern bool g_japanese_fuzzy_sa_za;
+extern bool g_japanese_fuzzy_ta_da;
+extern bool g_japanese_fuzzy_ha_ba;
+extern bool g_japanese_fuzzy_ha_pa;
 extern std::string g_character_set;
 extern std::string g_default_ime_mode;
 extern std::string g_ime_mode_scope;
@@ -92,6 +98,10 @@ extern bool g_switch_language_shift_enabled;
 extern bool g_switch_language_ctrl_enabled;
 extern bool g_switch_language_ctrl_alt_space_enabled;
 extern bool g_character_set_shortcut_enabled;
+extern bool g_maintain_candidate_delete_enabled;
+extern bool g_maintain_clear_cache_enabled;
+extern bool g_maintain_restart_enabled;
+extern bool g_maintain_exit_enabled;
 extern int g_candidate_page_size;
 extern std::string g_candidate_font;
 extern std::string g_candidate_english_font;

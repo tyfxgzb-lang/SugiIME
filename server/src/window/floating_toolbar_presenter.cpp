@@ -65,8 +65,8 @@ constexpr ToolbarIcon kIconHalfWidth = {0xEC46, L"半"};
 constexpr ToolbarIcon kIconFullWidth = {0xF138, L"全"};
 constexpr ToolbarIcon kIconPuncEn = {0xF110, L","};
 constexpr ToolbarIcon kIconPuncCn = {0xF111, L"。"};
-constexpr ToolbarIcon kIconSimplified = {0xE88D, L"简"};
-constexpr ToolbarIcon kIconTraditional = {0xE88C, L"繁"};
+constexpr ToolbarIcon kIconHiragana = {0, L"あ"};
+constexpr ToolbarIcon kIconKatakana = {0, L"ア"};
 constexpr ToolbarIcon kIconEmoji = {0xE76E, L"表"};
 constexpr ToolbarIcon kIconKeyboard = {0xE765, L"键"};
 constexpr ToolbarIcon kIconSettings = {0xE713, L"设"};
@@ -510,9 +510,9 @@ void FloatingToolbarPresenter::RebuildScene()
     }
     if (items.character_set)
     {
-        const bool traditional = GetConfiguredCharacterSet() == "traditional";
-        addGlyph(traditional ? kIconTraditional : kIconSimplified, []() {
-            const std::string next = GetConfiguredCharacterSet() == "traditional" ? "simplified" : "traditional";
+        const bool katakana = GetConfiguredCharacterSet() == "katakana";
+        addGlyph(katakana ? kIconKatakana : kIconHiragana, []() {
+            const std::string next = GetConfiguredCharacterSet() == "katakana" ? "hiragana" : "katakana";
             if (SetConfiguredCharacterSet(next))
             {
                 PostSettingsConfig();

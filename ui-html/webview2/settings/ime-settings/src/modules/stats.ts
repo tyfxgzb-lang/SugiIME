@@ -3,6 +3,7 @@ import { serializeHostMessage } from '../../../../shared/messages';
 import type { ServerMessage, SettingsMessage } from '../../../../shared/messages';
 import { applyToggleState, setupToggleButton } from './shared';
 import { updateConfig } from './config-sync';
+import { t } from '../locales/i18n';
 
 type StatsRequest = Extract<SettingsMessage, { type: 'statsRequest' }>['data'];
 type StatsResponse = Extract<ServerMessage, { type: 'statsResponse' }>;
@@ -103,23 +104,23 @@ export function formatNumber(value: number): string {
 
 export function formatDuration(ms: number): string {
   if (!ms || ms <= 0) {
-    return '0 分钟';
+    return `0 ${t('stats.unitMinute')}`;
   }
   const minutes = ms / 60000;
   if (minutes < 1) {
-    return '不足 1 分钟';
+    return t('stats.lessThanOneMinute');
   }
   if (minutes < 60) {
-    return `${minutes < 10 ? minutes.toFixed(1) : Math.round(minutes)} 分钟`;
+    return `${minutes < 10 ? minutes.toFixed(1) : Math.round(minutes)} ${t('stats.unitMinute')}`;
   }
   const hours = Math.floor(minutes / 60);
   const rest = Math.round(minutes % 60);
-  return `${hours} 小时 ${rest} 分`;
+  return `${hours} ${t('stats.unitHour')} ${rest} ${t('stats.unitMinuteShort')}`;
 }
 
 export function formatSpeed(charsPerMinute: number): string {
   // 单位按可读字符（中+英）计，标点/数字不计入速度。
-  return `${Math.round(charsPerMinute)} 字/分`;
+  return `${Math.round(charsPerMinute)} ${t('stats.unitCharsPerMinute')}`;
 }
 
 /** 五级色阶：0 = 无记录，1-4 按当日字数占历史最高日的比例分档。 */
@@ -206,8 +207,8 @@ function renderEmptyState(): void {
   const disabledText = byId('statsDisabledText');
   if (disabledText) {
     disabledText.textContent = hasData
-      ? '统计当前已关闭，历史数据仍保留在下方；重新开启后继续记录。'
-      : '开启后这里会显示输入字数、速度与时段分布。统计只保存在本机，不记录输入内容，也不联网。';
+      ? t('stats.disabledTextHasData')
+      : t('stats.disabledText');
   }
 }
 
@@ -255,10 +256,10 @@ function renderCards(overview: StatsOverview): void {
     return;
   }
   container.replaceChildren(
-    statCard('今日输入', formatNumber(overview.todayChars), '字', `活跃 ${formatDuration(overview.todayActiveMs)}`),
-    statCard('累计输入', formatNumber(overview.totalChars), '字', `共记录 ${overview.days} 天`),
-    statCard('日均输入', formatNumber(overview.averagePerDay), '字', `自 ${formatDayKey(overview.firstDayKey)}`),
-    statCard('连续输入', formatNumber(overview.currentStreak), '天', `历史最长 ${overview.longestStreak} 天`)
+    statCard(t('stats.cardTodayInput'), formatNumber(overview.todayChars), t('stats.unitChar'), `${t('stats.active')} ${formatDuration(overview.todayActiveMs)}`),
+    statCard(t('stats.cardTotalInput'), formatNumber(overview.totalChars), t('stats.unitChar'), `${t('stats.recordedDays')} ${overview.days} ${t('stats.unitDay')}`),
+    statCard(t('stats.cardDailyAvg'), formatNumber(overview.averagePerDay), t('stats.unitChar'), `${t('stats.since')} ${formatDayKey(overview.firstDayKey)}`),
+    statCard(t('stats.cardStreak'), formatNumber(overview.currentStreak), t('stats.unitDay'), `${t('stats.longestStreak')} ${overview.longestStreak} ${t('stats.unitDay')}`)
   );
 }
 
@@ -266,9 +267,9 @@ function renderSpeed(overview: StatsOverview): void {
   const grid = byId('statsSpeedGrid');
   if (grid) {
     const entries: Array<[string, number, string]> = [
-      ['今日速度', overview.todaySpeed, formatDuration(overview.todayActiveMs)],
-      ['平均速度', overview.averageSpeed, formatDuration(overview.totalActiveMs)],
-      ['最快速度', overview.fastestSpeed, overview.fastestDayKey ? formatDayKey(overview.fastestDayKey) : '暂无']
+      [t('stats.speedToday'), overview.todaySpeed, formatDuration(overview.todayActiveMs)],
+      [t('stats.speedAverage'), overview.averageSpeed, formatDuration(overview.totalActiveMs)],
+      [t('stats.speedFastest'), overview.fastestSpeed, overview.fastestDayKey ? formatDayKey(overview.fastestDayKey) : t('stats.none')]
     ];
     const fragment = document.createDocumentFragment();
     for (const [label, speed, note] of entries) {
@@ -285,8 +286,8 @@ function renderSpeed(overview: StatsOverview): void {
   const best = byId('statsBestDay');
   if (best) {
     best.textContent = overview.bestDayKey
-      ? `最高日：${formatDayKey(overview.bestDayKey)} · ${formatNumber(overview.bestDayChars)} 字`
-      : '最高日：暂无记录';
+      ? `${t('stats.bestDay')}：${formatDayKey(overview.bestDayKey)} · ${formatNumber(overview.bestDayChars)} ${t('stats.unitChar')}`
+      : `${t('stats.bestDay')}：${t('stats.noRecord')}`;
   }
 }
 
@@ -315,7 +316,7 @@ function renderCalendar(overview: StatsOverview): void {
     for (let i = 0; i < 7; i++) {
       const date = addDays(weekStart, i);
       if (date.getDate() === 1) {
-        label.textContent = `${date.getMonth() + 1}月`;
+        label.textContent = `${date.getMonth() + 1}${t('stats.unitMonth')}`;
         break;
       }
     }
@@ -330,7 +331,7 @@ function renderCalendar(overview: StatsOverview): void {
       if (date.getTime() > today.getTime()) {
         cell.classList.add('out');
       }
-      cell.title = `${formatDayKey(dayKey)}：${chars > 0 ? `${formatNumber(chars)} 字` : '无记录'}`;
+      cell.title = `${formatDayKey(dayKey)}：${chars > 0 ? `${formatNumber(chars)} ${t('stats.unitChar')}` : t('stats.noRecord')}`;
       gridFragment.append(cell);
     }
     weekStart = addDays(weekStart, 7);
@@ -354,7 +355,7 @@ function renderHourly(overview: StatsOverview): void {
     const track = el('div', 'stats-hour-track');
     const bar = el('div', value > 0 ? 'stats-hour-bar' : 'stats-hour-bar is-empty');
     bar.style.height = `${Math.max(2, Math.round((value / max) * 100))}%`;
-    bar.title = `${pad2(hour)} 时：${formatNumber(value)} 字`;
+    bar.title = `${pad2(hour)} ${t('stats.unitHourShort')}：${formatNumber(value)} ${t('stats.unitChar')}`;
     track.append(bar);
     column.append(track, el('span', 'stats-hour-label', hour % 3 === 0 ? String(hour) : ''));
     fragment.append(column);
@@ -370,11 +371,11 @@ function renderCategories(overview: StatsOverview): void {
   const categories = overview.categories;
   const total = categories.cjk + categories.latin + categories.digit + categories.punct + categories.other;
   const rows: Array<[string, number]> = [
-    ['中文', categories.cjk],
-    ['英文', categories.latin],
-    ['数字', categories.digit],
-    ['标点', categories.punct],
-    ['其他', categories.other]
+    [t('stats.catCJK'), categories.cjk],
+    [t('stats.catLatin'), categories.latin],
+    [t('stats.catDigit'), categories.digit],
+    [t('stats.catPunct'), categories.punct],
+    [t('stats.catOther'), categories.other]
   ];
   const fragment = document.createDocumentFragment();
   rows.forEach(([name, value], index) => {
@@ -384,7 +385,7 @@ function renderCategories(overview: StatsOverview): void {
     bar.style.width = total > 0 ? `${(value / total) * 100}%` : '0%';
     track.append(bar);
     const percent = total > 0 ? Math.round((value / total) * 100) : 0;
-    row.append(el('span', 'stats-cat-name', name), track, el('span', 'stats-cat-stat', `${formatNumber(value)} 字 · ${percent}%`));
+    row.append(el('span', 'stats-cat-name', name), track, el('span', 'stats-cat-stat', `${formatNumber(value)} ${t('stats.unitChar')} · ${percent}%`));
     fragment.append(row);
   });
   container.replaceChildren(fragment);
@@ -398,7 +399,7 @@ function renderDetails(overview: StatsOverview): void {
   const table = el('table', 'stats-detail-table');
   const head = el('thead');
   const headRow = el('tr');
-  for (const title of ['日期', '字数', '中文', '英文', '数字', '标点', '其他', '活跃', '速度']) {
+  for (const title of [t('stats.detailDate'), t('stats.detailChars'), t('stats.catCJK'), t('stats.catLatin'), t('stats.catDigit'), t('stats.catPunct'), t('stats.catOther'), t('stats.detailActive'), t('stats.detailSpeed')]) {
     headRow.append(el('th', undefined, title));
   }
   head.append(headRow);
@@ -471,9 +472,9 @@ function post(action: StatsRequest['action']): void {
 function handleResponse(response: StatsResponse, action: StatsRequest['action']): void {
   if (!response.ok) {
     if (action === 'clearAll') {
-      setClearStatus(response.message || '清空统计数据失败', true);
+      setClearStatus(response.message || t('stats.clearFailed'), true);
     } else {
-      showStatus(response.message || '统计操作失败', false);
+      showStatus(response.message || t('stats.operationFailed'), false);
     }
     return;
   }
@@ -481,19 +482,19 @@ function handleResponse(response: StatsResponse, action: StatsRequest['action'])
     renderOverview(response.overview);
   }
   if (action === 'openDirectory') {
-    showStatus(response.message || '已打开数据目录', true);
+    showStatus(response.message || t('stats.dirOpened'), true);
   } else if (action === 'clearAll') {
     const removed = response.removedDays ?? 0;
-    setClearStatus(response.message || (removed > 0 ? `已删除 ${removed} 天的记录` : '没有需要清理的数据'), false);
+    setClearStatus(response.message || (removed > 0 ? `${t('stats.removedDays')} ${removed} ${t('stats.unitDay')}` : t('stats.nothingToClean')), false);
   }
 }
 
 /** 「清空统计数据」：破坏性操作，确认后才发请求；响应里的空态概览直接刷新页面。 */
 function onClearAll(): void {
-  if (!window.confirm('确定要清空全部统计数据吗？今天与历史的记录都会被删除，删除后无法恢复。')) {
+  if (!window.confirm(t('stats.clearConfirm'))) {
     return;
   }
-  setClearStatus('正在清空统计数据…', false);
+  setClearStatus(t('stats.clearing'), false);
   post('clearAll');
 }
 
@@ -509,11 +510,11 @@ function onRetentionChange(): void {
   }
   updateConfig(STATISTICS_RETENTION_PATH, retention);
   if (retention === 'forever') {
-    setClearStatus('已保存：永久保留，不会自动删除任何记录。', false);
+    setClearStatus(t('stats.retentionForeverSaved'), false);
     return;
   }
   const label = select.selectedOptions[0]?.textContent ?? retention;
-  setClearStatus(`已保存自动清理策略：${label}；Server 跨天后首次写入统计时执行清理。`, false);
+  setClearStatus(`${t('stats.retentionSaved')}：${label}；${t('stats.retentionPolicyNote')}`, false);
 }
 
 function setupCalendarResize(): void {

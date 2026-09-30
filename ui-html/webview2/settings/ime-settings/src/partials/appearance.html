@@ -1,10 +1,10 @@
 <div class="content" id="appearence-settings">
-  <div class="content-header"><span>外观</span></div>
+  <div class="content-header"><span data-i18n="appearance.title">外观</span></div>
 
   <!-- 候选窗口预览 -->
   <div class="section sec-candidate-preview">
     <div class="section-header s-h-cand-preview">
-      <div class="section-title">候选窗口预览</div>
+      <div class="section-title" data-i18n="appearance.candidatePreview">候选窗口预览</div>
     </div>
     <div class="cand-preview">
       <div class="candidate wnd-v" id="candidate-wnd-v"></div>
@@ -16,8 +16,8 @@
   <div class="section">
     <div class="section-header">
       <div>
-        <div class="section-title">界面渲染</div>
-        <div class="floating-toolbar-description">用于候选窗、悬浮工具栏和托盘菜单。更改后需重启输入法进程才会生效。</div>
+        <div class="section-title" data-i18n="appearance.uiBackend">界面渲染</div>
+        <div class="floating-toolbar-description" data-i18n="appearance.uiBackendDesc">用于候选窗、悬浮工具栏和托盘菜单。更改后需重启输入法进程才会生效。</div>
       </div>
       <div class="dropdown">
         <button class="dropdown-toggle" id="uiBackendBtn">
@@ -35,32 +35,52 @@
     <div class="divider"></div>
     <div class="section-header">
       <div>
-        <div class="section-title">重启输入法进程</div>
-        <div class="floating-toolbar-description">立即重启输入法后台进程，使渲染方式等需要重启的设置生效。</div>
+        <div class="section-title" data-i18n="appearance.restartServer">重启输入法进程</div>
+        <div class="floating-toolbar-description" data-i18n="appearance.restartServerDesc">立即重启输入法后台进程，使渲染方式等需要重启的设置生效。</div>
       </div>
-      <button type="button" class="restart-server-button" id="restartServerBtn">重启</button>
+      <button type="button" class="restart-server-button" id="restartServerBtn" data-i18n="appearance.restart">重启</button>
     </div>
     <div class="divider"></div>
     <div class="section-header">
       <div>
-        <div class="section-title">设置窗口后台驻留</div>
-        <div class="floating-toolbar-description">关闭设置窗口后在后台保留一段时间，期间重新打开无需等待加载；驻留越久占用内存越久。</div>
+        <div class="section-title" data-i18n="appearance.settingsLinger">设置窗口后台驻留</div>
+        <div class="floating-toolbar-description" data-i18n="appearance.settingsLingerDesc">关闭设置窗口后在后台保留一段时间，期间重新打开无需等待加载；驻留越久占用内存越久。</div>
       </div>
       <div class="dropdown">
         <button class="dropdown-toggle" id="settingsLingerBtn">
-          <span>关闭后立即退出</span>
+          <span data-i18n="appearance.lingerOff">关闭后立即退出</span>
           <div class="arrow">
             <img src="./assets/arrow.svg" alt="arrow">
           </div>
         </button>
         <div class="dropdown-menu" id="settingsLingerMenu">
-          <div class="dropdown-item" data-value="off">关闭后立即退出</div>
-          <div class="dropdown-item" data-value="1m">1 分钟</div>
-          <div class="dropdown-item" data-value="5m">5 分钟</div>
-          <div class="dropdown-item" data-value="10m">10 分钟</div>
-          <div class="dropdown-item" data-value="30m">30 分钟</div>
-          <div class="dropdown-item" data-value="60m">1 小时</div>
-          <div class="dropdown-item" data-value="forever">一直驻留</div>
+          <div class="dropdown-item" data-value="off" data-i18n="appearance.lingerOff">关闭后立即退出</div>
+          <div class="dropdown-item" data-value="1m" data-i18n="appearance.linger1m">1 分钟</div>
+          <div class="dropdown-item" data-value="5m" data-i18n="appearance.linger5m">5 分钟</div>
+          <div class="dropdown-item" data-value="10m" data-i18n="appearance.linger10m">10 分钟</div>
+          <div class="dropdown-item" data-value="30m" data-i18n="appearance.linger30m">30 分钟</div>
+          <div class="dropdown-item" data-value="60m" data-i18n="appearance.linger60m">1 小时</div>
+          <div class="dropdown-item" data-value="forever" data-i18n="appearance.lingerForever">一直驻留</div>
+        </div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="section-header">
+      <div>
+        <div class="section-title" data-i18n="appearance.uiLanguage">界面语言</div>
+        <div class="floating-toolbar-description" data-i18n="appearance.uiLanguageDesc">设置界面的显示语言，切换后立即生效。</div>
+      </div>
+      <div class="dropdown">
+        <button class="dropdown-toggle" id="uiLanguageBtn">
+          <span data-i18n="appearance.langJa">日本語</span>
+          <div class="arrow">
+            <img src="./assets/arrow.svg" alt="arrow">
+          </div>
+        </button>
+        <div class="dropdown-menu" id="uiLanguageMenu">
+          <div class="dropdown-item" data-value="zh" data-i18n="appearance.langZh">中文</div>
+          <div class="dropdown-item" data-value="ja" data-i18n="appearance.langJa">日本語</div>
+          <div class="dropdown-item" data-value="en" data-i18n="appearance.langEn">English</div>
         </div>
       </div>
     </div>
@@ -70,8 +90,8 @@
   <div class="section sec-cand-style">
     <div class="section-header">
       <div>
-        <div class="section-title">候选窗口跟随光标</div>
-        <div class="floating-toolbar-description">关闭后保持首次位置，直到候选窗口消失</div>
+        <div class="section-title" data-i18n="appearance.candidateFollowCursor">候选窗口跟随光标</div>
+        <div class="floating-toolbar-description" data-i18n="appearance.candidateFollowCursorDesc">关闭后保持首次位置，直到候选窗口消失</div>
       </div>
       <div class="ftb-toggle-btn active" id="candidateFollowCursorToggleBtn" role="switch" aria-checked="true" tabindex="0">
         <div class="ftb-toggle-knob"></div>
@@ -80,8 +100,8 @@
     <div class="divider"></div>
     <div class="section-header">
       <div>
-        <div class="section-title">固定候选徽标</div>
-        <div class="floating-toolbar-description">为手动固定的候选词显示角标，便于辨认</div>
+        <div class="section-title" data-i18n="appearance.candidateFixedBadge">固定候选徽标</div>
+        <div class="floating-toolbar-description" data-i18n="appearance.candidateFixedBadgeDesc">为手动固定的候选词显示角标，便于辨认</div>
       </div>
       <div class="ftb-toggle-btn active" id="candidateFixedBadgeToggleBtn" role="switch" aria-checked="true" tabindex="0">
         <div class="ftb-toggle-knob"></div>
@@ -89,28 +109,29 @@
     </div>
     <div class="divider"></div>
     <div class="section-header">
-      <div class="section-title">固定候选徽标样式</div>
+      <div class="section-title" data-i18n="appearance.fixedBadgeStyle">固定候选徽标样式</div>
       <div class="dropdown">
         <button class="dropdown-toggle" id="candFixedBadgeStyleBtn">
-          <span>回形针</span>
+          <span data-i18n="appearance.badgePaperclip">回形针</span>
           <div class="arrow">
             <img src="./assets/arrow.svg" alt="arrow">
           </div>
         </button>
         <div class="dropdown-menu" id="candFixedBadgeStyleMenu">
-          <div class="dropdown-item" data-value="paperclip">回形针</div>
-          <div class="dropdown-item" data-value="pushpin">图钉</div>
-          <div class="dropdown-item" data-value="dot">圆点</div>
+          <div class="dropdown-item" data-value="paperclip" data-i18n="appearance.badgePaperclip">回形针</div>
+          <div class="dropdown-item" data-value="pushpin" data-i18n="appearance.badgePushpin">图钉</div>
+          <div class="dropdown-item" data-value="dot" data-i18n="appearance.badgeDot">圆点</div>
         </div>
       </div>
     </div>
     <div class="divider"></div>
     <div class="section-header">
-      <div class="section-title">候选窗主字体</div>
+      <div class="section-title" data-i18n="appearance.candMainFont">候选窗主字体</div>
       <div class="dropdown">
         <div class="dropdown-toggle font-combobox" id="candEnglishFontBtn">
           <input class="font-search-input" type="text" value="Segoe UI"
                  autocomplete="off" spellcheck="false" aria-label="搜索候选窗主字体"
+                 data-i18n-attr="aria-label:appearance.searchCandFont"
                  aria-controls="candEnglishFontMenu" aria-autocomplete="list">
           <div class="arrow">
             <img src="./assets/arrow.svg" alt="arrow">
@@ -122,14 +143,14 @@
     <div class="divider"></div>
     <div class="section-header">
       <div>
-        <div class="section-title">候选窗补充字体</div>
-        <div class="floating-toolbar-description">主字体缺字时按以下顺序回落，最后使用系统字体。</div>
+        <div class="section-title" data-i18n="appearance.candFallbackFont">候选窗补充字体</div>
+        <div class="floating-toolbar-description" data-i18n="appearance.candFallbackFontDesc">主字体缺字时按以下顺序回落，最后使用系统字体。</div>
       </div>
     </div>
     <div id="candFallbackFontList" class="fallback-font-list" role="group" aria-label="补充字体回落顺序"></div>
     <div class="divider"></div>
     <div class="section-header">
-      <div class="section-title">候选窗字号</div>
+      <div class="section-title" data-i18n="appearance.candFontSize">候选窗字号</div>
       <div class="dropdown">
         <button class="dropdown-toggle" id="candFontSizeBtn">
           <span>16</span>
@@ -164,7 +185,7 @@
     </div>
     <div class="divider"></div>
     <div class="section-header">
-      <div class="section-title">候选窗预编辑字号</div>
+      <div class="section-title" data-i18n="appearance.candPreeditFontSize">候选窗预编辑字号</div>
       <div class="dropdown">
         <button class="dropdown-toggle" id="candPreeditFontSizeBtn">
           <span>16</span>
@@ -197,15 +218,15 @@
     </div>
     <div class="divider"></div>
     <div class="section-header">
-      <div class="section-title">候选文字颜色</div>
+      <div class="section-title" data-i18n="appearance.candTextColor">候选文字颜色</div>
       <div class="cand-color-control">
-        <input type="color" id="candTextColorInput" value="#e9e8e8" title="自定义颜色">
-        <button type="button" class="cand-color-reset" id="candTextColorResetBtn">跟随主题</button>
+        <input type="color" id="candTextColorInput" value="#e9e8e8" title="自定义颜色" data-i18n-attr="title:appearance.customColor">
+        <button type="button" class="cand-color-reset" id="candTextColorResetBtn" data-i18n="appearance.followTheme">跟随主题</button>
       </div>
     </div>
     <div class="divider"></div>
     <div class="section-header">
-      <div class="section-title">每页候选项数量</div>
+      <div class="section-title" data-i18n="appearance.pageSize">每页候选项数量</div>
       <div class="dropdown">
         <button class="dropdown-toggle" id="candPageSizeBtn">
           <span>6</span>
@@ -230,136 +251,136 @@
   <div class="section sec-theme">
     <div class="section-header theme-toggle-header">
       <button class="theme-surface-expand" id="themeSurfaceExpand" type="button" aria-expanded="false" aria-controls="themeSurfaceDetails">
-        <span class="section-title">主题模式</span><span class="theme-surface-chevron" aria-hidden="true"></span>
+        <span class="section-title" data-i18n="appearance.themeMode">主题模式</span><span class="theme-surface-chevron" aria-hidden="true"></span>
       </button>
       <div class="dropdown">
         <button class="dropdown-toggle" id="themeBtn">
-          <span>深色</span>
+          <span data-i18n="appearance.themeDark">深色</span>
           <div class="arrow">
             <img src="./assets/arrow.svg" alt="arrow">
           </div>
         </button>
         <div class="dropdown-menu" id="themeMenu">
-          <div class="dropdown-item" data-value="dark">深色</div>
-          <div class="dropdown-item" data-value="light">浅色</div>
-          <div class="dropdown-item" data-value="system">跟随系统</div>
+          <div class="dropdown-item" data-value="dark" data-i18n="appearance.themeDark">深色</div>
+          <div class="dropdown-item" data-value="light" data-i18n="appearance.themeLight">浅色</div>
+          <div class="dropdown-item" data-value="system" data-i18n="appearance.themeSystem">跟随系统</div>
         </div>
       </div>
     </div>
     <!-- 分表面主题 -->
     <div class="theme-surface-details" id="themeSurfaceDetails">
     <div class="section-header">
-      <div class="section-title">设置界面主题</div>
+      <div class="section-title" data-i18n="appearance.settingsTheme">设置界面主题</div>
       <div class="dropdown">
         <button class="dropdown-toggle" id="settingsThemeBtn">
-          <span>跟随全局</span>
+          <span data-i18n="appearance.themeFollowGlobal">跟随全局</span>
           <div class="arrow">
             <img src="./assets/arrow.svg" alt="arrow">
           </div>
         </button>
         <div class="dropdown-menu" id="settingsThemeMenu">
-          <div class="dropdown-item" data-value="follow">跟随全局</div>
-          <div class="dropdown-item" data-value="dark">深色</div>
-          <div class="dropdown-item" data-value="light">浅色</div>
+          <div class="dropdown-item" data-value="follow" data-i18n="appearance.themeFollowGlobal">跟随全局</div>
+          <div class="dropdown-item" data-value="dark" data-i18n="appearance.themeDark">深色</div>
+          <div class="dropdown-item" data-value="light" data-i18n="appearance.themeLight">浅色</div>
         </div>
       </div>
     </div>
     <div class="divider"></div>
     <div class="section-header">
-      <div class="section-title">候选窗口主题</div>
+      <div class="section-title" data-i18n="appearance.candTheme">候选窗口主题</div>
       <div class="dropdown">
         <button class="dropdown-toggle" id="candThemeBtn">
-          <span>跟随全局</span>
+          <span data-i18n="appearance.themeFollowGlobal">跟随全局</span>
           <div class="arrow">
             <img src="./assets/arrow.svg" alt="arrow">
           </div>
         </button>
         <div class="dropdown-menu" id="candThemeMenu">
-          <div class="dropdown-item" data-value="follow">跟随全局</div>
-          <div class="dropdown-item" data-value="dark">深色</div>
-          <div class="dropdown-item" data-value="light">浅色</div>
+          <div class="dropdown-item" data-value="follow" data-i18n="appearance.themeFollowGlobal">跟随全局</div>
+          <div class="dropdown-item" data-value="dark" data-i18n="appearance.themeDark">深色</div>
+          <div class="dropdown-item" data-value="light" data-i18n="appearance.themeLight">浅色</div>
         </div>
       </div>
     </div>
     <div class="divider"></div>
     <div class="section-header">
-      <div class="section-title">悬浮工具栏主题</div>
+      <div class="section-title" data-i18n="appearance.ftbTheme">悬浮工具栏主题</div>
       <div class="dropdown">
         <button class="dropdown-toggle" id="ftbThemeBtn">
-          <span>跟随全局</span>
+          <span data-i18n="appearance.themeFollowGlobal">跟随全局</span>
           <div class="arrow">
             <img src="./assets/arrow.svg" alt="arrow">
           </div>
         </button>
         <div class="dropdown-menu" id="ftbThemeMenu">
-          <div class="dropdown-item" data-value="follow">跟随全局</div>
-          <div class="dropdown-item" data-value="dark">深色</div>
-          <div class="dropdown-item" data-value="light">浅色</div>
+          <div class="dropdown-item" data-value="follow" data-i18n="appearance.themeFollowGlobal">跟随全局</div>
+          <div class="dropdown-item" data-value="dark" data-i18n="appearance.themeDark">深色</div>
+          <div class="dropdown-item" data-value="light" data-i18n="appearance.themeLight">浅色</div>
         </div>
       </div>
     </div>
     <div class="divider"></div>
     <div class="section-header">
-      <div class="section-title">菜单主题</div>
+      <div class="section-title" data-i18n="appearance.menuTheme">菜单主题</div>
       <div class="dropdown">
         <button class="dropdown-toggle" id="menuThemeBtn">
-          <span>跟随全局</span>
+          <span data-i18n="appearance.themeFollowGlobal">跟随全局</span>
           <div class="arrow">
             <img src="./assets/arrow.svg" alt="arrow">
           </div>
         </button>
         <div class="dropdown-menu" id="menuThemeMenu">
-          <div class="dropdown-item" data-value="follow">跟随全局</div>
-          <div class="dropdown-item" data-value="dark">深色</div>
-          <div class="dropdown-item" data-value="light">浅色</div>
+          <div class="dropdown-item" data-value="follow" data-i18n="appearance.themeFollowGlobal">跟随全局</div>
+          <div class="dropdown-item" data-value="dark" data-i18n="appearance.themeDark">深色</div>
+          <div class="dropdown-item" data-value="light" data-i18n="appearance.themeLight">浅色</div>
         </div>
       </div>
     </div>
     <div class="divider"></div>
     <div class="section-header">
-      <div class="section-title">表情面板主题</div>
+      <div class="section-title" data-i18n="appearance.emojiTheme">表情面板主题</div>
       <div class="dropdown">
-        <button class="dropdown-toggle" id="emojiThemeBtn"><span>跟随全局</span><div class="arrow"><img src="./assets/arrow.svg" alt="arrow"></div></button>
+        <button class="dropdown-toggle" id="emojiThemeBtn"><span data-i18n="appearance.themeFollowGlobal">跟随全局</span><div class="arrow"><img src="./assets/arrow.svg" alt="arrow"></div></button>
         <div class="dropdown-menu" id="emojiThemeMenu">
-          <div class="dropdown-item" data-value="follow">跟随全局</div>
-          <div class="dropdown-item" data-value="dark">深色</div>
-          <div class="dropdown-item" data-value="light">浅色</div>
+          <div class="dropdown-item" data-value="follow" data-i18n="appearance.themeFollowGlobal">跟随全局</div>
+          <div class="dropdown-item" data-value="dark" data-i18n="appearance.themeDark">深色</div>
+          <div class="dropdown-item" data-value="light" data-i18n="appearance.themeLight">浅色</div>
         </div>
       </div>
     </div>
     <div class="divider"></div>
     <div class="section-header">
-      <div class="section-title">屏幕键盘主题</div>
+      <div class="section-title" data-i18n="appearance.screenkbTheme">屏幕键盘主题</div>
       <div class="dropdown">
-        <button class="dropdown-toggle" id="screenKeyboardThemeBtn"><span>跟随全局</span><div class="arrow"><img src="./assets/arrow.svg" alt="arrow"></div></button>
+        <button class="dropdown-toggle" id="screenKeyboardThemeBtn"><span data-i18n="appearance.themeFollowGlobal">跟随全局</span><div class="arrow"><img src="./assets/arrow.svg" alt="arrow"></div></button>
         <div class="dropdown-menu" id="screenKeyboardThemeMenu">
-          <div class="dropdown-item" data-value="follow">跟随全局</div>
-          <div class="dropdown-item" data-value="dark">深色</div>
-          <div class="dropdown-item" data-value="light">浅色</div>
+          <div class="dropdown-item" data-value="follow" data-i18n="appearance.themeFollowGlobal">跟随全局</div>
+          <div class="dropdown-item" data-value="dark" data-i18n="appearance.themeDark">深色</div>
+          <div class="dropdown-item" data-value="light" data-i18n="appearance.themeLight">浅色</div>
         </div>
       </div>
     </div>
     <div class="divider"></div>
     <div class="section-header">
-      <div class="section-title">手写识别板主题</div>
+      <div class="section-title" data-i18n="appearance.handwritingTheme">手写识别板主题</div>
       <div class="dropdown">
-        <button class="dropdown-toggle" id="handwritingThemeBtn"><span>跟随全局</span><div class="arrow"><img src="./assets/arrow.svg" alt="arrow"></div></button>
+        <button class="dropdown-toggle" id="handwritingThemeBtn"><span data-i18n="appearance.themeFollowGlobal">跟随全局</span><div class="arrow"><img src="./assets/arrow.svg" alt="arrow"></div></button>
         <div class="dropdown-menu" id="handwritingThemeMenu">
-          <div class="dropdown-item" data-value="follow">跟随全局</div>
-          <div class="dropdown-item" data-value="dark">深色</div>
-          <div class="dropdown-item" data-value="light">浅色</div>
+          <div class="dropdown-item" data-value="follow" data-i18n="appearance.themeFollowGlobal">跟随全局</div>
+          <div class="dropdown-item" data-value="dark" data-i18n="appearance.themeDark">深色</div>
+          <div class="dropdown-item" data-value="light" data-i18n="appearance.themeLight">浅色</div>
         </div>
       </div>
     </div>
     <div class="divider"></div>
     <div class="section-header">
-      <div class="section-title">语音输入弹出条主题</div>
+      <div class="section-title" data-i18n="appearance.voiceTheme">语音输入弹出条主题</div>
       <div class="dropdown">
-        <button class="dropdown-toggle" id="voiceThemeBtn"><span>跟随全局</span><div class="arrow"><img src="./assets/arrow.svg" alt="arrow"></div></button>
+        <button class="dropdown-toggle" id="voiceThemeBtn"><span data-i18n="appearance.themeFollowGlobal">跟随全局</span><div class="arrow"><img src="./assets/arrow.svg" alt="arrow"></div></button>
         <div class="dropdown-menu" id="voiceThemeMenu">
-          <div class="dropdown-item" data-value="follow">跟随全局</div>
-          <div class="dropdown-item" data-value="dark">深色</div>
-          <div class="dropdown-item" data-value="light">浅色</div>
+          <div class="dropdown-item" data-value="follow" data-i18n="appearance.themeFollowGlobal">跟随全局</div>
+          <div class="dropdown-item" data-value="dark" data-i18n="appearance.themeDark">深色</div>
+          <div class="dropdown-item" data-value="light" data-i18n="appearance.themeLight">浅色</div>
         </div>
       </div>
     </div>
@@ -369,17 +390,17 @@
   <!-- 候选项排列方式 -->
   <div class="section sec-arrange">
     <div class="section-header">
-      <div class="section-title">候选项排列方式</div>
+      <div class="section-title" data-i18n="appearance.arrange">候选项排列方式</div>
       <div class="dropdown">
         <button class="dropdown-toggle" id="arrangeBtn">
-          <span>纵向</span>
+          <span data-i18n="appearance.arrangeVertical">纵向</span>
           <div class="arrow">
             <img src="./assets/arrow.svg" alt="arrow">
           </div>
         </button>
         <div class="dropdown-menu" id="arrangeMenu">
-          <div class="dropdown-item" data-value="horizontal">横向</div>
-          <div class="dropdown-item" data-value="vertical">纵向</div>
+          <div class="dropdown-item" data-value="horizontal" data-i18n="appearance.arrangeHorizontal">横向</div>
+          <div class="dropdown-item" data-value="vertical" data-i18n="appearance.arrangeVertical">纵向</div>
         </div>
       </div>
     </div>
@@ -388,16 +409,16 @@
   <!-- 行内预编辑 -->
   <div class="section">
     <div class="section-header">
-      <div class="section-title">行内预编辑</div>
+      <div class="section-title" data-i18n="appearance.tsfPreedit">行内预编辑</div>
       <div class="dropdown">
         <button class="dropdown-toggle" id="tsfPreeditStyleBtn">
-          <span>原始按键</span>
+          <span data-i18n="appearance.tsfRaw">原始按键</span>
           <img src="./assets/arrow.svg" alt="▼">
         </button>
         <div class="dropdown-menu" id="tsfPreeditStyleMenu">
-          <div class="dropdown-item" data-value="raw">原始按键</div>
-          <div class="dropdown-item" data-value="pinyin">拼音分词</div>
-          <div class="dropdown-item" data-value="empty">不显示</div>
+          <div class="dropdown-item" data-value="raw" data-i18n="appearance.tsfRaw">原始按键</div>
+          <div class="dropdown-item" data-value="pinyin" data-i18n="appearance.tsfPinyin">拼音分词</div>
+          <div class="dropdown-item" data-value="empty" data-i18n="appearance.tsfEmpty">不显示</div>
         </div>
       </div>
     </div>
@@ -406,17 +427,17 @@
   <!-- 候选窗预编辑 -->
   <div class="section">
     <div class="section-header">
-      <div class="section-title">候选窗预编辑</div>
+      <div class="section-title" data-i18n="appearance.candPreedit">候选窗预编辑</div>
       <div class="dropdown">
         <button class="dropdown-toggle" id="candPreeditStyleBtn">
-          <span>拼音分词</span>
+          <span data-i18n="appearance.tsfPinyin">拼音分词</span>
           <div class="arrow">
             <img src="./assets/arrow.svg" alt="arrow">
           </div>
         </button>
         <div class="dropdown-menu" id="candPreeditStyleMenu">
-          <div class="dropdown-item" data-value="pinyin">拼音分词</div>
-          <div class="dropdown-item" data-value="empty">不显示</div>
+          <div class="dropdown-item" data-value="pinyin" data-i18n="appearance.tsfPinyin">拼音分词</div>
+          <div class="dropdown-item" data-value="empty" data-i18n="appearance.tsfEmpty">不显示</div>
         </div>
       </div>
     </div>

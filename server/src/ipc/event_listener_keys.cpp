@@ -654,7 +654,7 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
         if (g_authoritative_cn_mode != 0 && GetConfiguredCharacterSetShortcutEnabled())
         {
             const std::string previous = GetConfiguredCharacterSet();
-            const std::string next = previous == "traditional" ? "simplified" : "traditional";
+            const std::string next = previous == "katakana" ? "hiragana" : "katakana";
             // The packet's point[] is this key's badge anchor, not the
             // candidate anchor: read it locally and leave Global::Point alone.
             // Legacy clients leave the struct-default point there instead.
@@ -662,7 +662,7 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
                 ClientNegotiatedCaretStateIndicator(client_id))
             {
                 PostCaretStateBadge(FanyImeUi::SingleStateBadge(FanyImeUi::CaretStateKind::CharacterSet,
-                                                                GetConfiguredCharacterSet() == "traditional"),
+                                                                GetConfiguredCharacterSet() == "katakana"),
                                     namedpipeData.point[0], namedpipeData.point[1]);
             }
         }
@@ -739,21 +739,9 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
     if (chinese_scheme && !g_english_input_mode && GetConfiguredKaomojiModeEnabled() && input_before_key.empty() &&
         Global::Keycode == 'M' && Global::Wch == L'M' && shift_only)
         g_kaomoji_mode_triggered = true;
-    if (chinese_scheme && !g_english_input_mode && GetConfiguredJianpinModeEnabled() && input_before_key.empty() &&
-        Global::Keycode == 'J' && Global::Wch == L'J' && shift_only)
-        g_jianpin_mode_triggered = true;
     if (chinese_scheme && !g_english_input_mode && GetConfiguredYModeEnabled() && input_before_key.empty() &&
         Global::Keycode == 'Y' && Global::Wch == L'Y' && shift_only)
         g_y_mode_triggered = true;
-    const bool r_mode_trigger_key = chinese_scheme && !g_english_input_mode && GetConfiguredRModeEnabled() &&
-                                    input_before_key.empty() && Global::Keycode == 'R' && Global::Wch == L'R' &&
-                                    shift_only;
-    if (r_mode_trigger_key)
-    {
-        g_r_mode_original_session = g_inputSession;
-        g_inputSession = CreateTemporaryJapaneseInputSession();
-        g_r_mode_triggered = true;
-    }
 
     // F6-F11 pin the kana form of the leading Japanese candidate, matching the
     // Microsoft Japanese IME: F6 hiragana, F7 full-width katakana, F8
