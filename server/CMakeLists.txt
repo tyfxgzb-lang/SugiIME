@@ -3,7 +3,7 @@ if(POLICY CMP0141)
     cmake_policy(SET CMP0141 NEW)
 endif()
 
-set(PROJECT_NAME "MetasequoiaImeServer")
+set(PROJECT_NAME "sugiimeServer")
 
 cmake_policy(SET CMP0167 NEW)
 project(${PROJECT_NAME} VERSION 1.0)
