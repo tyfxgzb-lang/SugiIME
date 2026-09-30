@@ -556,14 +556,28 @@ function setupUiLanguageDropdown(): void {
 
   applyLabel(getLanguage());
 
-  menu.querySelectorAll('.dropdown-item').forEach((item) => {
-    item.addEventListener('click', () => {
-      const value = item.getAttribute('data-value');
-      if (value === 'zh' || value === 'ja' || value === 'en') {
-        setLanguage(value);
-        applyLabel(value);
-      }
+  btn.addEventListener('click', (e: Event) => {
+    e.stopPropagation();
+    const willOpen = !menu.classList.contains('open');
+    document.querySelectorAll('.dropdown-menu.open').forEach((openMenu) => {
+      if (openMenu !== menu) openMenu.classList.remove('open');
     });
+    if (willOpen) {
+      menu.classList.add('open');
+    } else {
+      menu.classList.remove('open');
+    }
+  });
+
+  menu.addEventListener('click', (event: Event) => {
+    const item = (event.target as HTMLElement | null)?.closest('.dropdown-item') as HTMLElement | null;
+    if (!item) return;
+    const value = item.getAttribute('data-value');
+    if (value === 'zh' || value === 'ja' || value === 'en') {
+      setLanguage(value);
+      applyLabel(value);
+      menu.classList.remove('open');
+    }
   });
 }
 
