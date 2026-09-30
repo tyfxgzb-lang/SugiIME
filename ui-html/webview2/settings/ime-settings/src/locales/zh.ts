@@ -371,12 +371,6 @@ export const zh: Record<string, string> = {
   'ai.candidateLimitDesc': 'AI 返回的最大候选数量。',
   'ai.prompt': '提示词',
   'ai.promptDesc': '自定义 AI 联想提示词，留空使用默认提示。',
-  'toolbar.posTopLeft': '左上方',
-  'toolbar.posTop': '正上方',
-  'toolbar.posTopRight': '右上方',
-  'toolbar.posBottomLeft': '左下方',
-  'toolbar.posBottom': '正下方',
-  'toolbar.posBottomRight': '右下方',
   'toolbar.caretPreviewLabel': '光标状态提示预览：每个文字光标',
   'toolbar.caretPreviewDesc': '分别显示日、日文标点和日文模式、全角、平假名',
 

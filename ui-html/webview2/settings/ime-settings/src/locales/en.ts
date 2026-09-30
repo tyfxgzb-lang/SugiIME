@@ -369,12 +369,6 @@ export const en: Record<string, string> = {
   'ai.candidateLimitDesc': 'Maximum number of candidates returned by AI.',
   'ai.prompt': 'Prompt',
   'ai.promptDesc': 'Customize the AI suggestion prompt. Leave empty to use the default prompt.',
-  'toolbar.posTopLeft': 'top-left',
-  'toolbar.posTop': 'top',
-  'toolbar.posTopRight': 'top-right',
-  'toolbar.posBottomLeft': 'bottom-left',
-  'toolbar.posBottom': 'bottom',
-  'toolbar.posBottomRight': 'bottom-right',
   'toolbar.caretPreviewLabel': 'Caret state preview: each text caret ',
   'toolbar.caretPreviewDesc': ' shows Japanese, Japanese punctuation, Japanese mode, full-width, hiragana',
 

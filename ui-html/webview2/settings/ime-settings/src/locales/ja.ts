@@ -369,12 +369,6 @@ export const ja: Record<string, string> = {
   'ai.candidateLimitDesc': 'AI が返す最大候補数です。',
   'ai.prompt': 'プロンプト',
   'ai.promptDesc': 'AI 連想用プロンプトをカスタマイズします。空欄の場合は既定のプロンプトを使用します。',
-  'toolbar.posTopLeft': '左上',
-  'toolbar.posTop': '真上',
-  'toolbar.posTopRight': '右上',
-  'toolbar.posBottomLeft': '左下',
-  'toolbar.posBottom': '真下',
-  'toolbar.posBottomRight': '右下',
   'toolbar.caretPreviewLabel': 'キャレット状態プレビュー：各カーソルの',
   'toolbar.caretPreviewDesc': 'に、日本語・日本語記号・日本語モード・全角・ひらがなを表示します',
 
