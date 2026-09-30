@@ -340,7 +340,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     $<$<CONFIG:Release>:${WEBVIEW2_LOADER_RELEASE}>
 )
 
-set(SETTINGS_EXECUTABLE_NAME "MetasequoiaImeSettings")
+set(SETTINGS_EXECUTABLE_NAME "sugiimeSettings")
 add_executable(${SETTINGS_EXECUTABLE_NAME} WIN32
     "./src/settings/settings_app.cpp"
     "./src/settings/api_credential_test.cpp"

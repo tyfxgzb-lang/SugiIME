@@ -1,4 +1,4 @@
-﻿#include "settings_launcher.h"
+#include "settings_launcher.h"
 
 #include <Windows.h>
 #include <filesystem>
@@ -62,7 +62,7 @@ bool OpenSettingsApplication()
     if (const HWND existing_window = FindWindowW(kSettingsWindowClass, nullptr))
         return ActivateSettingsWindow(existing_window, kActivateSettings);
 
-    return OpenSiblingApplication(L"MetasequoiaImeSettings.exe", nullptr);
+    return OpenSiblingApplication(L"sugiimeSettings.exe", nullptr);
 }
 
 bool OpenSettingsAboutApplication()
@@ -77,7 +77,7 @@ bool OpenSettingsAboutApplication()
     module_path.resize(length);
 
     const std::filesystem::path application_path =
-        std::filesystem::path(module_path).parent_path() / L"MetasequoiaImeSettings.exe";
+        std::filesystem::path(module_path).parent_path() / L"sugiimeSettings.exe";
     const HINSTANCE result = ShellExecuteW(nullptr, L"open", application_path.c_str(), L"--about",
                                            application_path.parent_path().c_str(), SW_SHOWNORMAL);
     return reinterpret_cast<INT_PTR>(result) > 32;
