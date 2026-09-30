@@ -140,14 +140,16 @@ if 'weight' not in names or pk != ['word', 'display']:
         throw "英文词库数据库 schema 检查失败：$englishDb"
     }
     Assert-PathExists -LiteralPath $othersDb -Description '杂项数据库 others.db'
-    # 摘要校验留在 build-language-model.ps1 里：它既有 lock.json 又刚生成完文件。
-    # 这里只确认文件在，与 msime.db 一样 —— 词库的摘要也是由 product_lock.py 校验的。
-    Assert-PathExists -LiteralPath $languageModel `
-        -Description '词格整句语言模型 sc.lm（用 scripts\build-language-model.ps1 生成）'
-    Assert-PathExists -LiteralPath $languageModelNotice -Description 'libime 语言模型授权声明 NOTICE.md'
-    Assert-PathExists -LiteralPath $neuralModelDesktop -Description '神经整句模型 sentence-model-desktop.safetensors'
-    Assert-PathExists -LiteralPath $neuralModelKeyboard -Description '神经整句模型 sentence-model.safetensors'
-    Assert-PathExists -LiteralPath $neuralModelNotice -Description 'chinese-ime-lm 授权声明 NOTICE.md'
+    if (-not $Sugi) {
+        # 摘要校验留在 build-language-model.ps1 里：它既有 lock.json 又刚生成完文件。
+        # 这里只确认文件在，与 msime.db 一样 —— 词库的摘要也是由 product_lock.py 校验的。
+        Assert-PathExists -LiteralPath $languageModel `
+            -Description '词格整句语言模型 sc.lm（用 scripts\build-language-model.ps1 生成）'
+        Assert-PathExists -LiteralPath $languageModelNotice -Description 'libime 语言模型授权声明 NOTICE.md'
+        Assert-PathExists -LiteralPath $neuralModelDesktop -Description '神经整句模型 sentence-model-desktop.safetensors'
+        Assert-PathExists -LiteralPath $neuralModelKeyboard -Description '神经整句模型 sentence-model.safetensors'
+        Assert-PathExists -LiteralPath $neuralModelNotice -Description 'chinese-ime-lm 授权声明 NOTICE.md'
+    }
 }
 
 $targetAppData = Join-Path $PSScriptRoot 'app_data'
